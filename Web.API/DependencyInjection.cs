@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using Application.Interfaces;
+using Application.Security.Services;
+using Infrastructure.Services;
 using Web.API.Middlewares;
 
 namespace Web.API
@@ -12,6 +14,13 @@ namespace Web.API
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddTransient<GlobalExceptionHandlingMiddleware>();
+
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+            services.AddAutoMapper(typeof(DependencyInjection));
+
             return services;
         }
     }

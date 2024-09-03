@@ -1,7 +1,7 @@
-using Application.Customers.Create;
-using Domain.Customers;
+using Application.Sales.Customers.Create;
 using Domain.DomainErrors;
 using Domain.Primitives;
+using Domain.Sales.Customers;
 
 namespace UnitTest.Application.Customer.UnitTests.Create
 {

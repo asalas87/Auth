@@ -1,6 +1,7 @@
 ﻿using Application.Data;
-using Domain.Customers;
 using Domain.Primitives;
+using Domain.Sales.Entities;
+using Domain.Secutiry.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ namespace Infrastructure.Persistence
     {
         private readonly IPublisher _publisher;
         public DbSet<Customer> Customers { get; set; }
+        public DbSet<User> Users { get; set; }
         public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
         {
             _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
