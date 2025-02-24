@@ -26,7 +26,7 @@ namespace Application.Security.Users.Create
             if (await _userRepository.GetByEmailAsync(request.Email) is not User user)
                 return Error.NotFound("User.NotFound", "The user with the provide email was not found.");
 
-            if (_passwordHasher.VerifyPassword(user.Password, user!.Password))
+            if (!_passwordHasher.VerifyPassword(request.Password, user!.Password))
                 return Error.NotFound("User.EmailOrPass", "Email o password incorrecto");
 
             return user;

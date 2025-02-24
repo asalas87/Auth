@@ -35,6 +35,12 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "React": {
+        "commandName": "Executable",
+        "executablePath": "C:\\Program Files\\nodejs\\npm.cmd",
+        "workingDirectory": "..\\react.app",
+        "arguments": "run dev"
       }
     }
   }

@@ -20,8 +20,8 @@ namespace Web.API.Controllers.Security
             var createRegisterResult = await _service.RegisterUserAsync(dto);
 
             return createRegisterResult.Match(
-                value => Ok(),
-                errors => Problem(errors)
+                value => Ok(createRegisterResult.Value),
+                errors => Problem(createRegisterResult.FirstError.Description)
                 );
         }
 
@@ -30,9 +30,13 @@ namespace Web.API.Controllers.Security
         {
             var createLoginResult = await _service.LoginUserAsync(dto);
 
+            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:5173");
+            Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
             return createLoginResult.Match(
-                value => Ok(),
-                errors => Problem(errors)
+                value => Ok(createLoginResult.Value),
+                errors => Problem(createLoginResult.FirstError.Description)
                 );
         }
     }
