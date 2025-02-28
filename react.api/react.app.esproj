@@ -11,6 +11,8 @@
   <ItemGroup>
     <Folder Include="src\Common\" />
     <Folder Include="src\Helpers\" />
+    <Folder Include="src\Security\Hooks\" />
+    <Folder Include="src\Security\Context\" />
     <Folder Include="src\Security\Views\" />
   </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ namespace Web.API.Controllers.Security
             _service = service ?? throw new ArgumentException(nameof(service));
         }
 
-        [HttpPost(Name = "register")]
+        [HttpPost("register", Name = "register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
             var createRegisterResult = await _service.RegisterUserAsync(dto);
@@ -25,19 +25,15 @@ namespace Web.API.Controllers.Security
                 );
         }
 
-        [HttpGet(Name = "login")]
-        public async Task<IActionResult> Login([FromQuery] LoginDTO dto)
+        [HttpPost("login", Name = "login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             var createLoginResult = await _service.LoginUserAsync(dto);
-
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:5173");
-            Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
             return createLoginResult.Match(
                 value => Ok(createLoginResult.Value),
                 errors => Problem(createLoginResult.FirstError.Description)
-                );
+            );
         }
     }
 }
