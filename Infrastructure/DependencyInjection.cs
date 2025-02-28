@@ -21,7 +21,7 @@ namespace Infrastructure
 
         private static IServiceCollection AddPersistense(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("SqlServer"), b => b.MigrationsAssembly("Web.API")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("SqlServer"), b => b.MigrationsAssembly("Infrastructure")));
             services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
             services.AddScoped<ICustomerRepository, CustomerRepository>();

@@ -31,10 +31,14 @@ app.UseExceptionHandler("/error");
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseAuthorization();
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
-app.Run();
+app.UseCors("AllowReactApp");
+
+await app.RunAsync();

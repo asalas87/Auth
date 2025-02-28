@@ -14,26 +14,26 @@ namespace Web.API.Controllers.Security
             _service = service ?? throw new ArgumentException(nameof(service));
         }
 
-        [HttpPost(Name = "register")]
+        [HttpPost("register", Name = "register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
             var createRegisterResult = await _service.RegisterUserAsync(dto);
 
             return createRegisterResult.Match(
-                value => Ok(),
-                errors => Problem(errors)
+                value => Ok(createRegisterResult.Value),
+                errors => Problem(createRegisterResult.FirstError.Description)
                 );
         }
 
-        [HttpGet(Name = "login")]
-        public async Task<IActionResult> Login([FromQuery] LoginDTO dto)
+        [HttpPost("login", Name = "login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
             var createLoginResult = await _service.LoginUserAsync(dto);
 
             return createLoginResult.Match(
-                value => Ok(),
-                errors => Problem(errors)
-                );
+                value => Ok(createLoginResult.Value),
+                errors => Problem(createLoginResult.FirstError.Description)
+            );
         }
     }
 }
