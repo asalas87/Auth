@@ -9,25 +9,20 @@ namespace Web.API
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
-            //services.AddCors(options =>
-            //{
-            //    options.AddDefaultPolicy(policy =>
-            //                      {
-            //                          policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
-            //                          .AllowAnyHeader()
-            //                          .AllowAnyMethod();
-            //                      });
-            //});
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactApp",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:5173") // URL del frontend
+                        policy.WithOrigins("https://localhost:5173") // URL del frontend
                               .AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials(); // Si usas cookies o autenticación
                     });
+            });
+            services.AddHttpsRedirection(options =>
+            {
+                options.HttpsPort = 7277;  // Asegúrate de usar el puerto correcto
             });
             services.AddControllers();
             services.AddEndpointsApiExplorer();
