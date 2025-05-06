@@ -33,12 +33,12 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseCors("AllowReactApp");
+
 app.UseAuthorization();
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.MapControllers();
-
-app.UseCors("AllowReactApp");
 
 await app.RunAsync();

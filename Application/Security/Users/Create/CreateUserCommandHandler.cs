@@ -27,7 +27,7 @@ namespace Application.Security.Users.Create
         {
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
             if (existingUser != null)
-                return Error.NotFound("User.EmailRegistrated", "El email ya está registrado.");
+                return Error.Failure("User.EmailRegistrated", "El email ya está registrado.");
 
             var user = new User(new UserId(Guid.NewGuid()), request.Name, _passwordHasher.HashPassword(request.Password), request.Email, true);
             await _userRepository.AddAsync(user);

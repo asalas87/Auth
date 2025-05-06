@@ -21,7 +21,7 @@ namespace Web.API.Controllers.Security
 
             return createRegisterResult.Match(
                 value => Ok(createRegisterResult.Value),
-                errors => Problem(createRegisterResult.FirstError.Description)
+                errors => Problem(createRegisterResult.Errors)
                 );
         }
 
@@ -32,7 +32,7 @@ namespace Web.API.Controllers.Security
 
             return createLoginResult.Match(
                 value => Ok(createLoginResult.Value),
-                errors => Problem(createLoginResult.FirstError.Description)
+                errors => Problem(createLoginResult.Errors)
             );
         }
     }

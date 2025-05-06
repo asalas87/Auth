@@ -24,10 +24,10 @@ namespace Application.Security.Users.Create
         public async Task<ErrorOr<User>> Handle(GetUserByEmailQuery request, CancellationToken cancellationToken)
         {
             if (await _userRepository.GetByEmailAsync(request.Email) is not User user)
-                return Error.NotFound("User.NotFound", "The user with the provide email was not found.");
+                return Error.Failure("User.NotFound", "The user with the provide email was not found.");
 
             if (!_passwordHasher.VerifyPassword(request.Password, user!.Password))
-                return Error.NotFound("User.EmailOrPass", "Email o password incorrecto");
+                return Error.Failure("User.EmailOrPass", "Email o password incorrecto");
 
             return user;
         }
