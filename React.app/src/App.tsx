@@ -1,13 +1,17 @@
-import AuthView from './Security/Views/AuthView';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRoutes } from "react-router-dom";
+import AppRoutes from "./Routes/AppRoutes";
 
 function App() {
+    const routes = AppRoutes();
+    const content = useRoutes(routes);
+
     return (
-        <div>
-            <ToastContainer />
-            <AuthView />
-        </div>
+        <>
+            <ToastContainer position="top-right" autoClose={3000} />
+            {content}
+        </>
     );
 }
 

@@ -1,25 +1,27 @@
 import { useState } from 'react';
 import { useAuthContext } from '../Context/AuthContext';
 import { IRegisterDTO } from '../Interfaces/IRegisterDTO';
+import { useNavigate } from "react-router-dom";
 
 const RegisterPanel = () => {
     const { signUp } = useAuthContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleRegister = async () => {
         const registerData: IRegisterDTO = { email, password, confirmPassword };
         try {
             await signUp(registerData);
-            console.log("Registro exitoso");
+            navigate("/", { replace: true });
         } catch (error) {
             console.error("Error al registrar usuario:", error);
         }
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center vh-100">
+        <div className="container d-flex justify-content-center align-items-center">
             <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
                 <h3 className="text-center mb-4">Registrarse</h3>
                 <div className="mb-3">

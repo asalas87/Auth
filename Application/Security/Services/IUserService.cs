@@ -5,6 +5,6 @@ using ErrorOr;
 namespace Application.Security.Services;
 public interface IUserService
 {
-    public Task<ErrorOr<Guid>> RegisterUserAsync(RegisterDTO userDto);
+    public Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO userDto);
     public Task<ErrorOr<LoginResponse>> LoginUserAsync(LoginDTO userDto);
 }

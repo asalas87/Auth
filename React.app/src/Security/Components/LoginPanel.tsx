@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState } from 'react'; 
+import { useNavigate } from "react-router-dom";
 import { useAuthContext } from '../Context/AuthContext';
 import { ILoginDTO } from '../Interfaces/ILoginDTO';
 
@@ -6,19 +7,20 @@ const LoginPanel = () => {
     const { signIn } = useAuthContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         const loginData: ILoginDTO = { email, password };
         try {
             await signIn(loginData);
-            console.log("Login exitoso");
+            navigate("/", { replace: true });
         } catch (error) {
             console.error("Error al iniciar sesión:", error);
         }
     };
 
     return (
-        <div className="container d-flex justify-content-center align-items-center vh-100">
+        <div className="container d-flex justify-content-center align-items-center">
             <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
                 <h3 className="text-center mb-4">Iniciar sesión</h3>
                 <div className="mb-3">

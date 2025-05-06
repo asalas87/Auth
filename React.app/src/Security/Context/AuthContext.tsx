@@ -1,11 +1,11 @@
 import { createContext, useState, useContext, ReactNode } from 'react';
-import { login, register } from '../Services/authService';
+import { login, register } from '../Services/AuthService';
 import { setToken, deleteToken, getToken } from '../../Helpers/auth-helpers';
 import { ILoginDTO } from '../Interfaces/ILoginDTO';
 import { IRegisterDTO } from '../Interfaces/IRegisterDTO';
 
 interface AuthContextType {
-    user: any;
+    user: IUser;
     signIn: (data: ILoginDTO) => Promise<void>;
     signUp: (data: IRegisterDTO) => Promise<void>;
     signOut: () => void;
@@ -14,13 +14,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState(getToken() ? { email: 'Usuario' } : null);
+    const [user, setUser] = useState<IUser | null>(getToken() ? { id: '', name: '', email: '' } : null);
 
     const signIn = async (data: ILoginDTO) => {
         try {
-            const response = await login(data);
+            const response: ILoginResponseDTO = await login(data);
             setToken(response.token);
-            setUser(response.user);
+            setUser({
+                id: response.id.value,
+                name: response.name,
+                email: response.email,
+            });
         } catch (error) {
             console.error('Error al iniciar sesión', error);
         }
@@ -30,7 +34,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await register(data);
             setToken(response.token);
-            setUser(response.user);
+            setUser({
+                id: response.id.value,
+                name: response.name,
+                email: response.email,
+            });
         } catch (error) {
             console.error('Error al registrar usuario', error);
         }

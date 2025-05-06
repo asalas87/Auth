@@ -8,11 +8,11 @@ using MediatR;
 
 namespace Application.Sales.Customers.GetById
 {
-    internal sealed class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, ErrorOr<CustomerResponse>>
+    internal sealed class GetUserByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, ErrorOr<CustomerResponse>>
     {
         private readonly ICustomerRepository _customerRepository;
 
-        public GetCustomerByIdQueryHandler(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+        public GetUserByIdQueryHandler(ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
         {
             _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
         }
