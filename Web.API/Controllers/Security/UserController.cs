@@ -1,4 +1,5 @@
-﻿using Application.Security.Common.DTOS;
+﻿using Application.Common.Dtos;
+using Application.Security.Common.DTOS;
 using Application.Security.Services;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
@@ -35,5 +36,18 @@ namespace Web.API.Controllers.Security
                 errors => Problem(createLoginResult.Errors)
             );
         }
+
+        [HttpGet(Name = "get-users")]
+        public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
+        {
+            PaginateDto dto = new PaginateDto { Filter = filter, Page = page, PageSize = pageSize};  
+            var result = await _service.GetUsersPaginatedAsync(dto);
+
+            return result.Match(
+                value => Ok(value),
+                errors => Problem(errors)
+            );
+        }
+
     }
 }

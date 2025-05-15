@@ -1,4 +1,4 @@
-import Axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import Axios, { AxiosResponse } from 'axios';
 import { appsettings } from '../settings/appsettings';
 import { toast } from 'react-toastify';
 

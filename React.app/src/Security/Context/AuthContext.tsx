@@ -1,8 +1,7 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
-import { login, register } from '../Services/AuthService';
-import { setToken, deleteToken, getToken } from '../../Helpers/auth-helpers';
+import { createContext, useContext } from 'react';
 import { ILoginDTO } from '../Interfaces/ILoginDTO';
 import { IRegisterDTO } from '../Interfaces/IRegisterDTO';
+import { IUser } from '../Interfaces/IUser';
 
 interface AuthContextType {
     user: IUser;
@@ -11,50 +10,7 @@ interface AuthContextType {
     signOut: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<IUser | null>(getToken() ? { id: '', name: '', email: '' } : null);
-
-    const signIn = async (data: ILoginDTO) => {
-        try {
-            const response: ILoginResponseDTO = await login(data);
-            setToken(response.token);
-            setUser({
-                id: response.id.value,
-                name: response.name,
-                email: response.email,
-            });
-        } catch (error) {
-            console.error('Error al iniciar sesión', error);
-        }
-    };
-
-    const signUp = async (data: IRegisterDTO) => {
-        try {
-            const response = await register(data);
-            setToken(response.token);
-            setUser({
-                id: response.id.value,
-                name: response.name,
-                email: response.email,
-            });
-        } catch (error) {
-            console.error('Error al registrar usuario', error);
-        }
-    };
-
-    const signOut = () => {
-        deleteToken();
-        setUser(null);
-    };
-
-    return (
-        <AuthContext.Provider value={{ user, signIn, signUp, signOut }}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuthContext = () => {
     const context = useContext(AuthContext);

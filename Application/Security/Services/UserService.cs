@@ -1,8 +1,11 @@
-﻿using Application.Common.Extensions;
+﻿using Application.Common.Dtos;
+using Application.Common.Extensions;
+using Application.Common.Responses;
 using Application.Interfaces;
 using Application.Security.Common.DTOS;
 using Application.Security.Common.Responses;
 using Application.Security.Users.Create;
+using Application.Security.Users.GetAll;
 using Application.Security.Users.GetById;
 using AutoMapper;
 using ErrorOr;
@@ -44,6 +47,15 @@ public class UserService : IUserService
         {
             var response = new LoginResponse(user.Id, user.Name, user.Email, _authenticationService.GenerateToken(user));
             return Task.FromResult<ErrorOr<LoginResponse>>(response);
+        });
+    }
+
+    public async Task<ErrorOr<PaginatedResult<UserDTO>>> GetUsersPaginatedAsync(PaginateDto loginDTO)
+    {
+        var query = _mapper.Map<GetUsersPaginatedQuery>(loginDTO);
+        return await _mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<PaginatedResult<UserDTO>>>(result);
         });
     }
 }

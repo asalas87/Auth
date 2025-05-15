@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "npm": "^10.8.3"
+    "npm": "^10.8.3",
+    "react-hook-form": "^7.56.3"
   },
   "devDependencies": {
     "@types/node": "^22.13.10"

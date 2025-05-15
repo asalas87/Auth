@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../Security/Context/AuthContext";
+import { useAuthContext } from "../../../Security/Context/AuthContext";
 
 const Sidebar = () => {
     const { signOut } = useAuthContext();
@@ -20,7 +20,11 @@ const Sidebar = () => {
                         Subir Documentos
                     </Link>
                 </li>
-                {/* Agregá más links si necesitás */}
+                <li>
+                    <Link to="/security/users" className="nav-link">
+                        Usuarios
+                    </Link>
+                </li>
             </ul>
 
             <div className="mt-auto">

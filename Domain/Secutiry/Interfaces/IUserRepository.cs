@@ -13,5 +13,6 @@ namespace Domain.Secutiry.Interfaces
         Task AddAsync(User customer);
         void Update(User customer);
         void Delete(User customer);
+        Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter);
     }
 }

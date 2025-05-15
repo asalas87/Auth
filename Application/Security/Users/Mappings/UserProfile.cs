@@ -1,7 +1,8 @@
-﻿using Application.Security.Common.DTOS;
+﻿using Application.Common.Dtos;
+using Application.Security.Common.DTOS;
 using Application.Security.Users.Create;
+using Application.Security.Users.GetAll;
 using AutoMapper;
-using Domain.Secutiry.Entities;
 
 namespace Application.Security.Users.Profiles;
 public class UserProfile : Profile
@@ -10,5 +11,6 @@ public class UserProfile : Profile
     {
         CreateMap<CreateUserCommand, RegisterDTO>().ReverseMap();
         CreateMap<GetUserByEmailQuery, LoginDTO>().ReverseMap();
+        CreateMap<GetUsersPaginatedQuery, PaginateDto>().ReverseMap();
     }
 }
