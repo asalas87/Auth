@@ -16,7 +16,7 @@ const Sidebar = () => {
 
             <ul className="nav nav-pills flex-column mb-auto">
                 <li className="nav-item">
-                    <Link to="/documents/upload" className="nav-link">
+                    <Link to="/documents/management" className="nav-link">
                         Subir Documentos
                     </Link>
                 </li>

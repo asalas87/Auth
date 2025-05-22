@@ -1,15 +1,14 @@
-﻿using Application.Documents.Management.DTOs;
-using Application.Documents.Management.Services;
+﻿using Application.Common.Dtos;
+using Application.Documents.Common.DTOs;
+using Application.Documents.Management.DTOs;
+using Application.Documents.Services;
+using Application.Security.Common.DTOS;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.API.Common;
-using Web.API.Common.Extensions;
 using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Documents;
-
-[Authorize]
-[Route("documents")]
+[Route("documents/management")]
 public class DocumentsController : ApiController
 {
     private readonly IDocumentService _service;
@@ -19,17 +18,46 @@ public class DocumentsController : ApiController
         _service = service ?? throw new ArgumentException(nameof(service));
     }
 
-    [HttpPost("upload", Name = "upload")]
-    public async Task<IActionResult> Upload([FromForm] DocumentUploadDTO dto)
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
-        var userId = HttpContext.GetUserIdOrThrow();
-        dto.UploadedBy = userId;
+        PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
+        var result = await _service.GetDocumentsPaginatedAsync(dto);
 
-        var uploadResult = await _service.UploadDocumentAsync(dto);
-
-        return uploadResult.Match(
-            _ => Ok(),
+        return result.Match(
+            value => Ok(value),
             errors => Problem(errors)
         );
     }
+
+
+    [HttpPost("upload", Name = "upload")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadFile([FromForm] CreateDocumentDTO dto)
+     {
+        var result = await _service.CreateDocumentAsync(dto);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [Authorize]
+    [HttpGet("claims")]
+    public IActionResult GetClaims()
+    {
+        return Ok(User.Claims.Select(c => new { c.Type, c.Value }));
+    }
+    //[HttpGet(Name = "get-documents-assigned")]
+    //public async Task<IActionResult> GetAllAsigned([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string assignedTo = "", [FromQuery] string? filter = null)
+    //{
+    //    DocumentAssignedDTO dto = new DocumentAssignedDTO { Filter = filter, Page = page, PageSize = pageSize, AssignedTo = Guid.Parse(assignedTo) };
+    //    var result = await _service.GetDocumentsAsignedToPaginatedAsync(dto);
+
+    //    return result.Match(
+    //        value => Ok(value),
+    //        errors => Problem(errors)
+    //    );
+    //}
 }

@@ -1,11 +1,10 @@
 ﻿using Application.Data;
+using Domain.Documents.Entities;
 using Domain.Primitives;
 using Domain.Sales.Entities;
 using Domain.Secutiry.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Persistence
 {
@@ -14,6 +13,7 @@ namespace Infrastructure.Persistence
         private readonly IPublisher _publisher;
         public DbSet<Customer> Customers { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<DocumentFile> DocumentFiles { get; set; }
         public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
         {
             _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));

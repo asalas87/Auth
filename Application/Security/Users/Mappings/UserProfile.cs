@@ -11,6 +11,6 @@ public class UserProfile : Profile
     {
         CreateMap<CreateUserCommand, RegisterDTO>().ReverseMap();
         CreateMap<GetUserByEmailQuery, LoginDTO>().ReverseMap();
-        CreateMap<GetUsersPaginatedQuery, PaginateDto>().ReverseMap();
+        CreateMap<GetUsersPaginatedQuery, PaginateDTO>().ReverseMap();
     }
 }

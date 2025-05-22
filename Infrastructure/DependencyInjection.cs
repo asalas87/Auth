@@ -1,8 +1,10 @@
 ﻿using Application.Data;
+using Domain.Documents.Interfaces;
 using Domain.Primitives;
 using Domain.Sales.Customers;
 using Domain.Secutiry.Interfaces;
 using Infrastructure.Persistence;
+using Infrastructure.Persistence.Documents.Repositories;
 using Infrastructure.Persistence.Sales.Repositories;
 using Infrastructure.Persistence.Security.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,7 @@ namespace Infrastructure
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
             return services;
         }
     }

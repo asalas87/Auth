@@ -4,9 +4,9 @@ import { toast } from 'react-toastify';
 
 const api = Axios.create({
     baseURL: appsettings.apiUrl,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    //headers: {
+    //    'Content-Type': 'application/json',
+    //},
     withCredentials: true,
 });
 

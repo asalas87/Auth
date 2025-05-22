@@ -3,5 +3,6 @@ export enum FieldType {
     TextArea = 'textarea',
     Number = 'number',
     Date = 'date',
-    // extensible: Select = 'select', etc.
+    File = 'file',
+    Select = 'select',
 }

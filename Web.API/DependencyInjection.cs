@@ -1,5 +1,11 @@
-﻿using Application.Interfaces;
+﻿using Application.Common.Interfaces;
+using Application.Documents.Services;
+using Application.Interfaces;
 using Application.Security.Services;
+using Domain.Documents.Interfaces;
+using Infrastructure.Common.Services;
+using Infrastructure.Documents.Services;
+using Infrastructure.Persistence.Documents.Repositories;
 using Infrastructure.Services;
 using Web.API.Middlewares;
 
@@ -31,7 +37,11 @@ namespace Web.API
 
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
+
 
             services.AddAutoMapper(typeof(DependencyInjection));
 

@@ -7,7 +7,7 @@ using ErrorOr;
 namespace Application.Security.Services;
 public interface IUserService
 {
-    public Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO userDto);
-    public Task<ErrorOr<LoginResponse>> LoginUserAsync(LoginDTO userDto);
-    public Task<ErrorOr<PaginatedResult<UserDTO>>> GetUsersPaginatedAsync(PaginateDto loginDTO);
+    public Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO registerDTO);
+    public Task<ErrorOr<LoginResponse>> LoginUserAsync(LoginDTO loginDTO);
+    public Task<ErrorOr<PaginatedResult<UserDTO>>> GetUsersPaginatedAsync(PaginateDTO paginateDTO);
 }

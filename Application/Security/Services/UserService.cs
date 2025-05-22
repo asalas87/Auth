@@ -25,9 +25,9 @@ public class UserService : IUserService
         _authenticationService = authenticationService;
     }
 
-    public async Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO registerDto)
+    public async Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO registerDTO)
     {
-        var command = _mapper.Map<CreateUserCommand>(registerDto);
+        var command = _mapper.Map<CreateUserCommand>(registerDTO);
         var result = await _mediator.Send(command);
         if (result.IsError)
             return result.Errors;
@@ -50,9 +50,9 @@ public class UserService : IUserService
         });
     }
 
-    public async Task<ErrorOr<PaginatedResult<UserDTO>>> GetUsersPaginatedAsync(PaginateDto loginDTO)
+    public async Task<ErrorOr<PaginatedResult<UserDTO>>> GetUsersPaginatedAsync(PaginateDTO paginateDTO)
     {
-        var query = _mapper.Map<GetUsersPaginatedQuery>(loginDTO);
+        var query = _mapper.Map<GetUsersPaginatedQuery>(paginateDTO);
         return await _mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<PaginatedResult<UserDTO>>>(result);

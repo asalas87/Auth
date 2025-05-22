@@ -10,9 +10,9 @@ namespace Domain.Secutiry.Interfaces
         Task<User?> GetByNameAsync(string idName);
         Task<User?> GetByEmailAsync(Email email);
         Task<bool> ExistsAsync(UserId id);
-        Task AddAsync(User customer);
-        void Update(User customer);
-        void Delete(User customer);
+        Task AddAsync(User user);
+        void Update(User user);
+        void Delete(User user);
         Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter);
     }
 }

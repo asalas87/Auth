@@ -19,6 +19,7 @@ public class AuthenticationService : IAuthenticationService
     {
         var claims = new List<Claim>
             {
+                new(ClaimTypes.NameIdentifier, user.Id.Value.ToString()),
                 new(ClaimTypes.Name, user.Name!),
                 new(ClaimTypes.Email, user.Email.Value!)
             };
