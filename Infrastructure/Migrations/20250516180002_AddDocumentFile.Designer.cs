@@ -102,7 +102,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("SAL_Customers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Secutiry.Entities.User", b =>
+            modelBuilder.Entity("Domain.SecuritySecurity.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -132,12 +132,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
-                    b.HasOne("Domain.Secutiry.Entities.User", "AssignedTo")
+                    b.HasOne("Domain.Security.Entities.User", "AssignedTo")
                         .WithMany()
                         .HasForeignKey("AssignedToId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Domain.Secutiry.Entities.User", "UploadedBy")
+                    b.HasOne("Domain.Security.Entities.User", "UploadedBy")
                         .WithMany()
                         .HasForeignKey("UploadedById")
                         .OnDelete(DeleteBehavior.Restrict)

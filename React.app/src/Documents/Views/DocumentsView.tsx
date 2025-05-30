@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { IDocumentDTO } from '../Interfaces/IDocumentDTO';
 import { CrudTable } from '@/Common/Components/CrudTable';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
@@ -8,10 +8,11 @@ import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 
 export const DocumentsView = () => {
-    const [, setDocuments] = useState<IDocumentDTO[]>([]);
     const [showForm, setShowForm] = useState(false);
     const [selected, setSelected] = useState<IDocumentDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
+
+    const memoizedGetAll = useCallback(getAll, []);
 
     const {
         data: documents,
@@ -21,7 +22,7 @@ export const DocumentsView = () => {
         filter,
         setFilter,
         pageSize
-    } = usePaginatedList(getAll);
+    } = usePaginatedList(memoizedGetAll);
 
     const fields = [
         { key: 'name', label: 'Nombre' },
@@ -32,19 +33,6 @@ export const DocumentsView = () => {
         { key: 'assignedTo', label: 'Asignado A' },
         { key: 'path', label: 'Ruta' },
     ] as const;
-
-    const fetchDocuments = async () => {
-        try {
-            const response = await getAll(currentPage, pageSize, filter);
-            setDocuments(response.items);
-        } catch (error) {
-            console.error('Error al cargar documentos:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchDocuments();
-    }, [currentPage]);
 
     const handleEdit = (document: IDocumentDTO) => {
         setSelected(document);
@@ -67,16 +55,15 @@ export const DocumentsView = () => {
         try {
             if (mode === 'create') {
                 await create(document);
-                fetchDocuments();
+                setCurrentPage(1); // o mantener página actual
             } else {
-                // lógica para edición, si tu backend lo permite
+                // lógica para edición
             }
             setSelected(null);
         } catch (error) {
             console.error('Error al guardar el documento:', error);
         }
     };
-
 
     return (
         <div className="container mt-4">

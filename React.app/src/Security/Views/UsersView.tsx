@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
-import { CrudTable } from '@/Common/Components/CrudTable';
+import { useState } from 'react';
 import { IUserDTO } from '../Interfaces';
 import { UserEditForm } from './Forms/UserEditForm';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { getUsers } from '@/Security/Services/UserService';
-import { usePaginatedList } from '@/Common/Components/CrudTable';
+import { usePaginatedList, CrudTable } from '@/Common/Components/CrudTable';
 
 const UsersView = () => {
-    const [ ,setUsers] = useState<IUserDTO[]>([]);
     const [selected, setSelected] = useState<IUserDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
@@ -27,19 +25,6 @@ const UsersView = () => {
         { key: 'email', label: 'Correo' },
     ] as const;
 
-    const fetchUsers = async () => {
-        try {
-            const response = await getUsers(currentPage, pageSize, filter);
-            setUsers(response.items);
-        } catch (error) {
-            console.error('Error al cargar usuarios:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchUsers();
-    }, [currentPage]);
-
     const handleEdit = (user: IUserDTO) => {
         setSelected(user);
         setMode('edit');
@@ -55,12 +40,6 @@ const UsersView = () => {
     };
 
     const handleSave = (user: IUserDTO) => {
-        // En producción esto debería hacer POST o PUT con `api`
-        if (mode === 'create') {
-            setUsers(prev => [...prev, { ...user, id: Date.now().toString() }]);
-        } else {
-            setUsers(prev => prev.map(u => (u.id === user.id ? user : u)));
-        }
         setSelected(null);
     };
 

@@ -1,8 +1,8 @@
 ﻿using Domain.Primitives;
 using ErrorOr;
 using MediatR;
-using Domain.Secutiry.Interfaces;
-using Domain.Secutiry.Entities;
+using Domain.Security.Interfaces;
+using Domain.Security.Entities;
 using Application.Interfaces;
 
 namespace Application.Security.Users.Create

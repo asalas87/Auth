@@ -1,24 +1,29 @@
-﻿using Application.Documents.Management.Create;
-using Domain.Documents.Entities;
+﻿using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Primitives;
-using Domain.Secutiry.Entities;
+using Domain.Security.Entities;
+using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
+namespace Application.Documents.Management.Create;
 public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumentCommand, ErrorOr<Guid>>
 {
     private readonly IDocumentFileRepository _documentRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _env;
 
     public CreateDocumentCommandHandler(
         IDocumentFileRepository documentRepository,
+        IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         IWebHostEnvironment env)
     {
         _documentRepository = documentRepository;
+        _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _env = env;
     }
@@ -36,11 +41,17 @@ public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumen
         if (!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
 
-        // Guardar archivo
         using (var stream = new FileStream(filePath, FileMode.Create))
         {
             await request.File.CopyToAsync(stream, cancellationToken);
         }
+
+        if (await _userRepository.GetByIdAsync(new UserId(request.UploadedBy)) is not User uploadedUser)
+        {
+            return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
+        }
+
+        User? assignedUser = request.AssignedTo.HasValue ?  await _userRepository.GetByIdAsync(new UserId(request.AssignedTo.Value)) : null;
 
         var document = new DocumentFile(
             new DocumentFileId(documentId),
@@ -49,8 +60,8 @@ public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumen
             uploadDate,
             request.ExpirationDate,
             request.Description,
-            new(request.UploadedBy),
-            request.AssignedTo.HasValue ? new(request.AssignedTo.Value) : null
+            uploadedUser,
+            assignedUser
         );
 
         await _documentRepository.AddAsync(document);

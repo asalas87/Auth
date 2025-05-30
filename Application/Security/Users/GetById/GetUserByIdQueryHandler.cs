@@ -1,6 +1,6 @@
 ﻿using Domain.Primitives;
-using Domain.Secutiry.Entities;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Entities;
+using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
 

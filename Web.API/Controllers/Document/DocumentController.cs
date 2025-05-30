@@ -30,7 +30,7 @@ public class DocumentsController : ApiController
         );
     }
 
-
+    [Authorize]
     [HttpPost("upload", Name = "upload")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadFile([FromForm] CreateDocumentDTO dto)
@@ -41,13 +41,6 @@ public class DocumentsController : ApiController
             value => Ok(value),
             errors => Problem(errors)
         );
-    }
-
-    [Authorize]
-    [HttpGet("claims")]
-    public IActionResult GetClaims()
-    {
-        return Ok(User.Claims.Select(c => new { c.Type, c.Value }));
     }
     //[HttpGet(Name = "get-documents-assigned")]
     //public async Task<IActionResult> GetAllAsigned([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string assignedTo = "", [FromQuery] string? filter = null)

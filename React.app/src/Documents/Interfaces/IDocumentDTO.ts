@@ -3,6 +3,7 @@ export interface IDocumentDTO {
     name: string;
     path: string;
     uploadDate: string;
+    uploadedBy: string;
     expirationDate?: string;
     description?: string;
     assignedTo?: string;

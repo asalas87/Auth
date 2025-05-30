@@ -30,8 +30,9 @@ namespace Application.Documents.Management.GetAll
                 ExpirationDate = d.ExpirationDate,
                 Name = d.Name,
                 Path = d.Path,
-                UploadDate = d.UploadDate
-
+                UploadDate = d.UploadDate,
+                UploadedBy = d.UploadedBy.Name,
+                AssignedTo = d.AssignedTo?.Name
             }).ToList();
 
             return new PaginatedResult<DocumentFileDTO>

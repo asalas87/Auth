@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Sales.Entities
 {
-    public sealed class Customer : AggergateRoot
+    public sealed class Customer : AggergateRoot<CustomerId>
     {
         public Customer(CustomerId id, string name, string lastName, string email, PhoneNumber phoneNumber, Address address, bool active)
         {
@@ -23,13 +23,12 @@ namespace Domain.Sales.Entities
         public Customer()
         {
         }
-        public CustomerId Id { get; private set; }
         public string Name { get; private set; } = string.Empty;
         public string LastName { get; private set; } = string.Empty;
         public string FullName => $"{Name} {LastName}";
         public string Email { get; private set; } = string.Empty;
-        public PhoneNumber PhoneNumber { get; private set; }
-        public Address Address { get; private set; }
+        public PhoneNumber PhoneNumber { get; private set; } = default!;
+        public Address Address { get; private set; } = default!;
         public bool Active { get; set; }
         public static Customer UpdateCustomer(Guid id, string name, string lastName, string email, PhoneNumber phoneNumber, Address address, bool active)
         {

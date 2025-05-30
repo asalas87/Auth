@@ -1,6 +1,6 @@
 ﻿using Application.Common.Interfaces;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Infrastructure.Common.Services;
 

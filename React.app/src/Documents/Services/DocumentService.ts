@@ -31,9 +31,10 @@ export const create = async (document: IDocumentDTO): Promise<void> => {
 };
 
 export const update = async (data: FormData): Promise<void> => {
-    await api.put(`${endpoint}/edit`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    //await api.put(`${endpoint}/edit`, data, {
+    //    headers: { 'Content-Type': 'multipart/form-data' },
+    //});
+    await api.put(`${endpoint}/edit`, data);
 };
 
 export const remove = async (id: string): Promise<void> => {

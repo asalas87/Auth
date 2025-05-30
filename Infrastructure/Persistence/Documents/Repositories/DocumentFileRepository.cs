@@ -21,7 +21,10 @@ namespace Infrastructure.Persistence.Documents.Repositories
 
         public async Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, Guid? assignedToId)
         {
-            var query = _context.DocumentFiles.AsQueryable();
+            var query = _context.DocumentFiles
+                .Include(d => d.UploadedBy)
+                .Include(d => d.AssignedTo)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter))
             {
@@ -30,7 +33,7 @@ namespace Infrastructure.Persistence.Documents.Repositories
 
             if (assignedToId.HasValue)
             {
-                query = query.Where(f => f.AssignedToId != null && f.AssignedToId.Value == assignedToId);
+                query = query.Where(f => f.AssignedTo != null && f.AssignedTo.Id.Value == assignedToId);
             }
 
             var totalCount = await query.CountAsync();

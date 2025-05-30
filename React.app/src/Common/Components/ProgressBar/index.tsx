@@ -1,12 +1,17 @@
 interface ProgressBarProps {
-    progress: number;
+    visible: number;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ visible }) => {
+    if (!visible) return null;
+
     return (
-        <div className="progress mt-3">
-            <div className="progress-bar" role="progressbar" style={{ width: `${progress}%` }}>
-                {progress}%
+        <div
+            className="position-fixed top-0 start-0 w-100 h-100 bg-light bg-opacity-75 d-flex justify-content-center align-items-center"
+            style={{ zIndex: 1050 }}
+        >
+            <div className="spinner-border text-primary" role="status" style={{ width: '4rem', height: '4rem' }}>
+                <span className="visually-hidden">Loading...</span>
             </div>
         </div>
     );

@@ -1,7 +1,7 @@
 ﻿using Domain.Primitives;
 using ErrorOr;
 using MediatR;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Interfaces;
 using Application.Security.Common.DTOS;
 using Application.Common.Responses;
 
@@ -24,7 +24,7 @@ namespace Application.Security.Users.GetAll
 
             var items = users.Select(u => new UserDTO
             {
-                Id = u.Id.Value.ToString(),
+                Id = u.Id.Value,
                 Name = u.Name,
                 Email = u.Email.Value,
             }).ToList();

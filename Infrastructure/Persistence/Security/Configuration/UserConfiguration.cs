@@ -1,4 +1,4 @@
-﻿using Domain.Secutiry.Entities;
+﻿using Domain.Security.Entities;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -17,6 +17,10 @@ namespace Infrastructure.Persistence.Security.Configuration
             builder.Property(c => c.Email).HasConversion(email => email.Value, value => Email.Create(value)!).HasMaxLength(255);
             builder.Property(c => c.Password).HasMaxLength(60);
             builder.Property(c => c.Active);
+            //builder.HasMany(u => u.RefreshTokens)
+            //    .WithOne(r => r.User)
+            //    .HasForeignKey(r => r.UserId)
+            //    .IsRequired();
         }
     }
 }

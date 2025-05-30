@@ -79,7 +79,7 @@ export function CrudTable<T extends { id: string }>({
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map(row => (
+                    {(data ?? []).map(row => (
                         <tr key={row.id}>
                             {columns.map(col => (
                                 <td key={String(col.key)}>{String(row[col.key])}</td>

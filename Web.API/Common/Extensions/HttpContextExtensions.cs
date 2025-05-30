@@ -6,7 +6,7 @@ namespace Web.API.Common.Extensions
     {
         public static Guid GetUserIdOrThrow(this HttpContext context)
         {
-            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdClaim = context.User.FindFirst("sub")?.Value;
 
             return Guid.TryParse(userIdClaim, out var userId)
                 ? userId

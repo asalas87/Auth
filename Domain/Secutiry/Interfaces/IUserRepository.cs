@@ -1,7 +1,7 @@
-﻿using Domain.Secutiry.Entities;
+﻿using Domain.Security.Entities;
 using Domain.ValueObjects;
 
-namespace Domain.Secutiry.Interfaces
+namespace Domain.Security.Interfaces
 {
     public interface IUserRepository
     {

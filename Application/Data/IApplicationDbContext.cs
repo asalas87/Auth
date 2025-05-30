@@ -1,7 +1,7 @@
 ﻿using Domain.Sales.Entities;
-using Domain.Secutiry.Entities;
 using Domain.Documents.Entities;
 using Microsoft.EntityFrameworkCore;
+using Domain.Security.Entities;
 
 namespace Application.Data
 {

@@ -1,6 +1,7 @@
 ﻿using Application.Common.Dtos;
 using Application.Security.Common.DTOS;
 using Application.Security.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
 
@@ -34,6 +35,17 @@ namespace Web.API.Controllers.Security
             return createLoginResult.Match(
                 value => Ok(createLoginResult.Value),
                 errors => Problem(createLoginResult.Errors)
+            );
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO dto)
+        {
+            var result = await _service.RefreshTokenAsync(dto.RefreshToken);
+
+            return result.Match(
+                value => Ok(value),
+                errors => Problem(errors)
             );
         }
 

@@ -1,11 +1,11 @@
 ﻿using Domain.Primitives;
-using Domain.Secutiry.Entities;
+using Domain.Security.Entities;
 
 namespace Domain.Documents.Entities
 {
-    public sealed class DocumentFile : AggergateRoot
+    public sealed class DocumentFile : AggergateRoot<DocumentFileId>
     {
-        public DocumentFile(DocumentFileId id, string name, string path, DateTime uploadDate, DateTime? expirationDate, string description, UserId uploadedBy, UserId? assignedTo)
+        public DocumentFile(DocumentFileId id, string name, string path, DateTime uploadDate, DateTime? expirationDate, string description, User uploadedBy, User? assignedTo)
         {
             Id = id;
             Name = name;
@@ -13,19 +13,18 @@ namespace Domain.Documents.Entities
             UploadDate = uploadDate;
             ExpirationDate = expirationDate;
             Description = description;
-            UploadedById = uploadedBy;
-            AssignedToId = assignedTo;
+            UploadedBy = uploadedBy;
+            AssignedTo = assignedTo;
         }
-        public DocumentFile()
-        {
-        }
-        public DocumentFileId Id { get; private set; }
+        public DocumentFile() { }
         public string Name { get; private set; } = string.Empty;
         public string Path { get; private set; } = string.Empty;
         public DateTime UploadDate { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public string Description { get; set; } = string.Empty;
-        public UserId UploadedById { get; set; }
-        public UserId? AssignedToId { get; set; }
+        //public UserId UploadedById { get; private set; } = default!;
+        //public UserId? AssignedToId { get; private set; }
+        public User UploadedBy { get; set; } = null!;
+        public User? AssignedTo { get; set; }
     }
 }
