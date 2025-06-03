@@ -1,6 +1,6 @@
 import { RouteObject } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import UploadView from "../Documents/Views/UploadView";
+import { DocumentsView } from "../Documents/Views/DocumentsView";
 import AuthView from "../Security/Views/AuthView";
 
 import securityRoutes from "../Security/Routes";
@@ -18,7 +18,7 @@ const AppRoutes = (): RouteObject[] => {
                 ? (
                     <ProtectedRoute>
                         <Layout>
-                            <UploadView />
+                            <DocumentsView />
                         </Layout>
                     </ProtectedRoute>
                 ) : <AuthView />,

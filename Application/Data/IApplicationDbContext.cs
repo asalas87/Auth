@@ -1,6 +1,7 @@
 ﻿using Domain.Sales.Entities;
-using Domain.Secutiry.Entities;
+using Domain.Documents.Entities;
 using Microsoft.EntityFrameworkCore;
+using Domain.Security.Entities;
 
 namespace Application.Data
 {
@@ -8,6 +9,7 @@ namespace Application.Data
     {
         DbSet<Customer> Customers { get; set; }
         DbSet<User> Users { get; set; }
+        DbSet<DocumentFile> DocumentFiles { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
     }

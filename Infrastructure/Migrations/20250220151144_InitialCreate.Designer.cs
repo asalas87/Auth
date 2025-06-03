@@ -61,7 +61,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("SAL_Customers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Secutiry.Entities.User", b =>
+            modelBuilder.Entity("Domain.Security.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");

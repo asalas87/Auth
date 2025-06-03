@@ -1,11 +1,9 @@
 ﻿using Domain.Primitives;
 using ErrorOr;
 using MediatR;
-using AutoMapper;
-using Domain.Secutiry.Interfaces;
-using Domain.Secutiry.Entities;
+using Domain.Security.Interfaces;
+using Domain.Security.Entities;
 using Application.Interfaces;
-using Domain.Sales.Entities;
 
 namespace Application.Security.Users.Create
 {

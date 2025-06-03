@@ -1,15 +1,15 @@
 import { RouteObject } from "react-router-dom";
-import UploadView from "../Documents/Views/UploadView";
+import { DocumentsView } from "../Documents/Views/DocumentsView";
 import ProtectedRoute from "../Routes/ProtectedRoute";
 import Layout from "../Common/Components/Layout";
 
 const documentsRoutes: RouteObject[] = [
     {
-        path: "/documents/upload",
+        path: "/documents/management",
         element: (
             <ProtectedRoute>
                 <Layout>
-                    <UploadView />
+                    <DocumentsView />
                 </Layout>
             </ProtectedRoute>
         ),

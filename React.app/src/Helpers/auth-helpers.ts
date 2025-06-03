@@ -1,6 +1,6 @@
-import Axios, { InternalAxiosRequestConfig } from 'axios';
+import api from './api';
 
-const TOKEN_KEY: string = 'AUTH_TOKEN';
+const TOKEN_KEY: string = 'accessToken';
 export function getToken() {
     return localStorage.getItem(TOKEN_KEY);
 }
@@ -11,10 +11,10 @@ export function deleteToken() {
     localStorage.removeItem(TOKEN_KEY);
 }
 export function initAxiosInterceptors() {
-    Axios.interceptors.request.use(function (config: InternalAxiosRequestConfig) {
+    api.interceptors.request.use((config) => {
         const token = getToken();
         if (token) {
-            config.headers.Authorization = `bearer ${token}`;
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     });

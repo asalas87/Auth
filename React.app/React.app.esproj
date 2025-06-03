@@ -13,12 +13,12 @@
     <None Remove="localhost.pem" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\Common\" />
+    <Folder Include="src\Common\Hooks\" />
+    <Folder Include="src\Common\Context\" />
     <Folder Include="src\Documents\Hooks\" />
     <Folder Include="src\Documents\Services\" />
-    <Folder Include="src\Documents\Views\" />
+    <Folder Include="src\Documents\Views\Forms\" />
     <Folder Include="src\Helpers\" />
     <Folder Include="src\Security\Hooks\" />
-    <Folder Include="src\Security\Views\" />
   </ItemGroup>
 </Project>

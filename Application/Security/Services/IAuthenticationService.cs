@@ -1,6 +1,9 @@
-﻿using Domain.Secutiry.Entities;
+﻿using Domain.Security.Entities;
+
+namespace Application.Security.Services;
 
 public interface IAuthenticationService
 {
-    string GenerateToken(User user);
+    Task<string> GenerateRefreshTokenAsync(Guid userId);
+    string GenerateAccessToken(User user);
 }
