@@ -1,4 +1,4 @@
-export * from './CrudTable';
+﻿export * from './CrudTable';
 
 /* Hooks */
 export * from './usePaginatedList';

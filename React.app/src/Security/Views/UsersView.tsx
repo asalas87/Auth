@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { IUserDTO } from '../Interfaces';
 import { UserEditForm } from './Forms/UserEditForm';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
@@ -45,7 +45,7 @@ const UsersView = () => {
 
     return (
         <div className="container mt-4">
-            <h2>Gesti�n de Usuarios</h2>
+            <h2>Gestión de Usuarios</h2>
             <button className="btn btn-primary mb-3" onClick={handleCreate}>
                 Crear nuevo
             </button>

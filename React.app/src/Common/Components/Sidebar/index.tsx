@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+﻿import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../../Security/Context/AuthContext";
 
 const Sidebar = () => {
@@ -29,7 +29,7 @@ const Sidebar = () => {
 
             <div className="mt-auto">
                 <button className="btn btn-outline-danger w-100" onClick={handleLogout}>
-                    Cerrar Sesi�n
+                    Cerrar Sesión
                 </button>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+ï»¿import React, { useEffect, useState } from 'react';
 import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IDocumentDTO } from '../../Interfaces/IDocumentDTO';
@@ -36,8 +36,8 @@ export const DocumentEditForm = ({
 
     const fields: FieldConfig<IDocumentDTO>[] = [
         { name: 'name', label: 'Nombre', type: FieldType.Text },
-        { name: 'description', label: 'Descripción', type: FieldType.Text },
-        { name: 'expirationDate', label: 'Fecha Expiración', type: FieldType.Date },
+        { name: 'description', label: 'DescripciÃ³n', type: FieldType.Text },
+        { name: 'expirationDate', label: 'Fecha ExpiraciÃ³n', type: FieldType.Date },
         {
             name: 'assignedTo',
             label: 'Asignado A',

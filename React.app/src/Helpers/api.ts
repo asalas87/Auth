@@ -20,12 +20,12 @@ const handleTokenRefresh = async () => {
 
         const response = await api.post('/security/users/refresh', { refreshToken });
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        const { token, refreshToken: newRefreshToken } = response.data;
 
-        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('accessToken', token);
         localStorage.setItem('refreshToken', newRefreshToken);
 
-        return accessToken;
+        return token;
     } catch (error) {
         throw new Error('Falló el refresh token');
     }

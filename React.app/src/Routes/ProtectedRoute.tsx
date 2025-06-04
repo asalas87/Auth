@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+﻿import { Navigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "../Security/Context/AuthContext";
 
 interface ProtectedRouteProps {
@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const location = useLocation();
 
     if (!user) {
-        // Redirige a /auth y guarda la ubicaci�n actual para volver luego
+        // Redirige a /auth y guarda la ubicación actual para volver luego
         return <Navigate to="/auth" replace state={{ from: location }} />;
     }
 
