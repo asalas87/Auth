@@ -17,7 +17,7 @@ launchSettings.json
 .idea/
 *.sln.iml
 
-# Configuración sensible
+# Configuraciï¿½n sensible
 appsettings.Development.json
 secrets.json
 
@@ -43,7 +43,7 @@ coverage/
 .DS_Store
 *.swp
 
-# Node (si tenés front-end)
+# Node (si tenï¿½s front-end)
 node_modules/
 dist/
 build/
