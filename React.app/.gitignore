@@ -19,6 +19,7 @@ launchSettings.json
 
 # Configuraci�n sensible
 appsettings.Development.json
+appsettings.json
 secrets.json
 
 # Archivos generados por dotnet
