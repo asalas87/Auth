@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+﻿import React, { useCallback, useEffect, useState } from 'react';
 import { IDocumentDTO } from '../Interfaces/IDocumentDTO';
 import { CrudTable } from '@/Common/Components/CrudTable';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
@@ -55,9 +55,9 @@ export const DocumentsView = () => {
         try {
             if (mode === 'create') {
                 await create(document);
-                setCurrentPage(1); // o mantener p�gina actual
+                setCurrentPage(1); // o mantener página actual
             } else {
-                // l�gica para edici�n
+                // lógica para edición
             }
             setSelected(null);
         } catch (error) {
@@ -67,7 +67,7 @@ export const DocumentsView = () => {
 
     return (
         <div className="container mt-4">
-            <h2>Gesti�n de Documentos</h2>
+            <h2>Gestión de Documentos</h2>
             <button className="btn btn-primary mb-3" onClick={handleCreate}>
                 Subir Documento
             </button>

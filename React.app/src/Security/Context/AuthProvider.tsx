@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+﻿import { ReactNode, useState } from "react";
 import { getToken, setToken, deleteToken } from "../../Helpers/auth-helpers";
 import { ILoginDTO } from "../Interfaces/ILoginDTO";
 import { ILoginResponseDTO } from "../Interfaces/ILoginResponseDTO";
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
                 email: response.email,
             });
         } catch (error) {
-            console.error('Error al iniciar sesi�n', error);
+            console.error('Error al iniciar sesión', error);
         }
     };
 

@@ -1,4 +1,4 @@
-interface ProgressBarProps {
+﻿interface ProgressBarProps {
     visible: number;
 }
 
@@ -15,6 +15,25 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ visible }) => {
             </div>
         </div>
     );
+    //if (!visible) return null;
+
+    //return (
+    //    <div
+    //        className="position-fixed top-0 start-0 w-100"
+    //        style={{ zIndex: 2000, height: '5px' }}
+    //    >
+    //        <div
+    //            className="progress"
+    //            style={{ height: '100%' }}
+    //        >
+    //            <div
+    //                className="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+    //                role="progressbar"
+    //                style={{ width: '100%' }}
+    //            />
+    //        </div>
+    //    </div>
+    //);
 };
 
 export default ProgressBar;

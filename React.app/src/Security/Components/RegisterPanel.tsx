@@ -1,4 +1,4 @@
-import { useState } from 'react';
+ï»¿import { useState } from 'react';
 import { useAuthContext } from '../Context/AuthContext';
 import { IRegisterDTO } from '../Interfaces/IRegisterDTO';
 import { useNavigate } from "react-router-dom";
@@ -25,7 +25,7 @@ const RegisterPanel = () => {
             <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
                 <h3 className="text-center mb-4">Registrarse</h3>
                 <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Correo Electrónico</label>
+                    <label htmlFor="email" className="form-label">Correo ElectrÃ³nico</label>
                     <input
                         type="email"
                         id="email"
@@ -35,7 +35,7 @@ const RegisterPanel = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Contraseña</label>
+                    <label htmlFor="password" className="form-label">ContraseÃ±a</label>
                     <input
                         type="password"
                         id="password"
@@ -45,7 +45,7 @@ const RegisterPanel = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="confirmPassword" className="form-label">Confirmar Contraseña</label>
+                    <label htmlFor="confirmPassword" className="form-label">Confirmar ContraseÃ±a</label>
                     <input
                         type="password"
                         id="confirmPassword"

@@ -6,9 +6,9 @@ const REFRESH_TOKEN_KEY = 'refreshToken';
 
 export const login = async (userData: ILoginDTO) => {
     const response = await api.post('/security/users/login', userData);
-    const { accessToken, refreshToken } = response.data;
+    const { token, refreshToken } = response.data;
 
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
     return response.data;
@@ -18,9 +18,9 @@ export const register = async (userData: IRegisterDTO) => {
     userData.name = userData.email.split('@')[0];
 
     const response = await api.post('/security/users/register', userData);
-    const { accessToken, refreshToken } = response.data;
+    const { token, refreshToken } = response.data;
 
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 
     return response.data;

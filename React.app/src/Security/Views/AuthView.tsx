@@ -1,4 +1,4 @@
-import { useState } from 'react';
+ï»¿import { useState } from 'react';
 import LoginPanel from '../Components/LoginPanel';
 import RegisterPanel from '../Components/RegisterPanel';
 
@@ -10,12 +10,12 @@ const AuthView = () => {
             <div className="text-center">
                 {isLogin ? <LoginPanel /> : <RegisterPanel />}
                 <p className="mt-3">
-                    {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
+                    {isLogin ? "Â¿No tienes una cuenta?" : "Â¿Ya tienes una cuenta?"}
                     <button
                         className="btn btn-link"
                         onClick={() => setIsLogin(!isLogin)}
                     >
-                        {isLogin ? "Regístrate" : "Inicia sesión"}
+                        {isLogin ? "RegÃ­strate" : "Inicia sesiÃ³n"}
                     </button>
                 </p>
             </div>
