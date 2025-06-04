@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react'; 
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from '../Context/AuthContext';
-import { ILoginDTO } from '../Interfaces/ILoginDTO';
+import { ILoginDTO } from '../Interfaces/Dtos/ILoginDTO';
 
 const LoginPanel = () => {
     const { signIn } = useAuthContext();
@@ -15,16 +15,16 @@ const LoginPanel = () => {
             await signIn(loginData);
             navigate("/", { replace: true });
         } catch (error) {
-            console.error("Error al iniciar sesiÃ³n:", error);
+            console.error("Error al iniciar sesión:", error);
         }
     };
 
     return (
         <div className="container d-flex justify-content-center align-items-center">
             <div className="card p-4 shadow-lg" style={{ width: "400px" }}>
-                <h3 className="text-center mb-4">Iniciar sesiÃ³n</h3>
+                <h3 className="text-center mb-4">Iniciar sesión</h3>
                 <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Correo ElectrÃ³nico</label>
+                    <label htmlFor="email" className="form-label">Correo Electrónico</label>
                     <input
                         type="email"
                         id="email"
@@ -34,7 +34,7 @@ const LoginPanel = () => {
                     />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="password" className="form-label">ContraseÃ±a</label>
+                    <label htmlFor="password" className="form-label">Contraseña</label>
                     <input
                         type="password"
                         id="password"

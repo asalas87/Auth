@@ -49,6 +49,12 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization();
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
 var app = builder.Build();
 
 // -------------------------
@@ -58,12 +64,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ApplyMigrations(); // esto está bien aquí, se ejecuta solo en desarrollo
+    app.ApplyMigrations(); // esto estï¿½ bien aquï¿½, se ejecuta solo en desarrollo
 }
 
 app.UseExceptionHandler("/error"); // manejo global
 
-app.UseHttpsRedirection();         // redirección a HTTPS
+app.UseHttpsRedirection();         // redirecciÃ³n a HTTPS
 app.UseStaticFiles();              // wwwroot
 
 app.UseRouting();                  // importante antes de CORS
@@ -73,7 +79,7 @@ app.UseCors("AllowReactApp");      // cors antes de auth
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>(); // si necesita usuario, poner después de auth
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>(); // si necesita usuario, poner despuï¿½s de auth
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok("Healthy"));
