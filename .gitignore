@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /Web.API/wwwroot/documents/b116da7b-f2e7-436c-8ce3-de239c2036d2
 /React.app/package-lock.json
+/Web.API/appsettings.Development.json
+/Web.API/appsettings.json
