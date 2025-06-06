@@ -1,6 +1,76 @@
-@Web.API_HostAddress = http://localhost:5113
+### Base URL
+@WebAPI_Host = https://localhost:7277
 
-GET {{Web.API_HostAddress}}/weatherforecast/
+### Health check
+GET {{WebAPI_Host}}/health
 Accept: application/json
 
 ###
+
+# ----------- AUTENTICACIÓN -----------
+
+### Registro de usuario
+POST {{WebAPI_Host}}/api/users/register
+Content-Type: application/json
+
+{
+  "email": "nuevo@usuario.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "Juan",
+  "lastName": "Pérez"
+}
+
+###
+
+### Login
+POST {{WebAPI_Host}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "nuevo@usuario.com",
+  "password": "Password123!"
+}
+
+###
+
+# Guarda el token JWT recibido en esta variable para usarlo en las siguientes peticiones.
+@jwtToken = Bearer TU_TOKEN_JWT_AQUI
+
+# ----------- USUARIOS -----------
+
+### Obtener usuarios
+GET {{WebAPI_Host}}/api/users
+Authorization: {{jwtToken}}
+Accept: application/json
+
+###
+
+# ----------- DOCUMENTOS -----------
+
+### Obtener documentos
+GET {{WebAPI_Host}}/api/documents
+Authorization: {{jwtToken}}
+Accept: application/json
+
+###
+
+### Subir documento
+POST {{WebAPI_Host}}/api/documents/upload
+Authorization: {{jwtToken}}
+Content-Type: multipart/form-data
+
+# Reemplazá la ruta local por un archivo real
+--boundary
+Content-Disposition: form-data; name="file"; filename="example.pdf"
+Content-Type: application/pdf
+
+< ./ruta/local/example.pdf
+--boundary--
+
+###
+
+### Obtener un documento por ID
+GET {{WebAPI_Host}}/api/documents/REEMPLAZAR_ID
+Authorization: {{jwtToken}}
+Accept: application/json

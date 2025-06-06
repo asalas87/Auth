@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces;
 using Application.Documents.Services;
 using Application.Interfaces;
 using Application.Security.Services;
@@ -14,17 +14,6 @@ namespace Web.API
     {
         public static IServiceCollection AddPresentation(this IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowReactApp",
-                    policy =>
-                    {
-                        policy.WithOrigins("https://localhost:5173") // URL del frontend
-                              .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials();
-                    });
-            });
             services.AddHttpsRedirection(options =>
             {
                 options.HttpsPort = 7277;
