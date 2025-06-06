@@ -1,0 +1,63 @@
+name: Deploy Frontend and Backend to FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DOTNET_VERSION: '9.0.x'  # Cambialo si usás otra versión
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 🟦 Backend (.NET)
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Publish Backend
+      run: |
+        dotnet publish ./backend/Auth.API/Auth.API.csproj \
+          --configuration Release \
+          --output backend-publish
+
+    # 🟦 Frontend (Vite)
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install frontend dependencies
+      run: npm install
+      working-directory: ./frontend/react.app
+
+    - name: Build frontend
+      run: npm run build
+      working-directory: ./frontend/react.app
+
+    # 🟩 Deploy backend via FTP
+    - name: Deploy backend to FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./backend-publish/
+        server-dir: ${{ secrets.FTP_BACKEND_PATH }}
+
+    # 🟩 Deploy frontend via FTP
+    - name: Deploy frontend to FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./frontend/react.app/dist/
+        server-dir: ${{ secrets.FTP_FRONTEND_PATH }}
