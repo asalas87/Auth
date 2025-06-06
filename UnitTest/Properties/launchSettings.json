@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "UnitTest": {
-      "commandName": "Project",
-      "workingDirectory": "C:\\Users\\Agustin\\source\\repos\\Auth\\UnitTest"
-    }
-  }
-}
