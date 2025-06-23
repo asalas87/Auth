@@ -1,21 +1,19 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
-  "compilerOptions": {
-    "target": "es5",
-    "lib": [ "dom", "es6" ],
-    "jsx": "react",
-    "esModuleInterop": true,
-    "strict": true,
-    "baseUrl": "src",
-    "paths": {
-      "@/*": [ "*" ]
-    }
-  },
-  "include": [
-    "src"
-  ]
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "types": [ "node" ],
+        "lib": [ "dom", "es6" ],
+        "jsx": "react",
+        "esModuleInterop": true,
+        "strict": true,
+        "baseUrl": "src",
+        "paths": {
+            "@/*": [ "*" ]
+        }
+    },
+    "include": [
+        "src"
+    ]
 }

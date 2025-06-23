@@ -1,7 +1,7 @@
-﻿import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuthContext } from '../Context/AuthContext';
-import { IRegisterDTO } from '../Interfaces/IRegisterDTO';
 import { useNavigate } from "react-router-dom";
+import { IRegisterDTO } from '../Interfaces';
 
 const RegisterPanel = () => {
     const { signUp } = useAuthContext();
@@ -11,7 +11,11 @@ const RegisterPanel = () => {
     const navigate = useNavigate();
 
     const handleRegister = async () => {
-        const registerData: IRegisterDTO = { email, password, confirmPassword };
+        const registerData: IRegisterDTO = {
+            email, password, confirmPassword,
+            id: '',
+            name: ''
+        };
         try {
             await signUp(registerData);
             navigate("/", { replace: true });

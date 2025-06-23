@@ -1,11 +1,13 @@
-﻿import { createContext, useContext, useEffect, useState } from 'react';
-import { login as loginService, logout as logoutService, getAccessToken } from '../Services/AuthService';
-import { ILoginDTO } from '../Interfaces/ILoginDTO';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { register as registerService, login as loginService, logout as logoutService, getAccessToken } from '../Services/AuthService';
+import { ILoginDTO } from '../Interfaces/Dtos/ILoginDTO';
+import { IRegisterDTO } from '../Interfaces/Dtos/IRegisterDTO';
 import { jwtDecode } from 'jwt-decode';
 
 interface AuthContextType {
     user: UserInfo | null;
-    signIn: (credentials: ILoginDTO) => Promise<void>;
+    signIn: (loginCredentials: ILoginDTO) => Promise<void>;
+    signUp: (regiterCredentials: IRegisterDTO) => Promise<void>;
     signOut: () => void;
 }
 
@@ -26,7 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const token = getAccessToken();
         if (token) {
             try {
-                const decoded: any = jwtDecode(token);
+                const decoded: any = jwtDecode<any>(token);
                 setUser({
                     id: decoded.sub,
                     name: decoded.name,
@@ -39,8 +41,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
-    const signIn = async (credentials: ILoginDTO) => {
-        const result = await loginService(credentials);
+    const signIn = async (loginCredentials: ILoginDTO) => {
+        const result = await loginService(loginCredentials);
+        setUser({
+            id: result.id,
+            name: result.name,
+            email: result.email,
+        });
+    };
+
+    const signUp = async (registerCredentials: IRegisterDTO) => {
+        const result = await registerService(registerCredentials);
         setUser({
             id: result.id,
             name: result.name,
@@ -58,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut }}>
+        <AuthContext.Provider value={{ user, signIn, signUp, signOut }}>
             {children}
         </AuthContext.Provider>
     );

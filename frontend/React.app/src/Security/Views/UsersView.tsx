@@ -1,10 +1,11 @@
-﻿import { useState } from 'react';
 import { IUserDTO } from '../Interfaces';
 import { UserEditForm } from './Forms/UserEditForm';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { getUsers } from '@/Security/Services/UserService';
 import { usePaginatedList, CrudTable } from '@/Common/Components/CrudTable';
+import { ColumnConfig } from '../../Common/Components/CrudTable/ColumnConfig';
+import React, { useState } from 'react';
 
 const UsersView = () => {
     const [selected, setSelected] = useState<IUserDTO | null>(null);
@@ -20,7 +21,7 @@ const UsersView = () => {
         pageSize
     } = usePaginatedList(getUsers);
 
-    const fields = [
+    const fields: ColumnConfig<IUserDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'email', label: 'Correo' },
     ] as const;

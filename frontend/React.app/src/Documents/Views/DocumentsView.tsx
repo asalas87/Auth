@@ -1,14 +1,13 @@
-﻿import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { IDocumentDTO } from '../Interfaces/IDocumentDTO';
-import { CrudTable } from '@/Common/Components/CrudTable';
+import { CrudTable, usePaginatedList } from '@/Common/Components/CrudTable';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { getAll, create } from '../Services/DocumentService';
 import { DocumentEditForm } from './Forms/DocumentEditForm';
-import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
+import { ColumnConfig } from '../../Common/Components/CrudTable/ColumnConfig';
 
 export const DocumentsView = () => {
-    const [showForm, setShowForm] = useState(false);
     const [selected, setSelected] = useState<IDocumentDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
@@ -24,7 +23,7 @@ export const DocumentsView = () => {
         pageSize
     } = usePaginatedList(memoizedGetAll);
 
-    const fields = [
+    const fields: ColumnConfig<IDocumentDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'description', label: 'Descripcion' },
         { key: 'uploadDate', label: 'Fecha Subida' },

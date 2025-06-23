@@ -1,4 +1,5 @@
-﻿import { useLoading } from "../../Context/LoadingContext ";
+import React from "react";
+import { useLoading } from "../../Context/LoadingContext ";
 import { useSimulatedProgress } from "../../Hooks/useSimulatedProgress";
 import ProgressBar from "../ProgressBar";
 import Sidebar from "../Sidebar";

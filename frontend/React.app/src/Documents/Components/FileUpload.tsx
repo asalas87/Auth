@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import React, { useState } from "react";
 import { useUpload } from "../Hooks/useUpload";
 import ProgressBar from "../../Common/Components/ProgressBar";
 
@@ -35,7 +35,7 @@ const FileUpload = () => {
             >
                 {loading ? "Uploading..." : "Upload"}
             </button>
-            {progress > 0 && <ProgressBar progress={progress} />}
+            {progress > 0 && <ProgressBar progress={progress} visible={true} />}
         </div>
     );
 };

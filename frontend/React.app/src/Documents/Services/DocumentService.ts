@@ -22,9 +22,9 @@ export const getAll = async (
 export const create = async (document: IDocumentDTO): Promise<void> => {
     const formData = new FormData();
     formData.append('name', document.name);
-    formData.append('description', document.description);
-    formData.append('expirationDate', document.expirationDate);
-    formData.append('assignedTo', document.assignedTo);
+    formData.append('description', document.description ?? "");
+    formData.append('expirationDate', document.expirationDate ?? "");
+    formData.append('assignedTo', document.assignedTo ?? "");
     formData.append('file', document.file);
 
     await api.post(`${endpoint}/upload`, formData);

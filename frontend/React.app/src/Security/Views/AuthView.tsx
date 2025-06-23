@@ -1,6 +1,7 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import LoginPanel from '../Components/LoginPanel';
 import RegisterPanel from '../Components/RegisterPanel';
+import React from 'react';
 
 const AuthView = () => {
     const [isLogin, setIsLogin] = useState(true);

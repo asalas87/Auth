@@ -1,9 +1,10 @@
-﻿import React, { useEffect, useState } from 'react';
-import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
+import React, { useEffect, useState } from 'react';
+import { GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IDocumentDTO } from '../../Interfaces/IDocumentDTO';
-import { IUserDTO } from '@/Security/Interfaces/IUserDTO';
-import { getUsers as getAllUsers } from '@/Security/Services/UserService'; // Asegurate que exista
+import { getUsers as getAllUsers } from '@/Security/Services/UserService'; 
+import { FieldConfig } from '../../../Common/Components/EditForm/FieldConfig';
+import { IUserDTO } from '../../../Security/Interfaces';
 
 export const DocumentEditForm = ({
     item,
@@ -17,17 +18,14 @@ export const DocumentEditForm = ({
     mode?: 'edit' | 'create';
 }) => {
     const [users, setUsers] = useState<IUserDTO[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadUsers = async () => {
             try {
-                const response = await getAllUsers();
-                setUsers(response.items); // asumimos paginado
+                const response = await getAllUsers(1, 100);
+                setUsers(response.items); 
             } catch (error) {
                 console.error('Error al cargar usuarios', error);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -49,8 +47,6 @@ export const DocumentEditForm = ({
             type: FieldType.File,
         },
     ];
-
-    if (loading) return <div className="p-3">Cargando...</div>;
 
     return (
         <GenericEditForm<IDocumentDTO>

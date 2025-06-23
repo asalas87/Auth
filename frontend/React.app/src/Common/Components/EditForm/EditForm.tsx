@@ -1,5 +1,6 @@
-﻿import React from 'react';
-import { FieldType, FieldConfig } from '.';
+import React from 'react';
+import { FieldType } from '.';
+import { FieldConfig } from './FieldConfig';
 
 interface GenericEditFormProps<T> {
     item: T;

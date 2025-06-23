@@ -1,6 +1,8 @@
-﻿import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
+import { GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IUserDTO } from '@/Security/Interfaces';
+import { FieldConfig } from '@/Common/Components/EditForm/FieldConfig';
+import React from 'react';
 
 const fields: FieldConfig<IUserDTO>[] = [
     { name: 'name', label: 'Nombre', type: FieldType.Text },

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { uploadDocument } from "../Services/DocumentService";
+//import { uploadDocument } from "../Services/DocumentService";
 
 export const useUpload = () => {
     const [progress, setProgress] = useState<number>(0);
@@ -8,7 +8,7 @@ export const useUpload = () => {
     const handleUpload = async (formData: FormData): Promise<void> => {
         setLoading(true);
         try {
-            await uploadDocument(formData);
+            //await uploadDocument(formData);
         } finally {
             setLoading(false);
             setProgress(0);

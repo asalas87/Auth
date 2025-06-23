@@ -1,5 +1,8 @@
-﻿interface ProgressBarProps {
-    visible: number;
+import React from "react";
+
+interface ProgressBarProps {
+    visible: boolean;
+    progress: number;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ visible }) => {

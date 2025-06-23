@@ -1,9 +1,5 @@
-﻿import React from 'react';
-
-export interface ColumnConfig<T> {
-    label: string;
-    key: keyof T;
-}
+import React from 'react';
+import { ColumnConfig } from './ColumnConfig';
 
 interface CrudTableProps<T> {
     data: T[];

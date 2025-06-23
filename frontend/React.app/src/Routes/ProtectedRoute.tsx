@@ -1,5 +1,6 @@
-﻿import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "../Security/Context/AuthContext";
+import React from "react";
 
 interface ProtectedRouteProps {
     children: JSX.Element;

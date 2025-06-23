@@ -1,3 +1,3 @@
 export const appsettings = {
-    apiUrl: "https://localhost:7277/"
+    apiUrl: "https://api.csingenieria.com.ar/"
 }

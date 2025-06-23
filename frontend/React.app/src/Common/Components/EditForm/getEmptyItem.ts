@@ -1,4 +1,4 @@
-import { FieldConfig } from './index';
+import { FieldConfig } from './FieldConfig';
 import { FieldType } from './FieldType';
 
 export function getEmptyItem<T>(fields: FieldConfig<T>[]): T {
