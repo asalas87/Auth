@@ -41,6 +41,7 @@ docker-compose.*
 *.env
 *.local
 appsettings.Development.json
+tsconfig.tsbuildinfo
 
 # Dependencias
 node_modules/
@@ -78,5 +79,7 @@ pnpm-debug.log*
 dist/
 *.js
 *.d.ts
+**/*.js
+**/*.js.map
 !src/**/*.ts
 !src/**/*.tsx
