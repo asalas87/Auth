@@ -1,4 +1,4 @@
-﻿using Application.Common.Dtos;
+using Application.Common.Dtos;
 using Application.Common.Extensions;
 using Application.Common.Responses;
 using Application.Interfaces;
@@ -85,6 +85,13 @@ public class UserService : IUserService
         return await _mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<PaginatedResult<UserDTO>>>(result);
+        });
+    }
+    public async Task<ErrorOr<List<UserDTO>>> GetUsersAsync()
+    {
+        return await _mediator.Send(new GetAllUsersQuery()).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<List<UserDTO>>>(result);
         });
     }
 

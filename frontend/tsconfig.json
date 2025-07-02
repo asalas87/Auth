@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "skipLibCheck": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "jsx": "react-jsx",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "lib": [ "esnext", "dom" ],
+        "target": "esnext",
+        "baseUrl": ".",
+        "types": [ "vite/client", "react-router-dom" ],
+        "paths": {
+            "@/*": [ "src/*" ]
+        }
+    },
+    "include": [ "src" ]
+}

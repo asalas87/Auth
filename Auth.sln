@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "backend\unittes
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{A33C54A9-42FB-4F6A-9586-59016E3990C0}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "react.app", "frontend\react.app\react.app.esproj", "{EC0C9D8E-90A0-4198-B848-44BD8D0E200F}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "react.app", "frontend\react.app.esproj", "{EC0C9D8E-90A0-4198-B848-44BD8D0E200F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D6FD1305-A145-46AA-95CE-369290764C72}"
 	ProjectSection(SolutionItems) = preProject

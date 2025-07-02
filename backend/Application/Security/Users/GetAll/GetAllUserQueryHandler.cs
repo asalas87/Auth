@@ -1,4 +1,4 @@
-﻿using Domain.Primitives;
+using Domain.Primitives;
 using ErrorOr;
 using MediatR;
 using Domain.Security.Interfaces;
@@ -7,7 +7,7 @@ using Application.Common.Responses;
 
 namespace Application.Security.Users.GetAll
 {
-    public sealed class GetUsersPaginatedQueryHandler : IRequestHandler<GetUsersPaginatedQuery, ErrorOr<PaginatedResult<UserDTO>>>
+    public sealed class GetUsersPaginatedQueryHandler : IRequestHandler<GetUsersPaginatedQuery, ErrorOr<PaginatedResult<UserDTO>>>, IRequestHandler<GetAllUsersQuery, ErrorOr<List<UserDTO>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepository;
@@ -34,6 +34,20 @@ namespace Application.Security.Users.GetAll
                 Items = items,
                 TotalCount = totalCount
             };
+        }
+
+        public async Task<ErrorOr<List<UserDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        {
+            var users = await _userRepository.GetAll();
+
+            var items = users.Select(u => new UserDTO
+            {
+                Id = u.Id.Value,
+                Name = u.Name,
+                Email = u.Email.Value,
+            }).ToList();
+
+            return items;
         }
     }
 }

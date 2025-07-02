@@ -1,0 +1,82 @@
+# Build y resultados
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Dd]ebug/
+[Rr]elease/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.nupkg
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vs/
+.vs/
+
+# Dependencias
+.nuget/
+packages/
+**/[Pp]ackages/*
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.swp
+*.sublime-workspace
+
+# Docker
+[Dd]ockerfile
+docker-compose.*
+.dockerignore
+
+# Misceláneos
+*.log
+*.cache
+*.pid
+*.DS_Store
+*.bak
+*.tmp
+*.pyc
+*.env
+*.local
+appsettings.Development.json
+
+# Dependencias
+node_modules/
+.pnpm/
+dist/
+dist-ssr/
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor/IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Misc
+.DS_Store
+*.pem
+*.key
+*.cert
+
+# Archivos generados por TypeScript/Vite
+dist/
+*.js
+*.d.ts
+!src/**/*.ts
+!src/**/*.tsx
