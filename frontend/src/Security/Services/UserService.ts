@@ -14,6 +14,6 @@ export const getUsers = async (page: number, pageSize: number, filter: string = 
 };
 
 export const getAllUsers = async () : Promise<IUserDTO[]> => {
-    const response = await api.get('/security/AllUsers');
+    const response = await api.get('/security/users/getAll');
     return response.data;
 };

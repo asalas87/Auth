@@ -5,15 +5,15 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{B9C1D886-C8EE-40B3-A804-7D733A539B16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "backend\Application\Application.csproj", "{B041743B-E089-4BB5-9223-16FB6D77AB85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "backend\Application\Application.csproj", "{B041743B-E089-4BB5-9223-16FB6D77AB85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "backend\Domain\Domain.csproj", "{A3B0C0CB-B875-4702-8194-CF395E3A0E7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "backend\Domain\Domain.csproj", "{A3B0C0CB-B875-4702-8194-CF395E3A0E7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "backend\Infrastructure\Infrastructure.csproj", "{1C91FE69-4894-41AF-8E98-1420139BE958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "backend\Infrastructure\Infrastructure.csproj", "{1C91FE69-4894-41AF-8E98-1420139BE958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.API", "backend\web.API\Web.API.csproj", "{4CF4952E-04FC-4634-845E-9C1516339B2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.API", "backend\web.API\Web.API.csproj", "{4CF4952E-04FC-4634-845E-9C1516339B2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "backend\unittest\UnitTest.csproj", "{43DBD5D3-0032-401E-B7DA-0BA7D878FE45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "backend\unittest\UnitTest.csproj", "{43DBD5D3-0032-401E-B7DA-0BA7D878FE45}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{A33C54A9-42FB-4F6A-9586-59016E3990C0}"
 EndProject
@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		appsettings.Production.json = appsettings.Production.json
 		.github\workflows\deploy.yml = .github\workflows\deploy.yml
 	EndProjectSection
 EndProject

@@ -60,7 +60,7 @@ namespace Web.API.Controllers.Security
             );
         }
 
-        [HttpGet("allUsers", Name = "get-all-users")]
+        [HttpGet("getAll", Name = "get-all-users")]
         public async Task<IActionResult> GetAllUsers()
         {
             var result = await _service.GetUsersAsync();

@@ -1,3 +1,3 @@
 export const appsettings = {
-    apiUrl: "https://localhost:7277/"
+    apiUrl: import.meta.env.VITE_API_URL ?? "https://localhost:7277/"
 }

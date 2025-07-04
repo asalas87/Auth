@@ -1,9 +1,10 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from 'react-toastify';
 import { getRefreshToken, logout } from '../Security/Services/AuthService';
+import { appsettings } from '../settings/appsettings';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: appsettings.apiUrl,
 });
 
 let setLoading: (val: boolean) => void;

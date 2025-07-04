@@ -38,10 +38,11 @@ docker-compose.*
 *.bak
 *.tmp
 *.pyc
-*.env
 *.local
 appsettings.Development.json
+appsettings.Production.json
 tsconfig.tsbuildinfo
+publish
 
 # Dependencias
 node_modules/
@@ -50,9 +51,7 @@ dist/
 dist-ssr/
 
 # Entorno
-.env
-.env.local
-.env.*.local
+.env.Production
 
 # Logs
 npm-debug.log*

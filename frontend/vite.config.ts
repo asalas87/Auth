@@ -15,20 +15,6 @@ export default defineConfig({
             cert: './localhost.pem'
         }
     },
-    preview: {
-        https: {
-            key: './localhost-key.pem',
-            cert: './localhost.pem'
-        },
-        port: 5173,
-        proxy: {
-            '/api': {  // Recomendado: prefijar rutas API
-                target: 'https://localhost:7277',
-                changeOrigin: true,
-                secure: false
-            }
-        }
-    },
     build: {
         outDir: 'dist',
         emptyOutDir: true,

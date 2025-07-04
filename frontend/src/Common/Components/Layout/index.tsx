@@ -9,7 +9,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="d-flex">
             <Sidebar />
-            <ProgressBar visible={true} />
+            <ProgressBar visible={loading} />
             <main className="flex-grow-1 p-3">
                 {children}
             </main>
