@@ -31,8 +31,12 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Servicios
 // -------------------------
 var origins = builder.Configuration
-                    .GetSection("Cors:AllowedOrigins")
-                    .Get<string[]>();
+                .GetSection("Cors:AllowedOrigins")
+                .Get<string[]>();
+
+if (origins == null || origins.Length == 0)
+    throw new InvalidOperationException("CORS origins not configured properly.");
+
 
 builder.Services.AddCors(options =>
 {
