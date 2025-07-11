@@ -12,7 +12,7 @@ const Sidebar = () => {
 
     return (
         <div className="d-flex flex-column vh-100 p-3 bg-light border-end" style={{ width: "250px" }}>
-            <h4 className="mb-4">Mi Sistema</h4>
+            <h4 className="mb-4">Cs Ingenieria</h4>
 
             <ul className="nav nav-pills flex-column mb-auto">
                 <li className="nav-item">

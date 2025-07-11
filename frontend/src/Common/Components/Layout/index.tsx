@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useLoading } from "../../Context/LoadingContext ";
+import { useLoading } from "../../Context/LoadingContext";
 import ProgressBar from "../ProgressBar/index";
 import Sidebar from "../Sidebar/index";
 

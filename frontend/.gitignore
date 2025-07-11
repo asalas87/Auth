@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vite
+.vite/
+
+# Certificados y claves privadas locales
+localhost.pem
+localhost-key.pem
+myCA.pem
+myCA.key
+myCA.srl
+*.crt
+*.csr
+*.srl
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
