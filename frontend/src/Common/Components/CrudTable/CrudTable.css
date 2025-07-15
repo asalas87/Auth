@@ -1,0 +1,28 @@
+/* Quitar bordes verticales y engrosar el borde entre thead y tbody */
+/* Encabezados de tabla: altura fija, alineación y truncado con tooltip */
+th {
+  height: 38px;
+  vertical-align: middle;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Oscurecer la fila al hacer hover */
+tbody tr:hover {
+  background-color: rgb(245, 245, 245);
+}
+/* Acciones: ancho mínimo y botones alineados horizontalmente */
+th.actions-col, td.actions-col {
+  width: 1%;
+  text-align: center;
+  white-space: nowrap;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+td.actions-col .btn-group {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}

@@ -46,9 +46,6 @@ const UsersView = () => {
     return (
         <div className="container mt-4">
             <h2>Gestión de Usuarios</h2>
-            <button className="btn btn-primary mb-3" onClick={handleCreate}>
-                Crear nuevo
-            </button>
             <CrudTable<IUserDTO>
                 data={users}
                 columns={fields}
@@ -58,7 +55,9 @@ const UsersView = () => {
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 totalCount={totalCount}
-                onFilter={ setFilter }
+                onFilter={setFilter}
+                onNew={handleCreate}
+                newLabel="Nuevo"
             />
 
             {selected && (

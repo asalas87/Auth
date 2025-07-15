@@ -66,9 +66,6 @@ export const DocumentsView = () => {
     return (
         <div className="container mt-4">
             <h2>Gestión de Documentos</h2>
-            <button className="btn btn-primary mb-3" onClick={handleCreate}>
-                Subir Documento
-            </button>
             <CrudTable<IDocumentDTO>
                 data={documents}
                 columns={fields}
@@ -79,6 +76,8 @@ export const DocumentsView = () => {
                 onPageChange={setCurrentPage}
                 totalCount={totalCount}
                 onFilter={setFilter}
+                onNew={handleCreate}
+                newLabel="Nuevo"
             />
 
             {selected && (
