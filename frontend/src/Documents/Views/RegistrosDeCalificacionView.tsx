@@ -1,13 +1,12 @@
-import { useCallback, useState } from 'react';
-import { IDocumentDTO } from '../Interfaces/IDocumentDTO';
-import { ColumnConfig, CrudTable, usePaginatedList } from '@/Common/Components/CrudTable';
-import { getEmptyItem, FieldType } from '@/Common/Components/EditForm';
-import { getAll, create } from '../Services/DocumentService';
-import { DocumentEditForm } from './Forms/DocumentEditForm';
+import { useCallback, useState } from "react";
+import { IRegistroCalificacionDTO } from "../Interfaces/IRegistroCalificacionDTO";
+import { ColumnConfig, CrudTable, usePaginatedList } from "@/Common/Components/CrudTable";
+import { FieldType, getEmptyItem } from "@/Common/Components/EditForm";
+import { RegistrosDeCalificacionEditForm } from "./Forms/RegistrosDeCalificacionEditForm";
+import { getAll } from "../Services/RegistroDeCalificacionService";
 
-export const DocumentsView = () => {
-    const [showForm, setShowForm] = useState(false);
-    const [selected, setSelected] = useState<IDocumentDTO | null>(null);
+export const RegistrosDeCalificacionView = () => {
+    const [selected, setSelected] = useState<IRegistroCalificacionDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
     const memoizedGetAll = useCallback(getAll, []);
@@ -22,37 +21,35 @@ export const DocumentsView = () => {
         pageSize
     } = usePaginatedList(memoizedGetAll);
 
-    const fields: ColumnConfig<IDocumentDTO>[] = [
+    const fields: ColumnConfig<IRegistroCalificacionDTO>[] = [
         { key: 'name', label: 'Nombre' },
-        { key: 'description', label: 'Descripcion' },
+        { key: 'nombreEmpresa', label: 'Empresa' },
         { key: 'uploadDate', label: 'Fecha Subida' },
         { key: 'expirationDate', label: 'Fecha Expiracion' },
-        { key: 'uploadedBy', label: 'Subido Por' },
-        { key: 'assignedTo', label: 'Asignado A' },
         { key: 'path', label: 'Ruta' },
     ];
 
-    const handleEdit = (document: IDocumentDTO) => {
+    const handleEdit = (document: IRegistroCalificacionDTO) => {
         setSelected(document);
         setMode('edit');
     };
 
     const handleCreate = () => {
-        const empty = getEmptyItem<IDocumentDTO>([
+        const empty = getEmptyItem<IRegistroCalificacionDTO>([
             { name: 'name', label: 'Nombre', type: FieldType.Text },
-            { name: 'description', label: 'Descripcion', type: FieldType.Text },
+            { name: 'nombreEmpresa', label: 'Descripcion', type: FieldType.Text },
             { name: 'expirationDate', label: 'Fecha Expiracion', type: FieldType.Date },
-            { name: 'assignedTo', label: 'Asignado A', type: FieldType.Select },
+            { name: 'idEmpresa', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
         setSelected(empty);
         setMode('create');
     };
 
-    const handleSave = async (document: IDocumentDTO) => {
+    const handleSave = async (document: IRegistroCalificacionDTO) => {
         try {
             if (mode === 'create') {
-                await create(document);
+                // await create(document);
                 setCurrentPage(1); // o mantener página actual
             } else {
                 // lógica para edición
@@ -65,8 +62,8 @@ export const DocumentsView = () => {
 
     return (
         <div className="container mt-4">
-            <h2>Documentos</h2>
-            <CrudTable<IDocumentDTO>
+            <h2>Registros de Calificación</h2>
+            <CrudTable<IRegistroCalificacionDTO>
                 data={documents}
                 columns={fields}
                 onEdit={handleEdit}
@@ -81,7 +78,7 @@ export const DocumentsView = () => {
             />
 
             {selected && (
-                <DocumentEditForm
+                <RegistrosDeCalificacionEditForm
                     item={selected}
                     onSave={handleSave}
                     onClose={() => setSelected(null)}
@@ -90,4 +87,4 @@ export const DocumentsView = () => {
             )}
         </div>
     );
-};
+}

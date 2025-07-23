@@ -9,11 +9,7 @@ public class EditUserRequest
 
     [Required]
     [StringLength(100, MinimumLength = 2)]
-    public string FirstName { get; set; } = default!;
-
-    [Required]
-    [StringLength(100, MinimumLength = 2)]
-    public string LastName { get; set; } = default!;
+    public string Name { get; set; } = default!;
 
     [Required]
     [EmailAddress]
