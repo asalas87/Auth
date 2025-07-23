@@ -1,4 +1,5 @@
 using Application.Common.Dtos;
+using Application.Security.Common.DTOs;
 using Application.Security.Common.DTOS;
 using Application.Security.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -67,6 +68,30 @@ namespace Web.API.Controllers.Security
 
             return result.Match(
                 value => Ok(value),
+                errors => Problem(errors)
+            );
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _service.DeleteUserAsync(id);
+            return result.Match(
+                success => Ok(success),
+                errors => Problem(errors)
+            );
+        }
+
+        [HttpPut("{id:guid}", Name = "EditUser")]
+        public async Task<IActionResult> Edit(Guid id, [FromBody] EditUserRequest dto)
+        {
+            if (id != dto.Id)
+                return BadRequest("Route ID and body ID do not match.");
+
+            var result = await _service.EditUserAsync(dto);
+
+            return result.Match(
+                success => Ok(success),
                 errors => Problem(errors)
             );
         }

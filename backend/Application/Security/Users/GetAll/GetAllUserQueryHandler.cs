@@ -1,9 +1,9 @@
 using Domain.Primitives;
 using ErrorOr;
 using MediatR;
-using Domain.Security.Interfaces;
 using Application.Security.Common.DTOS;
 using Application.Common.Responses;
+using Domain.Secutiry.Interfaces;
 
 namespace Application.Security.Users.GetAll
 {
@@ -27,6 +27,8 @@ namespace Application.Security.Users.GetAll
                 Id = u.Id.Value,
                 Name = u.Name,
                 Email = u.Email.Value,
+                Role = u.Role.Name ?? string.Empty,
+                RoleId = u.Role.Id
             }).ToList();
 
             return new PaginatedResult<UserDTO>

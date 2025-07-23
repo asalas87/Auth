@@ -17,3 +17,7 @@ export const getAllUsers = async () : Promise<IUserDTO[]> => {
     const response = await api.get('/security/users/getAll');
     return response.data;
 };
+
+export const deleteUser = async (id: string): Promise<void> => {
+    await api.delete(`/security/users/${id}`);
+};

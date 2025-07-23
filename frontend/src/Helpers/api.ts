@@ -82,9 +82,16 @@ api.interceptors.request.use(config => {
     setLoading(true);
     return config;
 });
+
 api.interceptors.response.use(
     response => {
         setLoading(false);
+
+        const data = response.data;
+        if (typeof data === 'object' && data?.message) {
+            toast.success(data.message);
+        }
+
         return response;
     },
     error => {

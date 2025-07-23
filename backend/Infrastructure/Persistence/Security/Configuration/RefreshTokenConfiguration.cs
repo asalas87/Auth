@@ -1,4 +1,4 @@
-﻿using Domain.Security.Entities;
+using Domain.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -7,7 +7,7 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
     public void Configure(EntityTypeBuilder<RefreshToken> builder)
     {
-        builder.ToTable("RefreshTokens");
+        builder.ToTable("RefreshTokens", "SEC");
 
         builder.HasKey(rt => rt.Id);
 

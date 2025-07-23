@@ -1,8 +1,8 @@
-﻿using ErrorOr;
+using ErrorOr;
 using MediatR;
 using Domain.Security.Entities;
-using Domain.Security.Interfaces;
 using Application.Interfaces;
+using Domain.Secutiry.Interfaces;
 
 namespace Application.Security.Users.Create
 {

@@ -1,4 +1,4 @@
-﻿using Domain.Sales.Entities;
+using Domain.Sales.Entities;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -9,7 +9,7 @@ namespace Infrastructure.Persistence.Sales.Configuration
     {
         public void Configure(EntityTypeBuilder<Customer> builder)
         {
-            builder.ToTable("SAL_Customers");
+            builder.ToTable("Customers", "SAL");
 
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id).HasConversion(customerId => customerId.Value, value => new CustomerId(value));

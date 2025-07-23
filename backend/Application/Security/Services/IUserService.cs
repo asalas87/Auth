@@ -1,5 +1,6 @@
 using Application.Common.Dtos;
 using Application.Common.Responses;
+using Application.Security.Common.DTOs;
 using Application.Security.Common.DTOS;
 using Application.Security.Common.Responses;
 using ErrorOr;
@@ -12,4 +13,6 @@ public interface IUserService
     public Task<ErrorOr<PaginatedResult<UserDTO>>> GetUsersPaginatedAsync(PaginateDTO paginateDTO);
     public Task<ErrorOr<List<UserDTO>>> GetUsersAsync();
     public Task<ErrorOr<LoginResponse>> RefreshTokenAsync(string refreshToken);
+    Task<ErrorOr<SuccessResponse>> DeleteUserAsync(Guid userId);
+    Task<ErrorOr<SuccessResponse>> EditUserAsync(EditUserRequest dto);
 }
