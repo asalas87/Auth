@@ -1,11 +1,9 @@
 ﻿import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import { IUserDTO } from '@/Security/Interfaces';
+import { IRoleDTO, IUserDTO } from '@/Security/Interfaces';
+import { getAllRoles } from '@/Security/Services/RoleService';
+import { useEffect, useState } from 'react';
 
-const fields: FieldConfig<IUserDTO>[] = [
-    { name: 'name', label: 'Nombre', type: FieldType.Text },
-    { name: 'email', label: 'Correo electrónico', type: FieldType.Text },
-];
 
 export const UserEditForm = ({
     item,
@@ -17,12 +15,38 @@ export const UserEditForm = ({
     onSave: (u: IUserDTO) => void;
     onClose: () => void;
     mode?: 'edit' | 'create';
-}) => (
-    <GenericEditForm<IUserDTO>
-        item={item}
-        fields={fields}
-        onClose={onClose}
-        onSave={onSave}
-        mode={mode}
-    />
-);
+}) => {
+    const [roles, setRoles] = useState<IRoleDTO[]>([]);
+    useEffect(() => {
+        const loadRoles = async () => {
+            try {
+                const response = await getAllRoles();
+                setRoles(response);
+            } catch (error) {
+                console.error('Error al cargar roles', error);
+            }
+        };
+
+        loadRoles();
+    }, []);
+
+    const fields: FieldConfig<IUserDTO>[] = [
+        { name: 'name', label: 'Nombre', type: FieldType.Text },
+        { name: 'email', label: 'Correo electrónico', type: FieldType.Text },
+        {
+            name: 'roleId',
+            label: 'Rol',
+            type: FieldType.Select,
+            options: roles.map(u => ({ value: u.id, label: u.roleName })),
+        }
+    ];
+    return (
+        <GenericEditForm<IUserDTO>
+            item={item}
+            fields={fields}
+            onClose={onClose}
+            onSave={onSave}
+            mode={mode}
+        />
+    );
+};

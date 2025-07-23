@@ -2,8 +2,10 @@ using Application.Common.Interfaces;
 using Application.Documents.Services;
 using Application.Interfaces;
 using Application.Security.Services;
+using Domain.Security.Interfaces;
 using Infrastructure.Common.Services;
 using Infrastructure.Documents.Services;
+using Infrastructure.Persistence.Security.Repositories;
 using Infrastructure.Security;
 using Infrastructure.Services;
 using Web.API.Middlewares;
@@ -32,6 +34,8 @@ namespace Web.API
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRoleService, RoleService>();
 
             services.AddAutoMapper(typeof(DependencyInjection));
 

@@ -1,8 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Application;
 using Infrastructure;
+using Infrastructure.Persistence.Extensions;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.IdentityModel.Tokens.Jwt;
 using Web.API;
 using Web.API.Extensions;
 using Web.API.Middlewares;
@@ -87,11 +88,13 @@ var app = builder.Build();
 // -------------------------
 // Middleware
 // -------------------------
+app.EnsureSchemas();
+app.SeedData();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ApplyMigrations(); // esto est� bien aqu�, se ejecuta solo en desarrollo
+    app.ApplyMigrations();
 }
 
 app.UseExceptionHandler("/error"); // manejo global

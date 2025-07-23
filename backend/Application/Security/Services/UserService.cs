@@ -2,12 +2,16 @@ using Application.Common.Dtos;
 using Application.Common.Extensions;
 using Application.Common.Responses;
 using Application.Interfaces;
+using Application.Security.Common.DTOs;
 using Application.Security.Common.DTOS;
 using Application.Security.Common.Responses;
 using Application.Security.Users.Create;
+using Application.Security.Users.Delete;
+using Application.Security.Users.Edit;
 using Application.Security.Users.GetAll;
 using Application.Security.Users.GetById;
 using AutoMapper;
+using Domain.Security.Entities;
 using ErrorOr;
 using MediatR;
 
@@ -127,4 +131,27 @@ public class UserService : IUserService
 
         return response;
     }
+
+    public async Task<ErrorOr<SuccessResponse>> DeleteUserAsync(Guid userId)
+    {
+        var command = new DeleteUserCommand(new UserId(userId));
+        var result = await _mediator.Send(command);
+
+        if (result.IsError)
+            return result.Errors;
+
+        return new SuccessResponse("Usuario eliminado correctamente.", userId);
+    }
+
+    public async Task<ErrorOr<SuccessResponse>> EditUserAsync(EditUserRequest dto)
+    {
+        var command = _mapper.Map<EditUserCommand>(dto);
+        var result = await _mediator.Send(command);
+
+        if (result.IsError)
+            return result.Errors;
+
+        return new SuccessResponse("Usuario editado correctamente.", result.Value.Value);
+    }
+
 }

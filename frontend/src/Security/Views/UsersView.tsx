@@ -5,6 +5,8 @@ import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { getUsers } from '@/Security/Services/UserService';
 import { usePaginatedList, CrudTable, ColumnConfig } from '@/Common/Components/CrudTable';
+import { deleteUser } from '@/Security/Services/UserService';
+import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 
 const UsersView = () => {
     const [selected, setSelected] = useState<IUserDTO | null>(null);
@@ -17,12 +19,14 @@ const UsersView = () => {
         setCurrentPage,
         filter,
         setFilter,
-        pageSize
+        pageSize,
+        reload
     } = usePaginatedList(getUsers);
 
     const fields: ColumnConfig<IUserDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'email', label: 'Correo' },
+        { key: 'role', label: 'Rol' }
     ];
 
     const handleEdit = (user: IUserDTO) => {
@@ -39,6 +43,16 @@ const UsersView = () => {
         setMode('create');
     };
 
+    const handleDelete = async (user: IUserDTO) => {
+        if (!window.confirm(`¿Eliminar a "${user.name}"?`)) return;
+
+        executeWithErrorHandling(
+            () =>  deleteUser(user.id),
+            () =>  reload(),
+            () => setSelected(null)
+        )
+    };
+
     const handleSave = (user: IUserDTO) => {
         setSelected(null);
     };
@@ -50,7 +64,7 @@ const UsersView = () => {
                 data={users}
                 columns={fields}
                 onEdit={handleEdit}
-                onDelete={(item) => console.log('delete', item)}
+                onDelete={handleDelete}
                 showActions
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}

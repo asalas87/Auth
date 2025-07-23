@@ -1,9 +1,10 @@
-﻿using Domain.Primitives;
+using Domain.Primitives;
 using ErrorOr;
 using MediatR;
-using Domain.Security.Interfaces;
 using Domain.Security.Entities;
 using Application.Interfaces;
+using Domain.ValueObjects;
+using Domain.Secutiry.Interfaces;
 
 namespace Application.Security.Users.Create
 {
@@ -27,7 +28,7 @@ namespace Application.Security.Users.Create
             if (existingUser != null)
                 return Error.Failure("User.EmailRegistrated", "El email ya está registrado.");
 
-            var user = new User(new UserId(Guid.NewGuid()), request.Name, _passwordHasher.HashPassword(request.Password), request.Email, true);
+            var user = new User(new UserId(Guid.NewGuid()), request.Name, _passwordHasher.HashPassword(request.Password), request.Email, Role.User, true);
             await _userRepository.AddAsync(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return user.Id.Value;

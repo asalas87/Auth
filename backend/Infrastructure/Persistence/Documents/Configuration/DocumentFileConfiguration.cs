@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using Domain.Documents.Entities;
 using Domain.Security.Entities;
@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence.Documents.Configuration
     {
         public void Configure(EntityTypeBuilder<DocumentFile> builder)
         {
-            builder.ToTable("DOC_DocumentFiles");
+            builder.ToTable("DocumentFiles", "DOC");
 
             builder.HasKey(c => c.Id);
             builder.Property(d => d.Id)
@@ -40,26 +40,6 @@ namespace Infrastructure.Persistence.Documents.Configuration
                 .WithMany()
                 .HasForeignKey("AssignedToId")
                 .OnDelete(DeleteBehavior.Restrict);
-
-            //builder.Property(d => d.UploadedById)
-            //    .HasConversion(id => id.Value, value => new UserId(value))
-            //    .HasColumnName("UploadedById");
-
-            //builder.Property(d => d.AssignedToId)
-            //    .HasConversion(
-            //        id => id != null ? id.Value : (Guid?)null,
-            //        value => value != null ? new UserId(value.Value) : null)
-            //    .HasColumnName("AssignedToId");
-
-            //builder.HasOne(d => d.UploadedBy)
-            //    .WithMany(u => u.)
-            //    .HasForeignKey(d => d.UploadedById)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //builder.HasOne(d => d.AssignedTo)
-            //    .WithMany()
-            //    .HasForeignKey(d => d.AssignedToId)
-            //    .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Domain.Security.Entities;
-using Domain.Security.Interfaces;
+using Domain.Security.Entities;
+using Domain.Secutiry.Interfaces;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +25,7 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(Email email) => await _context.Users.Include(d => d.RefreshTokens).SingleOrDefaultAsync(c => c.Email == email);
     public async Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter)
     {
-        var query = _context.Users.Include(d => d.RefreshTokens).AsQueryable();
+        var query = _context.Users.Include(d => d.RefreshTokens).Include(u => u.Role).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter))
         {

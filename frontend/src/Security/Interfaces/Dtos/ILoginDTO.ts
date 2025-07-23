@@ -1,5 +1,5 @@
 import { IBaseUser } from '../Models/IBaseUser';
-export interface ILoginDTO {
+export interface ILoginDTO extends IBaseUser  {
     email: string
     password: string
 }

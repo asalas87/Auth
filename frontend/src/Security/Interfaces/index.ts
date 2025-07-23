@@ -2,6 +2,7 @@
 export * from './Dtos/ILoginDTO';
 export * from './Dtos/IRegisterDTO';
 export * from './Dtos/IUserDTO';
+export * from './Dtos/IRoleDTO';
 
 // Models
 export * from './Models/IBaseUser';

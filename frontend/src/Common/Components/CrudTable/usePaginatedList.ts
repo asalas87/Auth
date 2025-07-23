@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export interface PagedResult<T> {
     items: T[];
@@ -14,14 +14,15 @@ export function usePaginatedList<T>(
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setFilter] = useState('');
 
-    useEffect(() => {
-        const load = async () => {
-            const result = await fetchFn(currentPage, pageSize, filter);
-            setData(result.items);
-            setTotalCount(result.totalCount);
-        };
-        load();
+    const loadData = useCallback(async () => {
+        const result = await fetchFn(currentPage, pageSize, filter);
+        setData(result.items);
+        setTotalCount(result.totalCount);
     }, [fetchFn, currentPage, pageSize, filter]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     return {
         data,
@@ -30,6 +31,7 @@ export function usePaginatedList<T>(
         setCurrentPage,
         filter,
         setFilter,
-        pageSize
+        pageSize,
+        reload: loadData 
     };
 }

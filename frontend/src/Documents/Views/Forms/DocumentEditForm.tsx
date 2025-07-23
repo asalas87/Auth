@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IDocumentDTO } from '../../Interfaces/IDocumentDTO';
@@ -17,7 +17,6 @@ export const DocumentEditForm = ({
     mode?: 'edit' | 'create';
 }) => {
     const [users, setUsers] = useState<IUserDTO[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadUsers = async () => {
@@ -26,8 +25,6 @@ export const DocumentEditForm = ({
                 setUsers(response);
             } catch (error) {
                 console.error('Error al cargar usuarios', error);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -49,9 +46,6 @@ export const DocumentEditForm = ({
             type: FieldType.File,
         },
     ];
-
-    if (loading) return <div className="p-3">Cargando...</div>;
-
     return (
         <GenericEditForm<IDocumentDTO>
             item={item}

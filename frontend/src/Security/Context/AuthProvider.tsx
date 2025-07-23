@@ -9,7 +9,7 @@ import { AuthContext } from "./AuthContext";
 
 
 export const AuthProvider = ({ children }: { children: ReactNode; }) => {
-    const [user, setUser] = useState<IUser | null>(getToken() ? { id: '', name: '', email: '' } : null);
+    const [user, setUser] = useState<IUser | null>(getToken() ? { id: '', name: '', email: '', roleId: 2, roleName: '' } : null);
 
     const signIn = async (data: ILoginDTO) => {
         try {
@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
                 id: response.id,
                 name: response.name,
                 email: response.email,
+                roleId: response.roleId,
+                roleName: response.roleName ? response.roleName : '',
             });
         } catch (error) {
             console.error('Error al iniciar sesión', error);
@@ -33,6 +35,8 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
                 id: response.id.value,
                 name: response.name,
                 email: response.email,
+                roleId: response.roleId,
+                roleName: response.roleName ? response.roleName : '',
             });
         } catch (error) {
             console.error('Error al registrar usuario', error);
