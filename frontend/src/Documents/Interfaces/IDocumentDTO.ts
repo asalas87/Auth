@@ -4,7 +4,8 @@ export interface IDocumentDTO {
     path: string;
     uploadDate: string;
     uploadedBy: string;
-    expirationDate?: string;
+    validFrom?: Date;
+    validUntil?: Date;
     description?: string;
     assignedTo?: string;
     file: File;

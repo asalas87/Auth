@@ -35,36 +35,65 @@ export function GenericEditForm<T extends { id?: string }>({
     };
 
     return (
-        <div className="modal show d-block" style={{ backgroundColor: '#00000088' }
-        }>
-            <div className="modal-dialog" >
-                <form className="modal-content" onSubmit={handleSubmit} >
-                    <div className="modal-header" >
-                        <h5 className="modal-title" >
+        <div className="modal show d-block" style={{ backgroundColor: '#00000088' }}>
+            <div className="modal-dialog">
+                <form className="modal-content" onSubmit={handleSubmit}>
+                    <div className="modal-header">
+                        <h5 className="modal-title">
                             {mode === 'create' ? 'Crear elemento' : 'Editar elemento'}
                         </h5>
-                        < button type="button" className="btn-close" onClick={onClose} > </button>
+                        <button type="button" className="btn-close" onClick={onClose}></button>
                     </div>
-                    < div className="modal-body" >
-                        {fields.map(({ name, label, type, options }) => {
+                    <div className="modal-body">
+                        {fields.map(({ name, label, type, options, events }) => {
                             const fieldName = String(name);
                             const value = form[name] ?? '';
 
-                            return (
-                                <div className="mb-3" key={fieldName}>
-                                    <label className="form-label">{label}</label>
-                                    {type === FieldType.TextArea ? (
+                            // Eventos pasados por FieldConfig (eventos extra)
+                            // Los desestructuro para evitar pisar onChange internos
+                            // si no se pasan, se usan los internos que actualizan el state
+                            const {
+                                onChange: eventOnChange,
+                                onInput,
+                                onFocus,
+                                onBlur,
+                                onKeyDown,
+                                ...restEvents
+                            } = events ?? {};
+
+                            // Para los inputs estándar y textarea, si no hay onChange en events uso el handleChange
+                            // Para select idem con handleOptionChange
+                            // Para file input manejo especial
+
+                            if (type === FieldType.TextArea) {
+                                return (
+                                    <div className="mb-3" key={fieldName}>
+                                        <label className="form-label">{label}</label>
                                         <textarea
                                             name={fieldName}
                                             value={String(value)}
-                                            onChange={handleChange}
+                                            onChange={eventOnChange ?? handleChange}
+                                            onInput={onInput}
+                                            onFocus={onFocus}
+                                            onBlur={onBlur}
+                                            onKeyDown={onKeyDown}
+                                            {...restEvents}
                                             className="form-control"
                                         />
-                                    ) : type === FieldType.Select ? (
+                                    </div>
+                                );
+                            } else if (type === FieldType.Select) {
+                                return (
+                                    <div className="mb-3" key={fieldName}>
+                                        <label className="form-label">{label}</label>
                                         <select
                                             name={fieldName}
                                             value={String(value)}
-                                            onChange={handleOptionChange}
+                                            onChange={eventOnChange ?? handleOptionChange}
+                                            onFocus={onFocus}
+                                            onBlur={onBlur}
+                                            onKeyDown={onKeyDown}
+                                            {...restEvents}
                                             className="form-select"
                                         >
                                             <option value="">-- Seleccionar --</option>
@@ -74,30 +103,52 @@ export function GenericEditForm<T extends { id?: string }>({
                                                 </option>
                                             ))}
                                         </select>
-                                        ) : type === FieldType.File ? (
-                                            <input
-                                                type="file"
-                                                name={String(name)}
-                                                onChange={(e) => {
-                                                    const file = e.target.files?.[0] ?? null;
-                                                    setForm(prev => ({
-                                                        ...prev,
-                                                        [name]: file as any, // file debe estar en el tipo
-                                                    }));
-                                                }}
-                                                className="form-control"
-                                            />
-                                            ) : (
+                                    </div>
+                                );
+                            } else if (type === FieldType.File) {
+                                return (
+                                    <div className="mb-3" key={fieldName}>
+                                        <label className="form-label">{label}</label>
+                                        <input
+                                            type="file"
+                                            name={fieldName}
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0] ?? null;
+                                                setForm(prev => ({
+                                                    ...prev,
+                                                    [name]: file as any, // El tipo file debe estar contemplado
+                                                }));
+                                                // También disparamos el onChange pasado si existe
+                                                if (eventOnChange) eventOnChange(e);
+                                            }}
+                                            onFocus={onFocus}
+                                            onBlur={onBlur}
+                                            onKeyDown={onKeyDown}
+                                            {...restEvents}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                );
+                            } else {
+                                // Inputs tipo text, number, date, email, password, etc
+                                return (
+                                    <div className="mb-3" key={fieldName}>
+                                        <label className="form-label">{label}</label>
                                         <input
                                             type={type}
                                             name={fieldName}
                                             value={String(value)}
-                                            onChange={handleChange}
+                                            onChange={eventOnChange ?? handleChange}
+                                            onInput={onInput}
+                                            onFocus={onFocus}
+                                            onBlur={onBlur}
+                                            onKeyDown={onKeyDown}
+                                            {...restEvents}
                                             className="form-control"
                                         />
-                                    )}
-                                </div>
-                            );
+                                    </div>
+                                );
+                            }
                         })}
                     </div>
                     <button className="btn btn-link primary me-2" onClick={handleSubmit}>

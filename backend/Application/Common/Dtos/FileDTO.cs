@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +11,8 @@ namespace Application.Common.Dtos
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public DateTime UploadDate { get; set; }
-        public DateTime? ExpirationDate { get; set; }
+        public DateTime? ValidFrom { get; set; }
+        public DateTime? ValidUntil { get; set; }
         public string Path { get; set; } = string.Empty;
     }
 }

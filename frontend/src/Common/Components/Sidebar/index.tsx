@@ -17,7 +17,12 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                     <ul className="nav nav-pills flex-column mb-auto">
                         <li className="nav-item">
                             <Link to="/documents/management" className="nav-link" onClick={onHide}>
-                                Subir Documentos
+                                Documentos
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/security/registrosCalificacion" className="nav-link" onClick={onHide}>
+                                Registros de calificacion
                             </Link>
                         </li>
                         <li>
@@ -38,7 +43,12 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                 <ul className="nav nav-pills flex-column mb-auto">
                     <li className="nav-item">
                         <Link to="/documents/management" className="nav-link">
-                            Subir Documentos
+                            Documentos
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/documents/registrosDeCalificacion" className="nav-link" onClick={onHide}>
+                            Registros de calificación
                         </Link>
                     </li>
                     <li>

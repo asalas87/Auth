@@ -1,4 +1,4 @@
-﻿using Application.Common.Responses;
+using Application.Common.Responses;
 using Application.Documents.Management.DTOs;
 using Domain.Documents.Interfaces;
 using Domain.Primitives;
@@ -27,7 +27,7 @@ namespace Application.Documents.Management.GetAll
             {
                 Id = d.Id.Value,
                 Description = d.Description,
-                ExpirationDate = d.ExpirationDate,
+                ValidUntil = d.ExpirationDate,
                 Name = d.Name,
                 Path = d.Path,
                 UploadDate = d.UploadDate,
@@ -50,7 +50,7 @@ namespace Application.Documents.Management.GetAll
             {
                 Id = d.Id.Value,
                 Description = d.Description,
-                ExpirationDate = d.ExpirationDate,
+                ValidUntil = d.ExpirationDate,
                 Name = d.Name,
                 Path = d.Path,
                 UploadDate = d.UploadDate

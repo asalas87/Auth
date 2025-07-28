@@ -24,7 +24,7 @@ export const create = async (document: IDocumentDTO): Promise<void> => {
 
     formData.append('name', document.name ?? '');
     formData.append('description', document.description ?? '');
-    formData.append('expirationDate', document.expirationDate?.toString() ?? '');
+    formData.append('validUntil', document.validUntil?.toString() ?? '');
     formData.append('assignedTo', document.assignedTo ?? '');
 
     if (!(document.file instanceof File)) {

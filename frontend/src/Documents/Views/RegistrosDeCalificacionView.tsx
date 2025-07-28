@@ -1,12 +1,12 @@
 import { useCallback, useState } from "react";
-import { IRegistroCalificacionDTO } from "../Interfaces/IRegistroCalificacionDTO";
+import { ICertificadoDTO } from "../Interfaces/ICertificadoDTO";
 import { ColumnConfig, CrudTable, usePaginatedList } from "@/Common/Components/CrudTable";
 import { FieldType, getEmptyItem } from "@/Common/Components/EditForm";
 import { RegistrosDeCalificacionEditForm } from "./Forms/RegistrosDeCalificacionEditForm";
 import { getAll } from "../Services/RegistroDeCalificacionService";
 
 export const RegistrosDeCalificacionView = () => {
-    const [selected, setSelected] = useState<IRegistroCalificacionDTO | null>(null);
+    const [selected, setSelected] = useState<ICertificadoDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
     const memoizedGetAll = useCallback(getAll, []);
@@ -21,24 +21,23 @@ export const RegistrosDeCalificacionView = () => {
         pageSize
     } = usePaginatedList(memoizedGetAll);
 
-    const fields: ColumnConfig<IRegistroCalificacionDTO>[] = [
+    const fields: ColumnConfig<ICertificadoDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'nombreEmpresa', label: 'Empresa' },
-        { key: 'uploadDate', label: 'Fecha Subida' },
-        { key: 'expirationDate', label: 'Fecha Expiracion' },
-        { key: 'path', label: 'Ruta' },
+        { key: 'validFrom', label: 'Válido desde' },
+        { key: 'validUntil', label: 'Válido hasta' }
     ];
 
-    const handleEdit = (document: IRegistroCalificacionDTO) => {
+    const handleEdit = (document: ICertificadoDTO) => {
         setSelected(document);
         setMode('edit');
     };
 
     const handleCreate = () => {
-        const empty = getEmptyItem<IRegistroCalificacionDTO>([
-            { name: 'name', label: 'Nombre', type: FieldType.Text },
-            { name: 'nombreEmpresa', label: 'Descripcion', type: FieldType.Text },
-            { name: 'expirationDate', label: 'Fecha Expiracion', type: FieldType.Date },
+        const empty = getEmptyItem<ICertificadoDTO>([
+            { name: 'name', label: 'Nombre archivo', type: FieldType.Text },
+            { name: 'nombreEmpresa', label: 'Empresa', type: FieldType.Text },
+            { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
             { name: 'idEmpresa', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
@@ -46,7 +45,7 @@ export const RegistrosDeCalificacionView = () => {
         setMode('create');
     };
 
-    const handleSave = async (document: IRegistroCalificacionDTO) => {
+    const handleSave = async (document: ICertificadoDTO) => {
         try {
             if (mode === 'create') {
                 // await create(document);
@@ -63,7 +62,7 @@ export const RegistrosDeCalificacionView = () => {
     return (
         <div className="container mt-4">
             <h2>Registros de Calificación</h2>
-            <CrudTable<IRegistroCalificacionDTO>
+            <CrudTable<ICertificadoDTO>
                 data={documents}
                 columns={fields}
                 onEdit={handleEdit}

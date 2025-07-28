@@ -6,7 +6,6 @@ import { getAll, create } from '../Services/DocumentService';
 import { DocumentEditForm } from './Forms/DocumentEditForm';
 
 export const DocumentsView = () => {
-    const [showForm, setShowForm] = useState(false);
     const [selected, setSelected] = useState<IDocumentDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
@@ -26,7 +25,7 @@ export const DocumentsView = () => {
         { key: 'name', label: 'Nombre' },
         { key: 'description', label: 'Descripcion' },
         { key: 'uploadDate', label: 'Fecha Subida' },
-        { key: 'expirationDate', label: 'Fecha Expiracion' },
+        { key: 'validUntil', label: 'Válido hasta' },
         { key: 'uploadedBy', label: 'Subido Por' },
         { key: 'assignedTo', label: 'Asignado A' },
         { key: 'path', label: 'Ruta' },
@@ -41,7 +40,7 @@ export const DocumentsView = () => {
         const empty = getEmptyItem<IDocumentDTO>([
             { name: 'name', label: 'Nombre', type: FieldType.Text },
             { name: 'description', label: 'Descripcion', type: FieldType.Text },
-            { name: 'expirationDate', label: 'Fecha Expiracion', type: FieldType.Date },
+            { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
             { name: 'assignedTo', label: 'Asignado A', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);

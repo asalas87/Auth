@@ -128,7 +128,9 @@ export function CrudTable<T extends { id: string }>({
                     {(data ?? []).map(row => (
                         <tr key={row.id}>
                             {columns.map(col => (
-                                <td key={String(col.key)}>{String(row[col.key])}</td>
+                                <td key={String(col.key)}>
+                                    {row[col.key] === null || row[col.key] === undefined ? '' : String(row[col.key])}
+                                </td>
                             ))}
                             {showActions && (
                                 <td className="actions-col align-middle">

@@ -1,5 +1,5 @@
 import api from '@/Helpers/api';
-import { IRegistroCalificacionDTO } from '../Interfaces/IRegistroCalificacionDTO';
+import { ICertificadoDTO } from '../Interfaces/ICertificadoDTO';
 
 const endpoint = '/documents/management';
 
@@ -12,19 +12,19 @@ export const getAll = async (
     page: number,
     pageSize: number,
     filter: string = ''
-): Promise<PagedResult<IRegistroCalificacionDTO>> => {
+): Promise<PagedResult<ICertificadoDTO>> => {
     const response = await api.get(`${endpoint}/all`, {
         params: { page, pageSize, filter },
     });
     return response.data;
 };
 
-export const create = async (document: IRegistroCalificacionDTO): Promise<void> => {
+export const create = async (document: ICertificadoDTO): Promise<void> => {
     const formData = new FormData();
 
     formData.append('name', document.name ?? '');
     formData.append('description', document.description ?? '');
-    formData.append('expirationDate', document.expirationDate?.toString() ?? '');
+    formData.append('validUntil', document.validUntil?.toString() ?? '');
     formData.append('assignedTo', document.assignedTo ?? '');
 
     if (!(document.file instanceof File)) {

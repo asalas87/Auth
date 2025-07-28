@@ -5,4 +5,5 @@ export type FieldConfig<T> = {
     label: string;
     type: FieldType;
     options?: { value: string; label: string }[];
+    events?: { [K in keyof React.DOMAttributes<any>]?: React.DOMAttributes<any>[K] };
 };
