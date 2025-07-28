@@ -83,4 +83,4 @@ dist/
 **/*.js.map
 !src/**/*.ts
 !src/**/*.tsx
-/backend/Web.API/wwwroot/documents/6432b6d1-5bbb-4768-ae40-03345af1b87a/f4adf99c-2edd-44ea-8b77-462c0520ccd9.pdf
+/backend/Web.API/wwwroot/

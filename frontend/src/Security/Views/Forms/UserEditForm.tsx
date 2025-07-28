@@ -1,4 +1,5 @@
-﻿import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
+﻿import { FieldConfig } from '@/Common/Components/EditForm';
+import { GenericEditForm } from '@/Common/Components/EditForm/FieldRenderer';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IRoleDTO, IUserDTO } from '@/Security/Interfaces';
 import { getAllRoles } from '@/Security/Services/RoleService';

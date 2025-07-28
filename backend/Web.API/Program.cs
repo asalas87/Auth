@@ -54,8 +54,7 @@ builder.Services.AddCors(options =>
 builder.Services
     .AddPresentation()
     .AddInfrastructure(builder.Configuration)
-    .AddApplication()
-    .AddMediatR(config => config.RegisterServicesFromAssemblies(typeof(Program).Assembly));
+    .AddApplication();
 
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];

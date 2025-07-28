@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
+import { FieldConfig } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { ICertificadoDTO } from '../../Interfaces/ICertificadoDTO';
 import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
-import { getAll } from '@/Partners/Services/CompanyService';
+import { getAllForCombo } from '@/Partners/Services/CompanyService';
 import { extractTextFromPDF } from '@/Helpers/pdfTextExtractor';
 import { extractDataFromText } from '@/Helpers/extractDataFromText';
 import { parse } from 'date-fns';
+import { GenericEditForm } from '@/Common/Components/EditForm/FieldRenderer';
 
 export const RegistrosDeCalificacionEditForm = ({
     item,
@@ -23,7 +24,7 @@ export const RegistrosDeCalificacionEditForm = ({
     const [formOverrides, setFormOverrides] = useState<Partial<ICertificadoDTO>>({});
 
     useEffect(() => {
-        getAll().then(setCompanies).catch(console.error);
+        getAllForCombo().then(setCompanies).catch(console.error);
     }, []);
 
     const handlePdfLoad = async (file: File) => {

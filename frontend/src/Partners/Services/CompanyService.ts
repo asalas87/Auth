@@ -6,15 +6,15 @@ export interface PagedResult<T> {
     totalCount: number;
 }
 
-export const getAllPag = async (page: number, pageSize: number, filter: string = '') : Promise<PagedResult<ICompanyDTO>> => {
-    const response = await api.get('/partners/getAll2', {
+export const getPaged = async (page: number, pageSize: number, filter: string = '') : Promise<PagedResult<ICompanyDTO>> => {
+    const response = await api.get('/partners/company', {
         params: { page, pageSize, filter },
     });
     return response.data;
 };
 
-export const getAll = async () : Promise<ICompanyDTO[]> => {
-    const response = await api.get('/partners/company/getAll');
+export const getAllForCombo = async () : Promise<ICompanyDTO[]> => {
+    const response = await api.get('/controls/companies/list');
     return response.data;
 };
 

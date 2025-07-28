@@ -1,5 +1,6 @@
 using Application.Data;
 using Domain.Documents.Entities;
+using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Sales.Entities;
 using Domain.Security.Entities;
@@ -16,6 +17,7 @@ namespace Infrastructure.Persistence
         public DbSet<DocumentFile> DocumentFiles { get; set; } = default!;
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<Role> Roles => Set<Role>();
+        public DbSet<Company> Companies => Set<Company>();
 
         public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
         {

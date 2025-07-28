@@ -6,6 +6,7 @@ using Domain.Sales.Customers;
 using Domain.Secutiry.Interfaces;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Documents.Repositories;
+using Infrastructure.Persistence.Partners.Repositories;
 using Infrastructure.Persistence.Sales.Repositories;
 using Infrastructure.Persistence.Security.Repositories;
 using Infrastructure.Security;
@@ -32,6 +33,7 @@ namespace Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
             return services;
         }
     }

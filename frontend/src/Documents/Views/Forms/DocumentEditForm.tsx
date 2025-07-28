@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
+import { FieldConfig } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IDocumentDTO } from '../../Interfaces/IDocumentDTO';
 import { IUserDTO } from '@/Security/Interfaces';
 import { getAll } from '@/Security/Services/UserService'; 
+import { GenericEditForm } from '@/Common/Components/EditForm/FieldRenderer';
 
 export const DocumentEditForm = ({
     item,
