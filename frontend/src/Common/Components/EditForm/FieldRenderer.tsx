@@ -96,16 +96,23 @@ export function FieldRenderer<T>({
 
     case FieldType.File:
       return (
-        <input
-          type="file"
-          name={String(name)}
-          onChange={handleChange}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          onKeyDown={onKeyDown}
-          {...restEvents}
-          className="form-control"
-        />
+        <>
+          <input
+            type="file"
+            name={String(name)}
+            onChange={handleChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
+            {...restEvents}
+            className="form-control"
+          />
+          {value && (
+            <div className="mt-2 text-muted small">
+              Archivo seleccionado: <strong>{value.name}</strong>
+            </div>
+          )}
+        </>
       );
 
     case FieldType.Date:
@@ -172,12 +179,16 @@ export function GenericEditForm<T extends { id?: string }>({
             {fields.map(field => (
               <div className="mb-3" key={String(field.name)}>
                 <label className="form-label">{field.label}</label>
-                <FieldRenderer
-                  field={field}
-                  value={form[field.name]}
-                  onChange={onChange}
-                  eventOverrides={field.events}
-                />
+                {field.customControl ? (
+                  field.customControl
+                ) : (
+                  <FieldRenderer
+                    field={field}
+                    value={form[field.name]}
+                    onChange={onChange}
+                    eventOverrides={field.events}
+                  />
+                )}
               </div>
             ))}
           </div>

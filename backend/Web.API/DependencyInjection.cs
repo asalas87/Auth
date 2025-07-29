@@ -8,6 +8,8 @@ using Infrastructure.Documents.Services;
 using Infrastructure.Persistence.Security.Repositories;
 using Infrastructure.Security;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Web.API.Middlewares;
 
 namespace Web.API
@@ -20,7 +22,15 @@ namespace Web.API
             {
                 options.HttpsPort = 7277;
             });
-            services.AddControllers();
+
+            services.AddControllers(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            });
+
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.AddTransient<GlobalExceptionHandlingMiddleware>();

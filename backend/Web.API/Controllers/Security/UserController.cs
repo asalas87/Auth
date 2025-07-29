@@ -2,6 +2,7 @@ using Application.Common.Dtos;
 using Application.Security.Common.DTOs;
 using Application.Security.Common.DTOS;
 using Application.Security.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
 
@@ -16,6 +17,7 @@ namespace Web.API.Controllers.Security
             _service = service ?? throw new ArgumentException(nameof(service));
         }
 
+        [AllowAnonymous]
         [HttpPost("register", Name = "register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
@@ -27,6 +29,7 @@ namespace Web.API.Controllers.Security
                 );
         }
 
+        [AllowAnonymous]
         [HttpPost("login", Name = "login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {

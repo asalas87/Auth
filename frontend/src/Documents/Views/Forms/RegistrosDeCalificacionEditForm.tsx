@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { FieldConfig } from '@/Common/Components/EditForm';
-import { FieldType } from '@/Common/Components/EditForm/FieldType';
+import { FieldConfig, FieldType, GenericEditForm } from '@/Common/Components/EditForm';
 import { ICertificadoDTO } from '../../Interfaces/ICertificadoDTO';
-import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
+import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
 import { getAllForCombo } from '@/Partners/Services/CompanyService';
 import { extractTextFromPDF } from '@/Helpers/pdfTextExtractor';
 import { extractDataFromText } from '@/Helpers/extractDataFromText';
 import { parse } from 'date-fns';
-import { GenericEditForm } from '@/Common/Components/EditForm/FieldRenderer';
 
 export const RegistrosDeCalificacionEditForm = ({
     item,
@@ -52,6 +50,7 @@ export const RegistrosDeCalificacionEditForm = ({
                 idEmpresa: empresaEncontrada?.id,
                 validFrom: datos.validFrom ? parse(datos.validFrom, 'dd/MM/yyyy', new Date()) : undefined,
                 validUntil: datos.validUntil ? parse(datos.validUntil, 'dd/MM/yyyy', new Date()) : undefined,
+                file: file
             });
         } catch (e) {
             console.error('Error leyendo PDF:', e);

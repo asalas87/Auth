@@ -1,5 +1,5 @@
 import api from '@/Helpers/api';
-import { ICompanyDTO } from '../Interfaces/ICompanyDTO';
+import { ICompanyDTO } from '../../Controls/Company/ICompanyDTO';
 
 export interface PagedResult<T> {
     items: T[];

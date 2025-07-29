@@ -6,4 +6,5 @@ export type FieldConfig<T> = {
     type: FieldType;
     options?: { value: string | number; label: string }[];
     events?: { [K in keyof React.DOMAttributes<any>]?: React.DOMAttributes<any>[K] };
+    customControl?: React.ReactNode;
 };
