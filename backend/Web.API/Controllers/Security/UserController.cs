@@ -41,6 +41,7 @@ namespace Web.API.Controllers.Security
             );
         }
 
+        [AllowAnonymous]
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO dto)
         {

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Controls\Responses\" />
+    <Folder Include="Documents\Certificates\" />
     <Folder Include="Partners\Companies\" />
   </ItemGroup>
 

@@ -1,9 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using Application;
 using Infrastructure;
 using Infrastructure.Persistence.Extensions;
-using Microsoft.IdentityModel.Tokens;
 using Web.API;
 using Web.API.Extensions;
 using Web.API.Middlewares;
@@ -31,56 +29,12 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // -------------------------
 // Servicios
 // -------------------------
-var origins = builder.Configuration
-                .GetSection("Cors:AllowedOrigins")
-                .Get<string[]>();
-
-if (origins == null || origins.Length == 0)
-    throw new InvalidOperationException("CORS origins not configured properly.");
-
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp",
-        policy =>
-        {
-            policy.WithOrigins(origins)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        });
-});
-
 builder.Services
     .AddPresentation()
     .AddInfrastructure(builder.Configuration)
-    .AddApplication();
-
-var jwtKey = builder.Configuration["Jwt:Key"];
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
-
-if (string.IsNullOrWhiteSpace(jwtKey) || string.IsNullOrWhiteSpace(jwtIssuer) || string.IsNullOrWhiteSpace(jwtAudience))
-{
-    throw new InvalidOperationException("Faltan configuraciones JWT en appsettings o variables de entorno.");
-}
-
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtIssuer,
-            ValidAudience = jwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!))
-        };
-    });
-
-builder.Services.AddAuthorization();
+    .AddApplication()
+    .AddCorsPolicy(builder.Configuration)
+    .AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();
 

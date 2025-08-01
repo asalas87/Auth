@@ -28,4 +28,6 @@ public class CompanyRepository : ICompanyRepository
             .ToListAsync(cancellationToken);
     }
     public async Task<Company?> GetByCuitAsync(Cuit cuit, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.CuitCuil == cuit, cancellationToken);
+
+    public async Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
 }

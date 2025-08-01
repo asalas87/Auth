@@ -2,7 +2,7 @@ using Domain.Documents.Entities;
 
 namespace Domain.Documents.Interfaces
 {
-    public interface IDocumentFileRepository
+    public interface ICertificateRepository
     {
         Task AddAsync(Certificate file);
         void Update(Certificate file);
