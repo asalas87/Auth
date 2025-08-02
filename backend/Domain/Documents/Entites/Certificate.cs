@@ -25,6 +25,17 @@ public class Certificate : DocumentFile
     public DateTime ValidUntil { get; private set; }
 
     public Certificate() { }
+    public void Update(
+        string name,
+        DateTime validFrom,
+        DateTime validUntil,
+        Company assignedTo)
+    {
+        Name = name;
+        ValidFrom = validFrom;
+        ValidUntil = validUntil;
+        AssignedTo = assignedTo;
+    }
 }
 
 

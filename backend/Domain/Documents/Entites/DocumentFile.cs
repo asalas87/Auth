@@ -20,7 +20,7 @@ namespace Domain.Documents.Entities
             DocumentType = documentType;
         }
         public DocumentFile() { }
-        public string Name { get; private set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime UploadDate { get; set; }
         public DateTime? ExpirationDate { get; set; }

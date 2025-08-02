@@ -1,5 +1,4 @@
 using Application.Common.Dtos;
-using Application.Documents.Common.DTOs;
 using Application.Documents.Management.DTOs;
 using Application.Documents.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +29,7 @@ public class DocumentsController : ApiController
 
     [HttpPost("upload", Name = "upload")]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadFile([FromForm] CreateDocumentDTO dto)
+    public async Task<IActionResult> UploadFile([FromForm] DocumentDTO dto)
      {
         var result = await _service.CreateDocumentAsync(dto);
 

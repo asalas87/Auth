@@ -46,5 +46,11 @@ namespace Infrastructure.Persistence.Documents.Repositories
 
             return (certificates, totalCount);
         }
+
+        public async Task<Certificate?> GetByIdAsync(Guid id)
+        {
+            return await _context.Certificates
+                .FirstOrDefaultAsync(c => c.Id.Value == id);
+        }
     }
 }

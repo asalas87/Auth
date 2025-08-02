@@ -7,57 +7,55 @@ using MediatR;
 
 namespace Application.Documents.Management.GetAll
 {
-    public sealed class GetDocumentsPaginatedQueryHandler : IRequestHandler<GetDocumentsPaginatedQuery, ErrorOr<PaginatedResult<DocumentFileDTO>>>,
-                                                           IRequestHandler<GetDocumentsPaginatedByAssignedToQuery, ErrorOr<PaginatedResult<DocumentFileDTO>>>
+    public sealed class GetDocumentsPaginatedQueryHandler : IRequestHandler<GetDocumentsPaginatedQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>,
+                                                           IRequestHandler<GetDocumentsPaginatedByAssignedToQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IDocumentFileRepository _documentRepository;
 
-        public GetDocumentsPaginatedQueryHandler(IDocumentFileRepository documentRepository, IUnitOfWork unitOfWork)
+        public GetDocumentsPaginatedQueryHandler(IDocumentFileRepository documentRepository)
         {
             _documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
-        public async Task<ErrorOr<PaginatedResult<DocumentFileDTO>>> Handle(GetDocumentsPaginatedQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PaginatedResult<DocumentResponseDTO>>> Handle(GetDocumentsPaginatedQuery request, CancellationToken cancellationToken)
         {
             var (documents, totalCount) = await _documentRepository.GetPaginatedByAssignedToAsync(request.Page, request.PageSize, request.Filter, null);
 
-            var items = documents.Select(d => new DocumentFileDTO
+            var items = documents.Select(d => new DocumentResponseDTO
             {
                 Id = d.Id.Value,
                 Description = d.Description,
-                ValidUntil = d.ExpirationDate,
+                ExpirationDate = d.ExpirationDate,
                 Name = d.Name,
                 Path = d.Path,
                 UploadDate = d.UploadDate,
                 UploadedBy = d.UploadedBy.Name,
-                AssignedTo = d.AssignedTo?.Name
+                AssignedTo = d.AssignedTo?.Name ?? string.Empty
             }).ToList();
 
-            return new PaginatedResult<DocumentFileDTO>
+            return new PaginatedResult<DocumentResponseDTO>
             {
                 Items = items,
                 TotalCount = totalCount
             };
         }
 
-        public async Task<ErrorOr<PaginatedResult<DocumentFileDTO>>> Handle(GetDocumentsPaginatedByAssignedToQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PaginatedResult<DocumentResponseDTO>>> Handle(GetDocumentsPaginatedByAssignedToQuery request, CancellationToken cancellationToken)
         {
             var (documents, totalCount) = await _documentRepository.GetPaginatedByAssignedToAsync(request.Page, request.PageSize, request.Filter, request.assignedTo);
 
-            var items = documents.Select(d => new DocumentFileDTO
+            var items = documents.Select(d => new DocumentResponseDTO
             {
                 Id = d.Id.Value,
                 Description = d.Description,
-                ValidUntil = d.ExpirationDate,
+                ExpirationDate = d.ExpirationDate,
                 Name = d.Name,
                 Path = d.Path,
                 UploadDate = d.UploadDate
 
             }).ToList();
 
-            return new PaginatedResult<DocumentFileDTO>
+            return new PaginatedResult<DocumentResponseDTO>
             {
                 Items = items,
                 TotalCount = totalCount

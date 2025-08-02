@@ -1,43 +1,60 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Application.Common.Dtos;
+using Application.Documents.Services;
+using Microsoft.AspNetCore.Mvc;
+using Web.API.Controllers.Common;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+namespace Web.API.Controllers.Document;
 
-namespace Web.API.Controllers.Document
+[Route("api/[controller]")]
+[ApiController]
+public class RegistrosDeCalificacionController : ApiController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class RegistrosDeCalificacionController : ControllerBase
+    private readonly IDocumentService _service;
+
+    public RegistrosDeCalificacionController(IDocumentService service)
     {
-        // GET: api/<RegistrosDeCalificacionController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        _service = service ?? throw new ArgumentException(nameof(service));
+    }
+    // GET: api/<RegistrosDeCalificacionController>
+    [HttpGet]
+    public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
+    {
+        PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
+        var result = await _service.GetCertificatesPaginatedAsync(dto);
 
-        // GET api/<RegistrosDeCalificacionController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
 
-        // POST api/<RegistrosDeCalificacionController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+    // GET api/<RegistrosDeCalificacionController>/5
+    [HttpGet("{id}")]
+    public string Get(int id)
+    {
+        return "value";
+    }
 
-        // PUT api/<RegistrosDeCalificacionController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+    // POST api/<RegistrosDeCalificacionController>
+    [HttpPost]
+    public void Post([FromBody] string value)
+    {
+    }
 
-        // DELETE api/<RegistrosDeCalificacionController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+    // PUT api/<RegistrosDeCalificacionController>/5
+    [HttpPut("{id}")]
+    public void Put(int id, [FromBody] string value)
+    {
+    }
+
+    // DELETE api/<RegistrosDeCalificacionController>/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _service.DeleteCertificateAsync(id);
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
     }
 }

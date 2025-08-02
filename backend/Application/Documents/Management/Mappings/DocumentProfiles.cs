@@ -1,4 +1,4 @@
-﻿using Application.Common.Dtos;
+using Application.Common.Dtos;
 using Application.Documents.Management.Create;
 using Application.Documents.Management.DTOs;
 using Application.Documents.Management.GetAll;
@@ -11,9 +11,9 @@ namespace Application.Documents.Management.Mappings
         public DocumentProfile()
         {
             CreateMap<GetDocumentsPaginatedQuery, PaginateDTO>().ReverseMap();
-            CreateMap<CreateDocumentDTO, CreateDocumentCommand>()
+            CreateMap<DocumentDTO, CreateDocumentCommand>()
                 .ForMember(dest => dest.File, opt => opt.MapFrom(src => src.File));
-            CreateMap<GetDocumentsPaginatedQuery, DocumentFileDTO>().ReverseMap();
+            CreateMap<GetDocumentsPaginatedQuery, DocumentResponseDTO>().ReverseMap();
         }
     }
 }
