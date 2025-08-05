@@ -1,7 +1,7 @@
 import api from '@/Helpers/api';
-import { ICertificadoDTO } from '../Interfaces/ICertificadoDTO';
+import { ICertificateDTO, ICertificateEditDTO, ICertificateResponseDTO } from '../Interfaces';
 
-const endpoint = '/documents/management';
+const endpoint = '/documents/RegistrosDeCalificacion';
 
 export interface PagedResult<T> {
     items: T[];
@@ -12,35 +12,34 @@ export const getAll = async (
     page: number,
     pageSize: number,
     filter: string = ''
-): Promise<PagedResult<ICertificadoDTO>> => {
-    const response = await api.get(`${endpoint}/all`, {
+): Promise<PagedResult<ICertificateResponseDTO>> => {
+    const response = await api.get(`${endpoint}/`, {
         params: { page, pageSize, filter },
     });
     return response.data;
 };
 
-export const create = async (document: ICertificadoDTO): Promise<void> => {
-    const formData = new FormData();
-
-    formData.append('name', document.name ?? '');
-    formData.append('description', document.description ?? '');
-    formData.append('validUntil', document.validUntil?.toString() ?? '');
-    formData.append('assignedTo', document.assignedTo ?? '');
-
+export const create = async (document: ICertificateDTO): Promise<void> => {
     if (!(document.file instanceof File)) {
         throw new Error('Invalid file type');
     }
-    formData.append('file', document.file);
 
-    await api.post(`${endpoint}/upload`, formData, {
+    const formData = new FormData();
+    formData.append("name", document.name);
+    formData.append("validUntil", document.validUntil.toISOString());
+    formData.append("validFrom", document.validFrom.toISOString());
+    formData.append("assignedTo", document.assignedTo);
+    formData.append("file", document.file);
+
+    await api.post(`${endpoint}/`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     });
 };
 
-export const update = async (data: FormData): Promise<void> => {
-    await api.put(`${endpoint}/edit`, data);
+export const update = async (data: ICertificateEditDTO): Promise<void> => {
+    await api.put(`${endpoint}/`, data);
 };
 
 export const remove = async (id: string): Promise<void> => {

@@ -1,6 +1,7 @@
 using Application.Common.Responses;
 using Application.Documents.Certificate.DTOs;
 using Domain.Documents.Interfaces;
+using Domain.Partners.Entities;
 using ErrorOr;
 using MediatR;
 
@@ -22,13 +23,11 @@ public sealed class GetCertificatesPaginatedQueryHandler : IRequestHandler<GetCe
         var items = certificates.Select(d => new CertificateResponseDTO
         {
             Id = d.Id.Value,
-            Description = d.Description,
-            ExpirationDate = d.ExpirationDate,
             Name = d.Name,
-            Path = d.Path,
             UploadDate = d.UploadDate,
-            UploadedBy = d.UploadedBy.Name,
+            AssignedToId = d.AssignedTo?.Id.Value,
             AssignedTo = d.AssignedTo?.Name ?? string.Empty,
+            ValidUntil = d.ValidUntil
         }).ToList();
 
         return new PaginatedResult<CertificateResponseDTO>
@@ -40,15 +39,14 @@ public sealed class GetCertificatesPaginatedQueryHandler : IRequestHandler<GetCe
 
     public async Task<ErrorOr<PaginatedResult<CertificateResponseDTO>>> Handle(GetCertificatesPaginatedByAssignedToQuery request, CancellationToken cancellationToken)
     {
-        var (certificates, totalCount) = await _certificateRepository.GetPaginatedByAssignedToAsync(request.Page, request.PageSize, request.Filter, request.assignedTo);
+        var (certificates, totalCount) = await _certificateRepository.GetPaginatedByAssignedToAsync(request.Page, request.PageSize, request.Filter, new CompanyId(request.assignedTo));
 
         var items = certificates.Select(d => new CertificateResponseDTO
         {
             Id = d.Id.Value,
             Name = d.Name,
             AssignedTo = d.AssignedTo?.Name ?? string.Empty,
-            Path = d.Path,
-            ValidUntil = d.ValidUntil
+            RelativePath = d.RelativePath,
         }).ToList();
 
         return new PaginatedResult<CertificateResponseDTO>

@@ -1,11 +1,12 @@
 using Application.Common.Dtos;
+using Application.Documents.Certificate.DTOs;
 using Application.Documents.Services;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Document;
 
-[Route("api/[controller]")]
+[Route("documents/[controller]")]
 [ApiController]
 public class RegistrosDeCalificacionController : ApiController
 {
@@ -28,23 +29,27 @@ public class RegistrosDeCalificacionController : ApiController
         );
     }
 
-    // GET api/<RegistrosDeCalificacionController>/5
-    [HttpGet("{id}")]
-    public string Get(int id)
-    {
-        return "value";
-    }
-
     // POST api/<RegistrosDeCalificacionController>
     [HttpPost]
-    public void Post([FromBody] string value)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Post([FromForm] CertificateDTO dto)
     {
+        var result = await _service.CreateCertificateAsync(dto);
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
     }
 
     // PUT api/<RegistrosDeCalificacionController>/5
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    public async Task<IActionResult> Put(int id, [FromBody] CertificateEditDTO dto)
     {
+        var result = await _service.UpdateCertificateAsync(dto);
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
     }
 
     // DELETE api/<RegistrosDeCalificacionController>/5

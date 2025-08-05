@@ -25,7 +25,7 @@ public class ControlService : IControlService
         if (companies.IsError)
             return companies.Errors;
 
-        return companies.Value.Select(c => new CompanyLookupDto(c.Id.Value, c.Name + "-" + c.CuitCuil.ToString())).ToList();
+        return companies.Value.Select(c => new CompanyLookupDto(c.Id.Value, c.Name)).ToList();
     }
 
     public async Task<ErrorOr<CompanyLookupDto>> GetCompanyByCuitAsync(string cuit, CancellationToken cancellationToken = default)

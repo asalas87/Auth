@@ -1,5 +1,6 @@
 using Application.Documents.Certificate.DTOs;
 using Application.Documents.Certificate.GetById;
+using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using ErrorOr;
 using MediatR;
@@ -14,7 +15,7 @@ public class GetCertificateByIdQueryHandler : IRequestHandler<GetCertificateById
     }
     public async Task<ErrorOr<CertificateResponseDTO>> Handle(GetCertificateByIdQuery request, CancellationToken cancellationToken)
     {
-        var certificate = await _certificateRepository.GetByIdAsync(request.Id);
+        var certificate = await _certificateRepository.GetByIdAsync(new DocumentFileId(request.Id));
         if (certificate is null)
         {
             return Error.NotFound("Certificate not found.");
@@ -25,7 +26,7 @@ public class GetCertificateByIdQueryHandler : IRequestHandler<GetCertificateById
             Name = certificate.Name,
             Description = certificate.Description,
             ExpirationDate = certificate.ExpirationDate,
-            Path = certificate.Path,
+            RelativePath = certificate.RelativePath,
             UploadDate = certificate.UploadDate,
             UploadedBy = certificate.UploadedBy.Name,
             AssignedTo = certificate.AssignedTo?.Name ?? string.Empty,

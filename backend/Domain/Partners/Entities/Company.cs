@@ -4,20 +4,20 @@ using Domain.ValueObjects;
 namespace Domain.Partners.Entities;
 public sealed class Company : AggergateRoot<CompanyId>
 {
-    public Company(CompanyId id, string name, Cuit cuitCuil, bool active)
+    public Company(string name, Cuit cuitCuil)
     {
-        Id = id;
         Name = name;
         CuitCuil = cuitCuil;
+        IsActive = true;
     }
-    public Company()
-    {
-    }
+    public Company() { }
     public string Name { get; private set; } = string.Empty;
-    public Cuit CuitCuil { get; private set; } = Cuit.Create(string.Empty);
-    public bool IsActive { get; set; }
-    public static Company UpdateCompany(Guid id, string name, Cuit cuitCuil, bool active)
+    public Cuit CuitCuil { get; private set; } 
+    public bool IsActive { get; private set; }
+    public void UpdateCompany(string name, Cuit cuitCuil, bool active)
     {
-        return new Company(new CompanyId(id), name, cuitCuil, active);
+        Name = name;
+        CuitCuil = cuitCuil;
+        IsActive = active;
     }
 }

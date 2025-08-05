@@ -27,7 +27,7 @@ namespace Application.Documents.Management.GetAll
                 Description = d.Description,
                 ExpirationDate = d.ExpirationDate,
                 Name = d.Name,
-                Path = d.Path,
+                RelativePath = d.RelativePath,
                 UploadDate = d.UploadDate,
                 UploadedBy = d.UploadedBy.Name,
                 AssignedTo = d.AssignedTo?.Name ?? string.Empty
@@ -50,7 +50,7 @@ namespace Application.Documents.Management.GetAll
                 Description = d.Description,
                 ExpirationDate = d.ExpirationDate,
                 Name = d.Name,
-                Path = d.Path,
+                RelativePath = d.RelativePath,
                 UploadDate = d.UploadDate
 
             }).ToList();

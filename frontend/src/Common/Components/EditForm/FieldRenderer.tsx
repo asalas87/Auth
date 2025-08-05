@@ -192,15 +192,26 @@ export function GenericEditForm<T extends { id?: string }>({
               </div>
             ))}
           </div>
-          <button className="btn btn-link primary me-2" onClick={handleSubmit}>
-            Guardar
-          </button>
-          <button onClick={onClose} className="btn btn-link secondary">
-            Cancelar
-          </button>
+          <div className="d-flex justify-content-center gap-5 modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+              onClick={handleSubmit}
+            >
+              Guardar
+            </button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
-export {};
+export {}

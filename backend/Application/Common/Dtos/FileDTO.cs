@@ -8,6 +8,6 @@ namespace Application.Common.Dtos
         public Guid UploadedById { get; set; }
         public DateTime UploadDate { get; set; }
         public IFormFile File { get; set; } = default!;
-        public string Path { get; set; } = string.Empty;
+        public string RelativePath { get; set; } = string.Empty;
     }
 }

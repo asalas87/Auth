@@ -13,7 +13,7 @@ public class GeneralDocument : DocumentFile
         string description,
         User uploadedBy,
         Company? assignedTo
-    ) : base(id, name, path, uploadDate, expirationDate, description, uploadedBy, assignedTo, Enums.DocumentType.General)
+    ) : base(name, path, uploadDate, expirationDate, description, uploadedBy, assignedTo, Enums.DocumentType.General)
     {
     }
 

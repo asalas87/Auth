@@ -1,5 +1,7 @@
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
+using Domain.Partners.Entities;
+using Domain.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Documents.Repositories
@@ -19,7 +21,7 @@ namespace Infrastructure.Persistence.Documents.Repositories
 
         public void Update(Certificate file) => _context.Certificates.Update(file);
 
-        public async Task<(List<Certificate> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, Guid? assignedToId)
+        public async Task<(List<Certificate> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, CompanyId? assignedToId)
         {
             var query = _context.Certificates
                 .Include(d => d.UploadedBy)
@@ -31,10 +33,8 @@ namespace Infrastructure.Persistence.Documents.Repositories
                 query = query.Where(u => u.Name.Contains(filter) || u.Description.Contains(filter));
             }
 
-            if (assignedToId.HasValue)
-            {
-                query = query.Where(f => f.AssignedTo != null && f.AssignedTo.Id.Value == assignedToId);
-            }
+            if (assignedToId != null)
+                query = query.Where(f => f.AssignedTo != null && f.AssignedTo.Id == assignedToId);
 
             var totalCount = await query.CountAsync();
 
@@ -47,10 +47,10 @@ namespace Infrastructure.Persistence.Documents.Repositories
             return (certificates, totalCount);
         }
 
-        public async Task<Certificate?> GetByIdAsync(Guid id)
+        public async Task<Certificate?> GetByIdAsync(DocumentFileId id)
         {
             return await _context.Certificates
-                .FirstOrDefaultAsync(c => c.Id.Value == id);
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }

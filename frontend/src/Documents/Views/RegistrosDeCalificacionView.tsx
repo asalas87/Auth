@@ -1,12 +1,13 @@
 import { useCallback, useState } from "react";
-import { ICertificadoDTO } from "../Interfaces/ICertificadoDTO";
+import { ICertificateDTO, ICertificateEditDTO, ICertificateResponseDTO } from "../Interfaces";
 import { ColumnConfig, CrudTable, usePaginatedList } from "@/Common/Components/CrudTable";
 import { FieldType, getEmptyItem } from "@/Common/Components/EditForm";
+import { getAll, create, update, remove } from "../Services/RegistroDeCalificacionService";
+import { executeWithErrorHandling } from "@/Helpers/executeWithErrorHandling";
 import { RegistrosDeCalificacionEditForm } from "./Forms/RegistrosDeCalificacionEditForm";
-import { getAll } from "../Services/RegistroDeCalificacionService";
 
 export const RegistrosDeCalificacionView = () => {
-    const [selected, setSelected] = useState<ICertificadoDTO | null>(null);
+    const [selected, setSelected] = useState<ICertificateDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
     const memoizedGetAll = useCallback(getAll, []);
@@ -18,62 +19,69 @@ export const RegistrosDeCalificacionView = () => {
         setCurrentPage,
         filter,
         setFilter,
-        pageSize
+        pageSize,
+        reload
     } = usePaginatedList(memoizedGetAll);
 
-    const fields: ColumnConfig<ICertificadoDTO>[] = [
+    const fields: ColumnConfig<ICertificateResponseDTO>[] = [
         { key: 'name', label: 'Nombre' },
-        { key: 'nombreEmpresa', label: 'Empresa' },
-        { key: 'validFrom', label: 'Válido desde' },
+        { key: 'assignedTo', label: 'Empresa' },
+        { key: 'uploadedDate', label: 'Fecha subido' },
         { key: 'validUntil', label: 'Válido hasta' }
     ];
 
-    const handleEdit = (document: ICertificadoDTO) => {
+    const handleEdit = (document: ICertificateDTO) => {
         setSelected(document);
         setMode('edit');
     };
 
     const handleCreate = () => {
-        const empty = getEmptyItem<ICertificadoDTO>([
+        const empty = getEmptyItem<ICertificateDTO>([
             { name: 'name', label: 'Nombre archivo', type: FieldType.Text },
-            { name: 'nombreEmpresa', label: 'Empresa', type: FieldType.Text },
             { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
-            { name: 'idEmpresa', label: 'Empresa', type: FieldType.Select },
+            { name: 'assignedTo', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
         setSelected(empty);
         setMode('create');
     };
 
-    const handleSave = async (document: ICertificadoDTO) => {
-        try {
-            if (mode === 'create') {
-                // await create(document);
-                setCurrentPage(1); // o mantener página actual
-            } else {
-                // lógica para edición
-            }
-            setSelected(null);
-        } catch (error) {
-            console.error('Error al guardar el documento:', error);
-        }
+    const handleSave = async (document: ICertificateEditDTO) => {
+            executeWithErrorHandling(
+                () => mode === 'create' ? create(document) : update(document),
+                () => {
+                    reload();
+                    setCurrentPage(1);
+                    setSelected(null);
+                });
+    };
+
+    function handleDelete(item: ICertificateResponseDTO): void {
+            if (!window.confirm(`¿Eliminar a "${item.name}"?`)) return;
+            executeWithErrorHandling(
+                () => remove(item.id),
+                () => {
+                    reload()
+                    setCurrentPage(1);
+                    setSelected(null);
+                })
     };
 
     return (
         <div className="container mt-4">
             <h2>Registros de Calificación</h2>
-            <CrudTable<ICertificadoDTO>
+            <CrudTable<ICertificateResponseDTO>
                 data={documents}
                 columns={fields}
                 onEdit={handleEdit}
-                onDelete={(item) => console.log('delete', item)}
+                onDelete={handleDelete}
+                onNew={handleCreate}
+                newLabel="Nuevo"
                 showActions
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 totalCount={totalCount}
                 onFilter={setFilter}
-                onNew={handleCreate}
-                newLabel="Nuevo"
             />
 
             {selected && (

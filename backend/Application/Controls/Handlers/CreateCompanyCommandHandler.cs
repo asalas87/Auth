@@ -19,7 +19,7 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
 
     public async Task<ErrorOr<Guid>> Handle(CreateCompanyCommand request, CancellationToken cancellationToken)
     {
-        Company company = new Company(new CompanyId(Guid.NewGuid()), request.Name, request.Cuit, true);
+        Company company = new Company(request.Name, request.Cuit);
         var id = await _companyRepository.AddAsync(company);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return id;

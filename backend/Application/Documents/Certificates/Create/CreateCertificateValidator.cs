@@ -15,12 +15,6 @@ public class CreateCertificateValidator : AbstractValidator<CreateCertificateCom
             .WithMessage("Valid From date must be before or equal to Valid Until date.");
         RuleFor(r => r.ValidUntil)
             .NotEmpty();
-        RuleFor(r => r.UploadedBy)
-            .NotEmpty()
-            .WithMessage("Uploaded By field cannot be empty.");
-        RuleFor(r => r.AssignedTo)
-            .NotEmpty()
-            .WithMessage("Assigned To field cannot be empty.");
         RuleFor(r => r.File)
             .NotNull()
             .WithMessage("File cannot be null.");

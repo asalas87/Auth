@@ -1,12 +1,8 @@
-export interface IDocumentDTO {
-    id: string;
-    name: string;
-    path: string;
-    uploadDate: string;
-    uploadedBy: string;
-    validFrom?: Date;
-    validUntil?: Date;
+import { IFileEditDTO } from "./IFileEditDTO";
+
+export interface IDocumentDTO extends IFileEditDTO {
     description?: string;
     assignedTo?: string;
-    file: File;
+    expirationDate: Date;
+    isRead?: boolean;
 }

@@ -5,6 +5,8 @@ using Application.Common.Responses;
 using Application.Documents.Certificate.Create;
 using Application.Documents.Certificate.DTOs;
 using Application.Documents.Certificate.GetAll;
+using Application.Documents.Certificate.Update;
+using Application.Documents.Certificates.Delete;
 using Application.Documents.Common.DTOs;
 using Application.Documents.Management.Create;
 using Application.Documents.Management.DTOs;
@@ -69,20 +71,35 @@ public class DocumentService : IDocumentService
 
     public async Task<ErrorOr<Guid>> CreateCertificateAsync(CertificateDTO dto)
     {
-        var query = _mapper.Map<CreateCertificateCommand>(dto);
-        return await _mediator.Send(query).BindAsync(result =>
+        var userId = _authenticatedUser.UserId;
+        if (userId is null)
+            return Error.Failure("Auth", "Usuario no autenticado.");
+
+        var command = _mapper.Map<CreateCertificateCommand>(dto);
+        command.UploadedBy = userId.Value;
+
+        return await _mediator.Send(command).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<Guid>>(result);
         });
     }
 
-    public Task<ErrorOr<Guid>> UpdateCertificateAsync(CertificateEditDTO dto)
+    public  async Task<ErrorOr<Guid>> UpdateCertificateAsync(CertificateEditDTO dto)
     {
-        throw new NotImplementedException();
+        var command = _mapper.Map<UpdateCertificateCommand>(dto);
+        return await _mediator.Send(command).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<Guid>>(result);
+        });
     }
 
-    public Task<ErrorOr<Guid>> DeleteCertificateAsync(Guid id)
+    public async Task<ErrorOr<Guid>> DeleteCertificateAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var command = new DeleteCertificateCommand(id);
+
+        return await _mediator.Send(command).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<Guid>>(result);
+        });
     }
 }

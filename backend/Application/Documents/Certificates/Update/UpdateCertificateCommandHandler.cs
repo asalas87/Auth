@@ -1,3 +1,4 @@
+using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
 using Domain.Primitives;
@@ -25,7 +26,7 @@ public sealed class UpdateCertificateCommandHandler : IRequestHandler<UpdateCert
     public async Task<ErrorOr<Guid>> Handle(UpdateCertificateCommand request, CancellationToken cancellationToken)
     {
 
-        if (await _certificateRepository.GetByIdAsync(request.Id) is not Domain.Documents.Entities.Certificate certificate)
+        if (await _certificateRepository.GetByIdAsync(new DocumentFileId(request.Id)) is not Domain.Documents.Entities.Certificate certificate)
         {
             return Error.NotFound("Certificate.NotFound", "The certificate with the provide Id was not found.");
         }

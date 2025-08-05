@@ -35,7 +35,7 @@ export const DocumentEditForm = ({
     const fields: FieldConfig<IDocumentDTO>[] = [
         { name: 'name', label: 'Nombre', type: FieldType.Text },
         { name: 'description', label: 'Descripción', type: FieldType.Text },
-        { name: 'validUntil', label: 'Fecha Expiración', type: FieldType.Date },
+        { name: 'expirationDate', label: 'Fecha Expiración', type: FieldType.Date },
         {
             name: 'assignedTo',
             label: 'Asignado A',

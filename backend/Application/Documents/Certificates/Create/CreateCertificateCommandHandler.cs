@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
@@ -34,8 +35,7 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
     public async Task<ErrorOr<Guid>> Handle(CreateCertificateCommand request, CancellationToken cancellationToken)
     {
         var documentId = Guid.NewGuid();
-        var assignedFolder = request.AssignedTo.ToString();
-        var folderPath = Path.Combine(_env.WebRootPath, "certificates", assignedFolder);
+        var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
         var fileName = $"{documentId}{Path.GetExtension(request.File.FileName)}";
         var filePath = Path.Combine(folderPath, fileName);
         var uploadDate = DateTime.Now;
@@ -59,10 +59,11 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
             return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
         }
 
+        var relativePath = DocumentFile.BuildRelativePath("Certificates", fileName);
+
         var certificate = new Domain.Documents.Entities.Certificate(
-            new DocumentFileId(documentId),
             request.Name,
-            Path.Combine("documents", assignedFolder, fileName),
+            relativePath,
             uploadDate,
             request.ValidUntil,
             string.Empty,

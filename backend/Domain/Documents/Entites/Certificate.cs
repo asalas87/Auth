@@ -5,7 +5,6 @@ namespace Domain.Documents.Entities;
 public class Certificate : DocumentFile
 {
     public Certificate(
-        DocumentFileId id,
         string name,
         string path,
         DateTime uploadDate,
@@ -15,7 +14,7 @@ public class Certificate : DocumentFile
         Company? assignedTo,
         DateTime validFrom,
         DateTime validUntil
-    ) : base(id, name, path, uploadDate, expirationDate, description, uploadedBy, assignedTo, Enums.DocumentType.Certificate)
+    ) : base(name, path, uploadDate, expirationDate, description, uploadedBy, assignedTo, Enums.DocumentType.Certificate)
     {
         ValidFrom = validFrom;
         ValidUntil = validUntil;
@@ -26,16 +25,14 @@ public class Certificate : DocumentFile
 
     public Certificate() { }
     public void Update(
-        string name,
+        string description,
         DateTime validFrom,
         DateTime validUntil,
         Company assignedTo)
     {
-        Name = name;
+        Description = description;
+        AssignedTo = assignedTo;
         ValidFrom = validFrom;
         ValidUntil = validUntil;
-        AssignedTo = assignedTo;
     }
 }
-
-

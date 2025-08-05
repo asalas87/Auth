@@ -14,13 +14,16 @@ public class DocumentFileConfiguration : IEntityTypeConfiguration<DocumentFile>
 
         builder.HasKey(c => c.Id);
         builder.Property(d => d.Id)
-            .HasConversion(documentId => documentId.Value, value => new DocumentFileId(value));
+            .HasConversion(documentId => documentId.Value, value => new DocumentFileId(value))
+            .HasColumnName("Id")
+            .HasDefaultValueSql("NEWSEQUENTIALID()")
+            .ValueGeneratedOnAdd();
 
         builder.Property(d => d.Name).IsRequired().HasMaxLength(50);
         builder.Property(d => d.Description).HasMaxLength(50);
         builder.Property(d => d.ExpirationDate);
         builder.Property(d => d.UploadDate).IsRequired();
-        builder.Property(d => d.Path).IsRequired().HasMaxLength(500);
+        builder.Property(d => d.RelativePath).IsRequired().HasMaxLength(500);
 
         builder.Property<UserId>("UploadedById")
             .HasConversion(id => id.Value, value => new UserId(value))

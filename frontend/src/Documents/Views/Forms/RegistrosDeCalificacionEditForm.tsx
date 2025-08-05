@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { FieldConfig, FieldType, GenericEditForm } from '@/Common/Components/EditForm';
-import { ICertificadoDTO } from '../../Interfaces/ICertificadoDTO';
+import { ICertificateDTO } from '../../Interfaces/ICertificateDTO';
 import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
 import { getAllForCombo } from '@/Partners/Services/CompanyService';
 import { extractTextFromPDF } from '@/Helpers/pdfTextExtractor';
 import { extractDataFromText } from '@/Helpers/extractDataFromText';
 import { parse } from 'date-fns';
+import { useLoading } from '@/Common/Context/LoadingContext';
 
 export const RegistrosDeCalificacionEditForm = ({
     item,
@@ -13,20 +14,21 @@ export const RegistrosDeCalificacionEditForm = ({
     onClose,
     mode = 'edit',
 }: {
-    item: ICertificadoDTO;
-    onSave: (u: ICertificadoDTO) => void;
+    item: ICertificateDTO;
+    onSave: (u: ICertificateDTO) => void;
     onClose: () => void;
     mode?: 'edit' | 'create';
 }) => {
     const [companies, setCompanies] = useState<ICompanyDTO[]>([]);
-    const [formOverrides, setFormOverrides] = useState<Partial<ICertificadoDTO>>({});
+    const [formOverrides, setFormOverrides] = useState<Partial<ICertificateDTO>>({});
 
     useEffect(() => {
         getAllForCombo().then(setCompanies).catch(console.error);
     }, []);
-
+    const { setLoading } = useLoading();
     const handlePdfLoad = async (file: File) => {
         try {
+            setLoading(true);
             const text = await extractTextFromPDF(file);
 
             const patterns = {
@@ -45,25 +47,25 @@ export const RegistrosDeCalificacionEditForm = ({
             );
 
             setFormOverrides({
-                nombreSoldador: [datos.nombres, datos.apellido].filter(Boolean).join(' '),
                 name: file.name,
-                idEmpresa: empresaEncontrada?.id,
+                assignedTo: empresaEncontrada?.id,
                 validFrom: datos.validFrom ? parse(datos.validFrom, 'dd/MM/yyyy', new Date()) : undefined,
                 validUntil: datos.validUntil ? parse(datos.validUntil, 'dd/MM/yyyy', new Date()) : undefined,
                 file: file
             });
         } catch (e) {
             console.error('Error leyendo PDF:', e);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const fields: FieldConfig<ICertificadoDTO>[] = [
+    const fields: FieldConfig<ICertificateDTO>[] = [
         { name: 'name', label: 'Nombre', type: FieldType.Text },
-        { name: 'nombreSoldador', label: 'Soldador', type: FieldType.Text },
         { name: 'validFrom', label: 'Válido desde', type: FieldType.Date },
         { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
         {
-            name: 'idEmpresa',
+            name: 'assignedTo',
             label: 'Empresa',
             type: FieldType.Select,
             options: companies.map(u => ({ value: u.id, label: u.name })),
@@ -84,7 +86,7 @@ export const RegistrosDeCalificacionEditForm = ({
     ];
 
     return (
-        <GenericEditForm<ICertificadoDTO>
+        <GenericEditForm<ICertificateDTO>
             key={JSON.stringify(formOverrides)}
             item={{ ...item, ...formOverrides }}
             fields={fields}
