@@ -16,5 +16,5 @@ public class EditUserRequest
     public string Email { get; set; } = default!;
 
     [Required]
-    public string Role { get; set; } = default!;
+    public int RoleId { get; set; } = default!;
 }

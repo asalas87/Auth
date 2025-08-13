@@ -13,11 +13,6 @@ export const getPaged = async (page: number, pageSize: number, filter: string = 
     return response.data;
 };
 
-export const getAllForCombo = async () : Promise<ICompanyDTO[]> => {
-    const response = await api.get('/controls/companies/list');
-    return response.data;
-};
-
 export const remove = async (id: string): Promise<void> => {
     await api.delete(`/partners/company/${id}`);
 };

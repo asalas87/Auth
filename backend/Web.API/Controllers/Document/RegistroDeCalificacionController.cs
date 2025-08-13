@@ -6,13 +6,13 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Document;
 
-[Route("documents/[controller]")]
+[Route("document/[controller]")]
 [ApiController]
-public class RegistrosDeCalificacionController : ApiController
+public class RegistroDeCalificacionController : ApiController
 {
     private readonly IDocumentService _service;
 
-    public RegistrosDeCalificacionController(IDocumentService service)
+    public RegistroDeCalificacionController(IDocumentService service)
     {
         _service = service ?? throw new ArgumentException(nameof(service));
     }
@@ -43,7 +43,7 @@ public class RegistrosDeCalificacionController : ApiController
 
     // PUT api/<RegistrosDeCalificacionController>/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id, [FromBody] CertificateEditDTO dto)
+    public async Task<IActionResult> Put(Guid id, [FromBody] CertificateEditDTO dto)
     {
         var result = await _service.UpdateCertificateAsync(dto);
         return result.Match(

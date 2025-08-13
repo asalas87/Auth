@@ -4,7 +4,7 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Security;
 
-[Route("security/roles")]
+[Route("security/[controller]")]
 public class RoleController : ApiController
 {
     private readonly IRoleService _service;
@@ -13,7 +13,7 @@ public class RoleController : ApiController
         _service = service ?? throw new ArgumentException(nameof(service));
     }
 
-    [HttpGet("getAll", Name = "getAll")]
+    [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var result = await _service.GetRolesAsync();

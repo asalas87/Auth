@@ -7,26 +7,18 @@ export interface PagedResult<T> {
 }
 
 export const getAllPag = async (page: number, pageSize: number, filter: string = '') : Promise<PagedResult<IUserDTO>> => {
-    const response = await api.get('/security/users', {
+    const response = await api.get('/security/user', {
         params: { page, pageSize, filter },
     });
     return response.data;
 };
 
-export const getAll = async () : Promise<IUserDTO[]> => {
-    const response = await api.get('/security/users/getAll');
-    return response.data;
-};
-
 export const remove = async (id: string): Promise<void> => {
-    await api.delete(`/security/users/${id}`);
+    await api.delete(`/security/user/${id}`);
 };
 
-export const update = async (id: string, user : IUserDTO): Promise<void> => {
-    const formData = new FormData();
-    formData.append('name', user.name ?? '');
-    formData.append('email', user.email ?? '');
-    formData.append('role', user.role ?? '');
-
-    await api.put(`/security/edit/${id}`, formData);
+export const update = async (id: string, user: IUserDTO): Promise<void> => {
+    await api.put(`/security/user/${id}`, user, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };

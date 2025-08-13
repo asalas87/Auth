@@ -5,9 +5,8 @@ namespace Domain.Security.Entities;
 
 public sealed class User : AggergateRoot<UserId>
 {
-    public User(UserId id, string name, string password, Email email, Role role, bool active)
+    public User(string name, string password, Email email, Role role, bool active)
     {
-        Id = id;
         Name = name;
         Password = password;
         Active = active;

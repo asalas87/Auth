@@ -5,6 +5,9 @@ import { FieldType, getEmptyItem } from "@/Common/Components/EditForm";
 import { getAll, create, update, remove } from "../Services/RegistroDeCalificacionService";
 import { executeWithErrorHandling } from "@/Helpers/executeWithErrorHandling";
 import { RegistrosDeCalificacionEditForm } from "./Forms/RegistrosDeCalificacionEditForm";
+import { format } from "date-fns";
+import { es } from 'date-fns/locale';
+import { parseDates } from "@/Helpers/parseDates";
 
 export const RegistrosDeCalificacionView = () => {
     const [selected, setSelected] = useState<ICertificateDTO | null>(null);
@@ -26,12 +29,12 @@ export const RegistrosDeCalificacionView = () => {
     const fields: ColumnConfig<ICertificateResponseDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'assignedTo', label: 'Empresa' },
-        { key: 'uploadedDate', label: 'Fecha subido' },
-        { key: 'validUntil', label: 'Válido hasta' }
+        { key: 'uploadDate', label: 'Fecha subido', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : '' },
+        { key: 'validUntil', label: 'Válido hasta', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : ''  }
     ];
 
     const handleEdit = (document: ICertificateDTO) => {
-        setSelected(document);
+        setSelected(parseDates(document, ['validFrom', 'validUntil']));
         setMode('edit');
     };
 
@@ -39,10 +42,10 @@ export const RegistrosDeCalificacionView = () => {
         const empty = getEmptyItem<ICertificateDTO>([
             { name: 'name', label: 'Nombre archivo', type: FieldType.Text },
             { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
-            { name: 'assignedTo', label: 'Empresa', type: FieldType.Select },
+            { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
-        setSelected(empty);
+        setSelected(parseDates(empty,['validUntil']));
         setMode('create');
     };
 

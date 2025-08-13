@@ -76,7 +76,7 @@ public class DocumentService : IDocumentService
             return Error.Failure("Auth", "Usuario no autenticado.");
 
         var command = _mapper.Map<CreateCertificateCommand>(dto);
-        command.UploadedBy = userId.Value;
+        command.UploadedById = userId.Value;
 
         return await _mediator.Send(command).BindAsync(result =>
         {

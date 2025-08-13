@@ -31,13 +31,12 @@ public sealed class UpdateCertificateCommandHandler : IRequestHandler<UpdateCert
             return Error.NotFound("Certificate.NotFound", "The certificate with the provide Id was not found.");
         }
 
-        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedTo)) is not Company assignedComapny)
+        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedToId)) is not Company assignedComapny)
         {
             return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
         }
 
         certificate.Update(
-            request.Name,
             request.ValidFrom,
             request.ValidUntil,
             assignedComapny);

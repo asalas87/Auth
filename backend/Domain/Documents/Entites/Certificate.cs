@@ -25,12 +25,10 @@ public class Certificate : DocumentFile
 
     public Certificate() { }
     public void Update(
-        string description,
         DateTime validFrom,
         DateTime validUntil,
         Company assignedTo)
     {
-        Description = description;
         AssignedTo = assignedTo;
         ValidFrom = validFrom;
         ValidUntil = validUntil;

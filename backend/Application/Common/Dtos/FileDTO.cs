@@ -7,7 +7,7 @@ namespace Application.Common.Dtos
         public string Name { get; set; } = string.Empty;
         public Guid UploadedById { get; set; }
         public DateTime UploadDate { get; set; }
-        public IFormFile File { get; set; } = default!;
+        public IFormFile? File { get; set; } = default!;
         public string RelativePath { get; set; } = string.Empty;
     }
 }

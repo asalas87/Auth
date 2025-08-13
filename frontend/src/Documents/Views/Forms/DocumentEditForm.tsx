@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FieldConfig } from '@/Common/Components/EditForm';
+import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IDocumentDTO } from '../../Interfaces/IDocumentDTO';
-import { IUserDTO } from '@/Security/Interfaces';
-import { getAll } from '@/Security/Services/UserService'; 
-import { GenericEditForm } from '@/Common/Components/EditForm/FieldRenderer';
+import { getCompaniesForCombo } from '@/Controls/ControlService'; 
+import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
 
 export const DocumentEditForm = ({
     item,
@@ -17,12 +16,12 @@ export const DocumentEditForm = ({
     onClose: () => void;
     mode?: 'edit' | 'create';
 }) => {
-    const [users, setUsers] = useState<IUserDTO[]>([]);
+    const [users, setUsers] = useState<ICompanyDTO[]>([]);
 
     useEffect(() => {
         const loadUsers = async () => {
             try {
-                const response = await getAll();
+                const response = await getCompaniesForCombo();
                 setUsers(response);
             } catch (error) {
                 console.error('Error al cargar usuarios', error);
@@ -37,7 +36,7 @@ export const DocumentEditForm = ({
         { name: 'description', label: 'Descripción', type: FieldType.Text },
         { name: 'expirationDate', label: 'Fecha Expiración', type: FieldType.Date },
         {
-            name: 'assignedTo',
+            name: 'assignedToId',
             label: 'Asignado A',
             type: FieldType.Select,
             options: users.map(u => ({ value: u.id, label: u.name })),

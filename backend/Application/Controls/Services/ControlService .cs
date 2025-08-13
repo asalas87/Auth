@@ -1,5 +1,7 @@
 using Application.Controls.Dtos;
 using Application.Controls.Queries;
+using Application.Security.Common.DTOS;
+using Application.Security.Roles.GetAll;
 using Domain.ValueObjects;
 using ErrorOr;
 using MediatR;
@@ -37,5 +39,14 @@ public class ControlService : IControlService
             return result.Errors;
 
        return new CompanyLookupDto(result.Value.Id.Value, result.Value.Name + "-" + result.Value.CuitCuil.ToString());
+    }
+
+    public async Task<ErrorOr<List<RoleDTO>>> GetRolesAsync(CancellationToken cancellationToken = default)
+    {
+        var roles = await _mediator.Send(new GetAllRolesQuery(), cancellationToken);
+        if (roles.IsError)
+            return roles.Errors;
+
+        return roles.Value.Select(c => new RoleDTO{ Id = c.Id, RoleName = c.RoleName }).ToList();
     }
 }

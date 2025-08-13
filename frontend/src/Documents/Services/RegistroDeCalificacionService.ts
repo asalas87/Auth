@@ -1,7 +1,7 @@
 import api from '@/Helpers/api';
 import { ICertificateDTO, ICertificateEditDTO, ICertificateResponseDTO } from '../Interfaces';
 
-const endpoint = '/documents/RegistrosDeCalificacion';
+const endpoint = '/document/RegistroDeCalificacion';
 
 export interface PagedResult<T> {
     items: T[];
@@ -28,7 +28,7 @@ export const create = async (document: ICertificateDTO): Promise<void> => {
     formData.append("name", document.name);
     formData.append("validUntil", document.validUntil.toISOString());
     formData.append("validFrom", document.validFrom.toISOString());
-    formData.append("assignedTo", document.assignedTo);
+    formData.append("assignedToId", document.assignedToId ?? '');
     formData.append("file", document.file);
 
     await api.post(`${endpoint}/`, formData, {
@@ -38,8 +38,8 @@ export const create = async (document: ICertificateDTO): Promise<void> => {
     });
 };
 
-export const update = async (data: ICertificateEditDTO): Promise<void> => {
-    await api.put(`${endpoint}/`, data);
+export const update = async (document: ICertificateEditDTO): Promise<void> => {
+    await api.put(`${endpoint}/${document.id}`, document);
 };
 
 export const remove = async (id: string): Promise<void> => {

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 
@@ -20,6 +20,10 @@ namespace Web.API.Middlewares
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
+
+                if (context.Response.HasStarted)
+                    throw;
+
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                 ProblemDetails problem = new()

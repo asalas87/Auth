@@ -49,12 +49,12 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
             await request.File.CopyToAsync(stream, cancellationToken);
         }
 
-        if (await _userRepository.GetByIdAsync(new UserId(request.UploadedBy)) is not User uploadedUser)
+        if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
         {
             return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
         }
 
-        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedTo)) is not Company assignedComapny)
+        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedToId)) is not Company assignedComapny)
         {
             return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
         }

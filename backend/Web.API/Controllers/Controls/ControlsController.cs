@@ -8,16 +8,16 @@ namespace Web.API.Controllers.Controls;
 [Route("controls")]
 public class ControlsController : ApiController
 {
-    private readonly IControlService _companyService;
+    private readonly IControlService _service;
     public ControlsController(IControlService service)
     {
-        _companyService = service ?? throw new ArgumentException(nameof(service));
+        _service = service ?? throw new ArgumentException(nameof(service));
     }
 
-    [HttpGet("companies/list")]
+    [HttpGet("company/list")]
     public async Task<IActionResult> GetCompanies()
     {
-        var result = await _companyService.GetAllCompaniesAsync();
+        var result = await _service.GetAllCompaniesAsync();
 
         return result.Match(
             value => Ok(result.Value),
@@ -25,17 +25,28 @@ public class ControlsController : ApiController
             );
     }
 
-    [HttpGet("companies/by-cuit")]
+    [HttpGet("company/by-cuit")]
     public async Task<IActionResult> GetCompanyByCuit([FromQuery] string cuit)
     {
-        var result = await _companyService.GetCompanyByCuitAsync(cuit);
+        var result = await _service.GetCompanyByCuitAsync(cuit);
         return result.IsError ? BadRequest(result.FirstError) : Ok(result.Value);
     }
 
-    [HttpPost("companies")]
+    [HttpPost("company")]
     public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyDto dto)
     {
-        var result = await _companyService.CreateCompanyAsync(dto);
+        var result = await _service.CreateCompanyAsync(dto);
         return result.IsError ? BadRequest(result.FirstError) : Ok(result.Value);
+    }
+
+    [HttpGet("role/list")]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await _service.GetRolesAsync();
+
+        return result.Match(
+            value => Ok(result.Value),
+            errors => Problem(result.Errors)
+            );
     }
 }

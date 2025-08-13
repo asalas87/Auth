@@ -1,5 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Web.API.Middlewares;
@@ -83,6 +85,46 @@ public static class DependencyInjection
             });
         });
 
+        return services;
+    }
+
+    public static IServiceCollection AddDataProtectionKeys(this IServiceCollection services, IConfiguration configuration)
+    {
+        var keysPath = configuration["DataProtection:KeysPath"] ?? @"\api.csingenieria.com.ar\DataProtectionKeys";
+
+        if (!Directory.Exists(keysPath))
+        {
+            Directory.CreateDirectory(keysPath);
+        }
+
+        services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+            .SetApplicationName("Auth");
+
+        return services;
+    }
+
+    public static IServiceCollection AddInvalidModelStateMiddlewares(this IServiceCollection services)
+    {
+        services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState
+                    .Where(e => e.Value?.Errors.Count > 0)
+                    .Select(e => new
+                    {
+                        Field = e.Key,
+                        Errors = e.Value?.Errors.Select(err => err.ErrorMessage).ToArray()
+                    });
+
+                return new BadRequestObjectResult(new
+                {
+                    Message = "Validation failed",
+                    Details = errors
+                });
+            };
+        });
         return services;
     }
 }

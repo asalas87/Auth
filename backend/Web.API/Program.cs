@@ -34,27 +34,37 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddApplication()
     .AddCorsPolicy(builder.Configuration)
-    .AddJwtAuthentication(builder.Configuration);
+    .AddJwtAuthentication(builder.Configuration)
+    .AddDataProtectionKeys(builder.Configuration)
+    .AddInvalidModelStateMiddlewares();
 
 var app = builder.Build();
 
 // -------------------------
 // Middleware
 // -------------------------
-app.EnsureSchemas();
-app.SeedData();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ApplyMigrations();
 }
 
-app.UseExceptionHandler("/error"); // manejo global
+var configuration = app.Services.GetRequiredService<IConfiguration>();
+bool applyMigrations = configuration.GetValue<bool>("Database:ApplyMigrations");
+
+if (applyMigrations)
+{
+    app.ApplyMigrations();
+}
+app.EnsureSchemas();
+app.SeedData();
+
+//app.UseExceptionHandler("/error"); // manejo global
 
 app.UseHttpsRedirection();         // redirección a HTTPS
 app.UseStaticFiles();              // wwwroot
 
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseRouting();                  // importante antes de CORS
 
 app.UseCors("AllowReactApp");      // cors antes de auth
@@ -62,7 +72,6 @@ app.UseCors("AllowReactApp");      // cors antes de auth
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>(); // si necesita usuario, poner despu�s de auth
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok("Healthy"));

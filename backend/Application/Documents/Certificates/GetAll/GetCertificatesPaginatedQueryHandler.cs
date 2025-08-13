@@ -27,7 +27,8 @@ public sealed class GetCertificatesPaginatedQueryHandler : IRequestHandler<GetCe
             UploadDate = d.UploadDate,
             AssignedToId = d.AssignedTo?.Id.Value,
             AssignedTo = d.AssignedTo?.Name ?? string.Empty,
-            ValidUntil = d.ValidUntil
+            ValidUntil = d.ValidUntil,
+            ValidFrom = d.ValidFrom
         }).ToList();
 
         return new PaginatedResult<CertificateResponseDTO>

@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Security.Common.DTOS;
 public class RegisterDTO : LoginDTO
 {
-    [Required]
+    [Required(ErrorMessage = "El nombre es obligatorio.")]
     public string Name { get; set; } = string.Empty;
-    [Required, Compare(nameof(Password)), DataType(DataType.Password)]
+    [Required(ErrorMessage = "Debes confirmar tu contraseña."), Compare(nameof(Password)), DataType(DataType.Password)]
     public string ConfirmPassword { get; set; } = string.Empty;
+    public int RoleId { get; set; } = 2; 
 }
