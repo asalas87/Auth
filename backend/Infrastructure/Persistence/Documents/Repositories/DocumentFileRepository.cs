@@ -1,5 +1,6 @@
-﻿using Domain.Documents.Entities;
+using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
+using Domain.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Documents.Repositories
@@ -19,7 +20,7 @@ namespace Infrastructure.Persistence.Documents.Repositories
 
         public void Update(DocumentFile file) => _context.DocumentFiles.Update(file);
 
-        public async Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, Guid? assignedToId)
+        public async Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, UserId? assignedToUserId)
         {
             var query = _context.DocumentFiles
                 .Include(d => d.UploadedBy)
@@ -31,9 +32,9 @@ namespace Infrastructure.Persistence.Documents.Repositories
                 query = query.Where(u => u.Name.Contains(filter) || u.Description.Contains(filter));
             }
 
-            if (assignedToId.HasValue)
+            if (assignedToUserId != null)
             {
-                query = query.Where(f => f.AssignedTo != null && f.AssignedTo.Id.Value == assignedToId);
+                query = query.Where(f => f.AssignedTo != null && f.AssignedTo.Users.Any(u => u.Id == assignedToUserId));
             }
 
             var totalCount = await query.CountAsync();

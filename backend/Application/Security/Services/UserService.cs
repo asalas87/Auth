@@ -34,6 +34,7 @@ public class UserService : IUserService
     public async Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO registerDTO)
     {
         var command = _mapper.Map<CreateUserCommand>(registerDTO);
+
         var createResult = await _mediator.Send(command);
 
         if (createResult.IsError)
@@ -46,18 +47,18 @@ public class UserService : IUserService
             return userResult.Errors;
 
         var userDto = _mapper.Map<UserDTO>(userResult.Value);
+
         var accessToken = _authenticationService.GenerateAccessToken(userResult.Value);
         var refreshToken = await _authenticationService.GenerateRefreshTokenAsync(userDto.Id);
 
-        var response = new LoginResponse(
+        return new LoginResponse(
             userDto.Id,
             userDto.Name,
             userDto.Email,
+            userDto.Role,
             accessToken,
             refreshToken
         );
-
-        return response;
     }
 
     public async Task<ErrorOr<LoginResponse>> LoginUserAsync(LoginDTO loginDTO)
@@ -76,6 +77,7 @@ public class UserService : IUserService
             userDto.Id,
             userDto.Name,
             userDto.Email,
+            userDto.Role,
             accessToken,
             refreshToken
         );
@@ -91,6 +93,7 @@ public class UserService : IUserService
             return Task.FromResult<ErrorOr<PaginatedResult<UserDTO>>>(result);
         });
     }
+
     public async Task<ErrorOr<List<UserDTO>>> GetUsersAsync()
     {
         return await _mediator.Send(new GetAllUsersQuery()).BindAsync(result =>
@@ -125,6 +128,7 @@ public class UserService : IUserService
             userDto.Id,
             userDto.Name,
             userDto.Email,
+            userDto.Role,
             newAccessToken,
             newRefreshToken
         );
@@ -154,4 +158,14 @@ public class UserService : IUserService
         return new SuccessResponse("Usuario editado correctamente.", result.Value.Value);
     }
 
+    public async Task<ErrorOr<UserDTO>> GetUserByIdAsync(Guid id)
+    {
+        var result = await _mediator.Send(new GetUserByIdQuery(id));
+
+        if (result.IsError)
+            return result.Errors;
+
+        var userDto = _mapper.Map<UserDTO>(result.Value);
+        return userDto;
+    }
 }

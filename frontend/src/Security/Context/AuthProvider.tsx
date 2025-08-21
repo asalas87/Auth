@@ -2,14 +2,14 @@ import { ReactNode, useState } from "react";
 import { ILoginDTO } from "../Interfaces/Dtos/ILoginDTO";
 import { ILoginResponseDTO } from "../Interfaces/Responses/ILoginResponseDTO";
 import { IRegisterDTO } from "../Interfaces/Dtos/IRegisterDTO";
-import { IUser } from "../Interfaces/Models/IUser";
+import { IUserDTO } from "../Interfaces";
 import { login, register } from "../Services/AccountService";
 import { AuthContext } from "./AuthContext";
 import { deleteTokens, getAccessToken, setAccessToken } from "@/Helpers/auth-helpers";
 
 
 export const AuthProvider = ({ children }: { children: ReactNode; }) => {
-    const [user, setUser] = useState<IUser | null>(getAccessToken() ? { id: '', name: '', email: '', roleId: 2, role: '' } : null);
+    const [user, setUser] = useState<IUserDTO | null>(getAccessToken() ? { id: '', name: '', email: '', role: '', company: '' } : null);
 
     const signIn = async (data: ILoginDTO) => {
         try {
@@ -19,8 +19,8 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
                 id: response.id,
                 name: response.name,
                 email: response.email,
-                roleId: response.roleId,
-                role: response.role ? response.role : '',
+                role: response.role,
+                company: response.company           
             });
         } catch (error) {
             console.error('Error al iniciar sesión', error);
@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }: { children: ReactNode; }) => {
                 id: response.id.value,
                 name: response.name,
                 email: response.email,
-                roleId: response.roleId,
-                role: response.role ? response.role : '',
+                role: response.role,
+                company: response.company  
             });
         } catch (error) {
             console.error('Error al registrar usuario', error);

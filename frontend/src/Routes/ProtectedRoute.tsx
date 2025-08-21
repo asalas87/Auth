@@ -2,19 +2,23 @@
 import { useAuthContext } from "../Security/Context/AuthContext";
 
 interface ProtectedRouteProps {
-    children: JSX.Element;
+  children: React.ReactNode;
+  allowedRoles?: string[];
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-    const { user } = useAuthContext();
-    const location = useLocation();
+const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
+  const { user } = useAuthContext();
 
-    if (!user) {
-        // Redirige a /auth y guarda la ubicación actual para volver luego
-        return <Navigate to="/auth" replace state={{ from: location }} />;
-    }
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
-    return children;
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />; // o una página de "Acceso denegado"
+  }
+
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
+

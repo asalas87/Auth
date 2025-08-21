@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react';
-import { IUserDTO } from '../Interfaces';
+import { IUserDTO, IUserEditDTO } from '../Interfaces';
 import { UserEditForm } from './Forms/UserEditForm';
-import { getAllPag, remove, update } from '@/Security/Services/UserService';
+import { getAllPag, remove, update, getById } from '@/Security/Services/UserService';
 import { usePaginatedList, CrudTable, ColumnConfig } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 
 const UsersView = () => {
-    const [selected, setSelected] = useState<IUserDTO | null>(null);
-    const [mode, setMode] = useState<'edit' | 'create'>('edit');
+    const [selected, setSelected] = useState<IUserEditDTO | null>(null);
+    const [mode] = useState<'edit'>('edit');
 
     const memoizedGetAll = useCallback(getAllPag, []);
 
@@ -25,11 +25,17 @@ const UsersView = () => {
     const fields: ColumnConfig<IUserDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'email', label: 'Correo' },
+        { key: 'company', label: 'Empresa' },
         { key: 'role', label: 'Rol' }
     ];
 
     const handleEdit = (user: IUserDTO) => {
-        setSelected(user);
+        executeWithErrorHandling(
+            () => getById(user.id),
+            (userEdit) => {
+                setSelected(userEdit)
+            }
+        )
     };
 
     const handleDelete = async (user: IUserDTO) => {
@@ -44,7 +50,7 @@ const UsersView = () => {
         )
     };
 
-    const handleSave = (user: IUserDTO) => {
+    const handleSave = (user: IUserEditDTO) => {
         executeWithErrorHandling(() => update(user.id, user), () => { reload(); setSelected(null) });
     };
 

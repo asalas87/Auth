@@ -1,7 +1,7 @@
 using Application.Common.Responses;
 using Application.Documents.Management.DTOs;
 using Domain.Documents.Interfaces;
-using Domain.Primitives;
+using Domain.Security.Entities;
 using ErrorOr;
 using MediatR;
 
@@ -42,7 +42,7 @@ namespace Application.Documents.Management.GetAll
 
         public async Task<ErrorOr<PaginatedResult<DocumentResponseDTO>>> Handle(GetDocumentsPaginatedByAssignedToQuery request, CancellationToken cancellationToken)
         {
-            var (documents, totalCount) = await _documentRepository.GetPaginatedByAssignedToAsync(request.Page, request.PageSize, request.Filter, request.assignedTo);
+            var (documents, totalCount) = await _documentRepository.GetPaginatedByAssignedToAsync(request.Page, request.PageSize, request.Filter, new UserId(request.AssignedToUserId));
 
             var items = documents.Select(d => new DocumentResponseDTO
             {

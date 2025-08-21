@@ -32,7 +32,13 @@ public class DocumentService : IDocumentService
 
     public async Task<ErrorOr<PaginatedResult<DocumentResponseDTO>>> GetDocumentsAsignedToPaginatedAsync(DocumentAssignedDTO documentAssignedDTO)
     {
+        var userId = _authenticatedUser.UserId;
+        if (userId is null)
+            return Error.Failure("Auth", "Usuario no autenticado.");
+        documentAssignedDTO.AssignedToUserId = userId.Value;
+
         var query = _mapper.Map<GetDocumentsPaginatedByAssignedToQuery>(documentAssignedDTO);
+
         return await _mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<PaginatedResult<DocumentResponseDTO>>>(result);

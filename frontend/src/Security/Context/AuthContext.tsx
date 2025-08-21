@@ -16,6 +16,7 @@ export interface UserInfo {
     id: string;
     name: string;
     email: string;
+    role: string;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -34,6 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     id: decoded.sub,
                     name: decoded.name,
                     email: decoded.email,
+                    role: decoded.role
                 });
             } catch (error) {
                 console.error("Error al decodificar el token:", error);
@@ -48,6 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             id: result.id,
             name: result.name,
             email: result.email,
+            role: result.role
         });
     };
 
@@ -57,6 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             id: result.id,
             name: result.name,
             email: result.email,
+            role: result.role
         });
     };
 

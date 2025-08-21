@@ -1,4 +1,4 @@
-using Azure.Core;
+using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Interfaces;
@@ -12,15 +12,18 @@ public class EditUserCommandHandler : IRequestHandler<EditUserCommand, ErrorOr<U
 {
     private readonly IUserRepository _userRepository;
     private readonly IRoleRepository _roleRepository;
+    private readonly ICompanyRepository _companyRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public EditUserCommandHandler(
         IUserRepository userRepository,
         IRoleRepository roleRepository,
+        ICompanyRepository companyRepository,
         IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
+        _companyRepository = companyRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -41,7 +44,11 @@ public class EditUserCommandHandler : IRequestHandler<EditUserCommand, ErrorOr<U
         if (role is null)
             return Error.NotFound("Role.NotFound", "El rol no existe.");
 
-        user.Update(command.Name, emailResult, role);
+        var company = await _companyRepository.GetByIdAsync(new CompanyId(command.CompanyId));
+
+        if (company is null)
+            return Error.NotFound("Company.NotFound", "La empresa no existe.");
+        user.Update(command.Name, emailResult, role, company);
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

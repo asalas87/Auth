@@ -9,13 +9,11 @@ namespace Application.Security.Users.GetAll
 {
     public sealed class GetUsersPaginatedQueryHandler : IRequestHandler<GetUsersPaginatedQuery, ErrorOr<PaginatedResult<UserDTO>>>, IRequestHandler<GetAllUsersQuery, ErrorOr<List<UserDTO>>>
     {
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _userRepository;
 
-        public GetUsersPaginatedQueryHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public GetUsersPaginatedQueryHandler(IUserRepository userRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
         public async Task<ErrorOr<PaginatedResult<UserDTO>>> Handle(GetUsersPaginatedQuery request, CancellationToken cancellationToken)
@@ -28,7 +26,7 @@ namespace Application.Security.Users.GetAll
                 Name = u.Name,
                 Email = u.Email.Value,
                 Role = u.Role.Name ?? string.Empty,
-                RoleId = u.Role.Id
+                Company = u.Company?.Name ?? string.Empty,
             }).ToList();
 
             return new PaginatedResult<UserDTO>

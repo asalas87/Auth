@@ -15,4 +15,5 @@ public interface IUserService
     public Task<ErrorOr<LoginResponse>> RefreshTokenAsync(string refreshToken);
     Task<ErrorOr<SuccessResponse>> DeleteUserAsync(Guid userId);
     Task<ErrorOr<SuccessResponse>> EditUserAsync(EditUserRequest dto);
+    Task<ErrorOr<UserDTO>> GetUserByIdAsync(Guid userId);
 }

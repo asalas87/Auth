@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using System.Text;
+using Domain.Security.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +62,13 @@ public static class DependencyInjection
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy =>
+                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Id.ToString()));
+            options.AddPolicy("UserOnly", policy =>
+                policy.RequireClaim(ClaimTypes.Role, Role.User.Id.ToString()));
+        });
 
         return services;
     }

@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+using Application.Common.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -19,6 +19,14 @@ public class AuthenticatedUser : IAuthenticatedUser
         {
             var claim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier);
             return Guid.TryParse(claim?.Value, out var id) ? id : null;
+        }
+    }
+    public int? RoleId
+    {
+        get
+        {
+            var claim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role);
+            return Int32.TryParse(claim?.Value, out var id) ? id : null;
         }
     }
 }
