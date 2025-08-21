@@ -1,6 +1,5 @@
 using Application.Common.Dtos;
 using Application.Security.Common.DTOs;
-using Application.Security.Common.DTOS;
 using Application.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,7 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Security;
 
+[Authorize(Policy = "AdminOnly")]
 [Route("security/[controller]")]
 public class UserController : ApiController
 {
@@ -22,6 +22,17 @@ public class UserController : ApiController
     {
         PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
         var result = await _service.GetUsersPaginatedAsync(dto);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetUserByIdAsync(id);
 
         return result.Match(
             value => Ok(value),

@@ -1,4 +1,5 @@
 using Domain.Primitives;
+using Domain.Security.Entities;
 using Domain.ValueObjects;
 
 namespace Domain.Partners.Entities;
@@ -12,7 +13,8 @@ public sealed class Company : AggergateRoot<CompanyId>
     }
     public Company() { }
     public string Name { get; private set; } = string.Empty;
-    public Cuit CuitCuil { get; private set; } 
+    public Cuit CuitCuil { get; private set; }
+    public ICollection<User> Users { get; set; } = new List<User>();
     public bool IsActive { get; private set; }
     public void UpdateCompany(string name, Cuit cuitCuil, bool active)
     {

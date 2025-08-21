@@ -8,7 +8,7 @@ const documentsRoutes: RouteObject[] = [
     {
         path: "/documents/management",
         element: (
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["user"]}>
                 <Layout>
                     <DocumentsView />
                 </Layout>
@@ -18,7 +18,7 @@ const documentsRoutes: RouteObject[] = [
     {
         path: "/documents/registrosDeCalificacion",
         element: (
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["admin"]}>
                 <Layout>
                     <RegistrosDeCalificacionView />
                 </Layout>

@@ -1,6 +1,5 @@
 ﻿import { RouteObject } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import { DocumentsView } from "../Documents/Views/DocumentsView";
 import AuthView from "../Security/Views/AuthView";
 
 import securityRoutes from "../Security/Routes";
@@ -18,7 +17,7 @@ const AppRoutes = (): RouteObject[] => {
                 ? (
                     <ProtectedRoute>
                         <Layout>
-                            <DocumentsView />
+                            <div style={{ padding: 20 }}>Bienvenido {user.name}</div>
                         </Layout>
                     </ProtectedRoute>
                 ) : <AuthView />,

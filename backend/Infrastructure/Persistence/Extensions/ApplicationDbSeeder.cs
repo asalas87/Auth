@@ -1,3 +1,4 @@
+using Domain.Partners.Entities;
 using Domain.Security.Entities;
 using Domain.ValueObjects;
 using Infrastructure.Services;
@@ -22,8 +23,13 @@ public static class ApplicationDbSeeder
 
         if (!db.Users.Any())
         {
+            db.Companies.AddRange(
+                new Company("CS Ingeniería", Cuit.Create("30-71050574-4")!)
+            );
+            db.SaveChanges();
             var adminRole = db.Roles.First(r => r.Name == "Admin");
-            db.Users.Add(new User("admin", new PasswordHasher().HashPassword("admin123!"), Email.Create("admin@csingenieria.com.ar")!, adminRole, true));
+            var company = db.Companies.First(c => c.Name == "CS Ingeniería");
+            db.Users.Add(new User("admin", new PasswordHasher().HashPassword("admin123!"), Email.Create("admin@csingenieria.com.ar")!, adminRole, company, true));
             db.SaveChanges();
         }
     }

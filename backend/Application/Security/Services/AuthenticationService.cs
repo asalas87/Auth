@@ -1,4 +1,4 @@
-﻿using Domain.Primitives;
+using Domain.Primitives;
 using Domain.Security.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -13,16 +13,13 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly IConfiguration _configuration;
     private readonly IRefreshTokenService _refreshTokenService;
-    private readonly IUnitOfWork _unitOfWork;
 
     public AuthenticationService(
         IConfiguration configuration,
-        IRefreshTokenService refreshTokenService,
-        IUnitOfWork unitOfWork)
+        IRefreshTokenService refreshTokenService)
     {
         _configuration = configuration;
         _refreshTokenService = refreshTokenService;
-        _unitOfWork = unitOfWork;
     }
 
     public string GenerateAccessToken(User user)
@@ -31,7 +28,8 @@ public class AuthenticationService : IAuthenticationService
         {
             new("sub", user.Id.Value.ToString()),
             new("name", user.Name!),
-            new("email", user.Email.Value)
+            new("email", user.Email.Value),
+            new("role", user.Role.Name.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

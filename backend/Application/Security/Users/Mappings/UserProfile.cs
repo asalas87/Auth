@@ -13,8 +13,10 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<User, UserDTO>().ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.Value))
-                                  .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email.Value));
-        CreateMap<CreateUserCommand, RegisterDTO>().ReverseMap();
+                                  .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email.Value))
+                                  .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.Name))
+                                  .ForMember(dest => dest.Company, opt => opt.MapFrom(src => src.Company != null ? src.Company.Name : string.Empty));
+        CreateMap<RegisterDTO, CreateUserCommand>();
         CreateMap<GetUserByEmailQuery, LoginDTO>().ReverseMap();
         CreateMap<GetUsersPaginatedQuery, PaginateDTO>().ReverseMap();
         CreateMap<EditUserCommand, EditUserRequest>().ReverseMap();

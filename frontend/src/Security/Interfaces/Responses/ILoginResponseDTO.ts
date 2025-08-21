@@ -1,5 +1,5 @@
-import { IBaseUser } from '../Models/IBaseUser';
+import { IUserDTO } from '../Dtos/IUserDTO';
 
-export interface ILoginResponseDTO extends IBaseUser {
+export interface ILoginResponseDTO extends IUserDTO {
     token: string;
 }

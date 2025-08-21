@@ -1,5 +1,5 @@
 import api from '@/Helpers/api';
-import { IUserDTO } from '../Interfaces';
+import { IUserDTO, IUserEditDTO } from '../Interfaces';
 
 export interface PagedResult<T> {
     items: T[];
@@ -17,8 +17,13 @@ export const remove = async (id: string): Promise<void> => {
     await api.delete(`/security/user/${id}`);
 };
 
-export const update = async (id: string, user: IUserDTO): Promise<void> => {
+export const update = async (id: string, user: IUserEditDTO): Promise<void> => {
     await api.put(`/security/user/${id}`, user, {
         headers: { 'Content-Type': 'application/json' }
     });
+};
+
+export const getById = async (id: string): Promise<IUserEditDTO> => {
+    const response = await api.get(`/security/user/${id}`);
+     return response.data;
 };

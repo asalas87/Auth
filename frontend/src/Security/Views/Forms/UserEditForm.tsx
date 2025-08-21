@@ -1,8 +1,9 @@
 ﻿import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import { IRoleDTO, IUserDTO } from '@/Security/Interfaces';
-import { getRolesForCombo } from '@/Controls/ControlService';
+import { IRoleDTO, IUserEditDTO } from '@/Security/Interfaces';
+import { getCompaniesForCombo, getRolesForCombo } from '@/Controls/ControlService';
 import { useEffect, useState } from 'react';
+import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
 
 
 export const UserEditForm = ({
@@ -11,8 +12,8 @@ export const UserEditForm = ({
     onClose,
     mode = 'edit',
 }: {
-    item: IUserDTO;
-    onSave: (u: IUserDTO) => void;
+    item: IUserEditDTO;
+    onSave: (u: IUserEditDTO) => void;
     onClose: () => void;
     mode?: 'edit' | 'create';
 }) => {
@@ -29,10 +30,29 @@ export const UserEditForm = ({
 
         loadRoles();
     }, []);
+    const [companies, setCompanies] = useState<ICompanyDTO[]>([]);
+    useEffect(() => {
+        const loadCompanies = async () => {
+            try {
+                const response = await getCompaniesForCombo();
+                setCompanies(response);
+            } catch (error) {
+                console.error('Error al cargar roles', error);
+            }
+        };
 
-    const fields: FieldConfig<IUserDTO>[] = [
+        loadCompanies();
+    }, []);
+
+    const fields: FieldConfig<IUserEditDTO>[] = [
         { name: 'name', label: 'Nombre', type: FieldType.Text },
         { name: 'email', label: 'Correo electrónico', type: FieldType.Text },
+        {
+            name: 'companyId',
+            label: 'Empresa',
+            type: FieldType.Select,
+            options: companies.map(u => ({ value: u.id, label: u.name })),
+        },
         {
             name: 'roleId',
             label: 'Rol',
@@ -41,7 +61,7 @@ export const UserEditForm = ({
         }
     ];
     return (
-        <GenericEditForm<IUserDTO>
+        <GenericEditForm<IUserEditDTO>
             item={item}
             fields={fields}
             onClose={onClose}

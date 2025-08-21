@@ -19,30 +19,3 @@ export const getAll = async (
     return response.data;
 };
 
-export const create = async (document: IDocumentDTO): Promise<void> => {
-    const formData = new FormData();
-
-    formData.append('name', document.name ?? '');
-    formData.append('description', document.description ?? '');
-    formData.append('expirationDate', document.expirationDate?.toString() ?? '');
-    formData.append('assignedToId', document.assignedToId ?? '');
-
-    if (!(document.file instanceof File)) {
-        throw new Error('Invalid file type');
-    }
-    formData.append('file', document.file);
-
-    await api.post(`${endpoint}/upload`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-};
-
-export const update = async (data: FormData): Promise<void> => {
-    await api.put(`${endpoint}/edit`, data);
-};
-
-export const remove = async (id: string): Promise<void> => {
-    await api.delete(`${endpoint}/${id}`);
-};

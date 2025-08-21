@@ -5,5 +5,5 @@ using MediatR;
 
 namespace Application.Documents.Management.GetAll
 {
-    public record GetDocumentsPaginatedByAssignedToQuery(int Page, int PageSize, string? Filter, Guid assignedTo) : IRequest<ErrorOr<PaginatedResult<DocumentResponseDTO>>>;
+    public record GetDocumentsPaginatedByAssignedToQuery(int Page, int PageSize, string? Filter, Guid AssignedToUserId) : IRequest<ErrorOr<PaginatedResult<DocumentResponseDTO>>>;
 }

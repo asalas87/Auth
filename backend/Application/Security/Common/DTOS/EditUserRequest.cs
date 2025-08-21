@@ -17,4 +17,6 @@ public class EditUserRequest
 
     [Required]
     public int RoleId { get; set; } = default!;
+    [Required]
+    public Guid CompanyId { get; set; } = default!;
 }
