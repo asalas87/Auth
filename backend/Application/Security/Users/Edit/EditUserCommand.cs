@@ -8,6 +8,6 @@ public record EditUserCommand(
     string Name,
     string Email,
     int RoleId,
-    Guid CompanyId
+    Guid? CompanyId
 ) : IRequest<ErrorOr<UserId>>;
 

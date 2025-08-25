@@ -33,7 +33,7 @@ public sealed class User : AggergateRoot<UserId>
     public bool Active { get; set; }
     public Company? Company { get; private set; } = null!;
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new HashSet<RefreshToken>();
-    public void Update(string name, Email email, Role role, Company company)
+    public void Update(string name, Email email, Role role, Company? company)
     {
         Name = name;
         Email = email;

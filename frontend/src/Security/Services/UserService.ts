@@ -18,9 +18,7 @@ export const remove = async (id: string): Promise<void> => {
 };
 
 export const update = async (id: string, user: IUserEditDTO): Promise<void> => {
-    await api.put(`/security/user/${id}`, user, {
-        headers: { 'Content-Type': 'application/json' }
-    });
+    await api.put(`/security/user/${id}`, user);
 };
 
 export const getById = async (id: string): Promise<IUserEditDTO> => {

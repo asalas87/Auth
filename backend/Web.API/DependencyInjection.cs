@@ -65,9 +65,9 @@ public static class DependencyInjection
         services.AddAuthorization(options =>
         {
             options.AddPolicy("AdminOnly", policy =>
-                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Id.ToString()));
+                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Name.ToString()));
             options.AddPolicy("UserOnly", policy =>
-                policy.RequireClaim(ClaimTypes.Role, Role.User.Id.ToString()));
+                policy.RequireClaim(ClaimTypes.Role, Role.User.Name.ToString()));
         });
 
         return services;

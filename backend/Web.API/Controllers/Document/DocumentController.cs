@@ -6,7 +6,6 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Documents;
 
-[Authorize(Policy = "UserOnly")]
 [Route("document/management")]
 public class DocumentsController : ApiController
 {
@@ -18,6 +17,7 @@ public class DocumentsController : ApiController
     }
 
     [HttpGet("all")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
         DocumentAssignedDTO dto = new DocumentAssignedDTO { Filter = filter, Page = page, PageSize = pageSize };

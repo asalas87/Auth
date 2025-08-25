@@ -18,7 +18,7 @@ public class UserRepository : IUserRepository
     public void Delete(User user) => _context.Users.Remove(user);
     public void Update(User user) => _context.Users.Update(user);
     public async Task<bool> ExistsAsync(UserId id) => await _context.Users.AnyAsync(user => user.Id == id);
-    public async Task<User?> GetByIdAsync(UserId id) => await _context.Users.SingleOrDefaultAsync(c => c.Id == id);
+    public async Task<User?> GetByIdAsync(UserId id) => await _context.Users.Include(u => u.Company).Include(u => u.Role).SingleOrDefaultAsync(c => c.Id == id);
     public async Task<List<User>> GetAll() => await _context.Users.ToListAsync();
 
     public async Task<User?> GetByNameAsync(string idName) => await _context.Users.SingleOrDefaultAsync(c => c.Name == idName);
