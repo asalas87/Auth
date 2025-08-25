@@ -11,7 +11,7 @@ const securityRoutes: RouteObject[] = [
     },
     {
         path: "/security/users",
-        element: <ProtectedRoute allowedRoles={["admin"]}>
+        element: <ProtectedRoute allowedRoles={["Admin"]}>
                     <Layout>
                         <UsersView />
                     </Layout>

@@ -1,7 +1,7 @@
 import api from '@/Helpers/api';
 import { IDocumentDTO, IDocumentResponseDTO } from '../Interfaces';
 
-const endpoint = '/documents/management';
+const endpoint = '/document/management';
 
 export interface PagedResult<T> {
     items: T[];

@@ -158,14 +158,14 @@ public class UserService : IUserService
         return new SuccessResponse("Usuario editado correctamente.", result.Value.Value);
     }
 
-    public async Task<ErrorOr<UserDTO>> GetUserByIdAsync(Guid id)
+    public async Task<ErrorOr<UserEditDTO>> GetUserByIdAsync(Guid id)
     {
         var result = await _mediator.Send(new GetUserByIdQuery(id));
 
         if (result.IsError)
             return result.Errors;
 
-        var userDto = _mapper.Map<UserDTO>(result.Value);
+        var userDto = _mapper.Map<UserEditDTO>(result.Value);
         return userDto;
     }
 }

@@ -36,7 +36,9 @@ export function FieldRenderer<T>({
       newValue = e.target.value ? new Date(e.target.value) : undefined;
     } else if (type === FieldType.File) {
       newValue = e.target.files?.[0] ?? null;
-    }
+    } else if (type === FieldType.Select) {
+    newValue = e.target.value === "" ? null : e.target.value;
+  }
 
     if (eventOnChange) eventOnChange(e);
     else onChange(name, newValue);

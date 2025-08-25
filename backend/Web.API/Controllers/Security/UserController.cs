@@ -7,7 +7,6 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Security;
 
-[Authorize(Policy = "AdminOnly")]
 [Route("security/[controller]")]
 public class UserController : ApiController
 {
@@ -18,6 +17,7 @@ public class UserController : ApiController
     }
 
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
         PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
@@ -30,6 +30,7 @@ public class UserController : ApiController
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetUserByIdAsync(id);
@@ -41,6 +42,7 @@ public class UserController : ApiController
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Put(Guid id, [FromBody] EditUserRequest dto)
     {
         if (id != dto.Id)
@@ -55,6 +57,7 @@ public class UserController : ApiController
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _service.DeleteUserAsync(id);

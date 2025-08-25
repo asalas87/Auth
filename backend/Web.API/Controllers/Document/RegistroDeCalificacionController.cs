@@ -1,6 +1,7 @@
 using Application.Common.Dtos;
 using Application.Documents.Certificate.DTOs;
 using Application.Documents.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
 
@@ -18,6 +19,7 @@ public class RegistroDeCalificacionController : ApiController
     }
     // GET: api/<RegistrosDeCalificacionController>
     [HttpGet]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
         PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
@@ -32,6 +34,7 @@ public class RegistroDeCalificacionController : ApiController
     // POST api/<RegistrosDeCalificacionController>
     [HttpPost]
     [Consumes("multipart/form-data")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> Post([FromForm] CertificateDTO dto)
     {
         var result = await _service.CreateCertificateAsync(dto);
@@ -43,6 +46,7 @@ public class RegistroDeCalificacionController : ApiController
 
     // PUT api/<RegistrosDeCalificacionController>/5
     [HttpPut("{id}")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> Put(Guid id, [FromBody] CertificateEditDTO dto)
     {
         var result = await _service.UpdateCertificateAsync(dto);
@@ -54,6 +58,7 @@ public class RegistroDeCalificacionController : ApiController
 
     // DELETE api/<RegistrosDeCalificacionController>/5
     [HttpDelete("{id}")]
+    [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _service.DeleteCertificateAsync(id);

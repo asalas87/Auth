@@ -6,9 +6,9 @@ import Layout from "../Common/Components/Layout";
 
 const documentsRoutes: RouteObject[] = [
     {
-        path: "/documents/management",
+        path: "/document/management",
         element: (
-            <ProtectedRoute allowedRoles={["user"]}>
+            <ProtectedRoute allowedRoles={["User"]}>
                 <Layout>
                     <DocumentsView />
                 </Layout>
@@ -16,9 +16,9 @@ const documentsRoutes: RouteObject[] = [
         ),
     },
     {
-        path: "/documents/registrosDeCalificacion",
+        path: "/document/registrosDeCalificacion",
         element: (
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute allowedRoles={["Admin"]}>
                 <Layout>
                     <RegistrosDeCalificacionView />
                 </Layout>

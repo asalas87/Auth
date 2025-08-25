@@ -44,10 +44,10 @@ public class EditUserCommandHandler : IRequestHandler<EditUserCommand, ErrorOr<U
         if (role is null)
             return Error.NotFound("Role.NotFound", "El rol no existe.");
 
-        var company = await _companyRepository.GetByIdAsync(new CompanyId(command.CompanyId));
+        Company? company = null;
+        if (command.CompanyId != null)
+            company = await _companyRepository.GetByIdAsync(new CompanyId(command.CompanyId.Value));
 
-        if (company is null)
-            return Error.NotFound("Company.NotFound", "La empresa no existe.");
         user.Update(command.Name, emailResult, role, company);
 
         _userRepository.Update(user);

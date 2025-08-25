@@ -18,7 +18,7 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                         {/* Siempre visible para User y Admin */}
                         {user?.role === "User" && (
                             <li className="nav-item">
-                                <Link to="/documents/management" className="nav-link" onClick={onHide}>
+                                <Link to="/document/management" className="nav-link" onClick={onHide}>
                                     Documentos
                                 </Link>
                             </li>
@@ -28,7 +28,7 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                         {user?.role === "Admin" && (
                             <>
                                 <li>
-                                    <Link to="/security/registrosCalificacion" className="nav-link" onClick={onHide}>
+                                    <Link to="/document/registrosDeCalificacion" className="nav-link" onClick={onHide}>
                                         Registros de calificación
                                     </Link>
                                 </li>
@@ -53,7 +53,7 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                     {/* Siempre visible para User y Admin */ }
                     {user?.role === "User" && (
                         <li className="nav-item">
-                            <Link to="/documents/management" className="nav-link" onClick={onHide}>
+                            <Link to="/document/management" className="nav-link" onClick={onHide}>
                                 Documentos
                             </Link>
                         </li>
@@ -63,7 +63,7 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                     {user?.role === "Admin" && (
                         <>
                             <li>
-                                <Link to="/security/registrosCalificacion" className="nav-link" onClick={onHide}>
+                                <Link to="/document/registrosDeCalificacion" className="nav-link" onClick={onHide}>
                                     Registros de calificación
                                 </Link>
                             </li>
