@@ -1,5 +1,6 @@
 using Application.Controls.Dtos;
 using Application.Controls.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
 
@@ -15,6 +16,7 @@ public class ControlsController : ApiController
     }
 
     [HttpGet("company/list")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetCompanies()
     {
         var result = await _service.GetAllCompaniesAsync();
@@ -26,6 +28,7 @@ public class ControlsController : ApiController
     }
 
     [HttpGet("company/by-cuit")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetCompanyByCuit([FromQuery] string cuit)
     {
         var result = await _service.GetCompanyByCuitAsync(cuit);
@@ -33,6 +36,7 @@ public class ControlsController : ApiController
     }
 
     [HttpPost("company")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyDto dto)
     {
         var result = await _service.CreateCompanyAsync(dto);
@@ -40,6 +44,7 @@ public class ControlsController : ApiController
     }
 
     [HttpGet("role/list")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetAll()
     {
         var result = await _service.GetRolesAsync();
