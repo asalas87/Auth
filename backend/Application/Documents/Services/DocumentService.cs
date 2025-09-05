@@ -5,12 +5,14 @@ using Application.Common.Responses;
 using Application.Documents.Certificate.Create;
 using Application.Documents.Certificate.DTOs;
 using Application.Documents.Certificate.GetAll;
+using Application.Documents.Certificate.GetById;
 using Application.Documents.Certificate.Update;
 using Application.Documents.Certificates.Delete;
 using Application.Documents.Common.DTOs;
 using Application.Documents.Management.Create;
 using Application.Documents.Management.DTOs;
 using Application.Documents.Management.GetAll;
+using Application.Documents.Management.GetById;
 using Application.Documents.Services;
 using AutoMapper;
 using ErrorOr;
@@ -106,6 +108,16 @@ public class DocumentService : IDocumentService
         return await _mediator.Send(command).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<Guid>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<FileDownloadDTO>> GetDocumentByIdAsync(Guid id)
+    {
+        var command = new GetDocumentByIdQuery(id);
+
+        return await _mediator.Send(command).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<FileDownloadDTO>>(result);
         });
     }
 }

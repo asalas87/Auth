@@ -6,7 +6,7 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Documents;
 
-[Route("document/management")]
+[Route("documents")]
 public class DocumentsController : ApiController
 {
     private readonly IDocumentService _service;
@@ -26,6 +26,18 @@ public class DocumentsController : ApiController
         return result.Match(
             value => Ok(value),
             errors => Problem(errors)
+        );
+    }
+
+    [HttpGet("{id:guid}/download")]
+    [Authorize(Policy = "UserOnly")]
+    public async Task<IActionResult> Download(Guid id)
+    {
+        var result = await _service.GetDocumentByIdAsync(id);
+
+        return result.Match<IActionResult>(
+            success => File(success.Content, success.ContentType, success.FileName),
+            error => NotFound(error)
         );
     }
 }
