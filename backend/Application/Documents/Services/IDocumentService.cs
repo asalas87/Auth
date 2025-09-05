@@ -16,4 +16,5 @@ public interface IDocumentService
     Task<ErrorOr<Guid>> CreateCertificateAsync(CertificateDTO dto);
     Task<ErrorOr<Guid>> UpdateCertificateAsync(CertificateEditDTO dto);
     Task<ErrorOr<Guid>> DeleteCertificateAsync(Guid id);
+    Task<ErrorOr<FileDownloadDTO>> GetDocumentByIdAsync(Guid id);
 }

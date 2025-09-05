@@ -8,6 +8,7 @@ namespace Domain.Documents.Interfaces
         Task AddAsync(DocumentFile file);
         void Update(DocumentFile file);
         void Delete(DocumentFile file);
+        Task<DocumentFile?> GetById(DocumentFileId id);
         Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, UserId? assignedToUserId);
     }
 }

@@ -1,7 +1,10 @@
 import { useCallback, useState } from 'react';
 import { ColumnConfig, CrudTable, usePaginatedList } from '@/Common/Components/CrudTable';
-import { getAll } from '../Services/DocumentService';
-import { IDocumentResponseDTO, IDocumentDTO } from '../Interfaces';
+import { getAll, download } from '../Services/DocumentService';
+import { IDocumentResponseDTO } from '../Interfaces';
+import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 
 export const DocumentsView = () => {
     const [selected, setSelected] = useState<IDocumentResponseDTO | null>(null);
@@ -21,9 +24,22 @@ export const DocumentsView = () => {
     const fields: ColumnConfig<IDocumentResponseDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'description', label: 'Descripcion' },
-        { key: 'uploadedBy', label: 'Subido Por' },
-        { key: 'assignedTo', label: 'Asignado A' }
+        { key: 'expirationDate', label: 'Fecha de expiracion', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : ''  }
     ];
+
+    const handleDownload = async (row: IDocumentResponseDTO) => {
+        executeWithErrorHandling(() => download(row.id), (blob:Blob) => {
+                const link = document.createElement("a");
+                const url = window.URL.createObjectURL(blob);
+                link.href = url;
+                link.setAttribute("download", row.name ?? "document.pdf");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);    
+        });
+    }
+   
 
     return (
         <div className="container mt-4">
@@ -36,12 +52,14 @@ export const DocumentsView = () => {
                 onPageChange={setCurrentPage}
                 totalCount={totalCount}
                 onFilter={setFilter} 
-                onEdit={function (item: IDocumentResponseDTO): void {
-                    throw new Error('Function not implemented.');
-                } }
-                onDelete={function (item: IDocumentResponseDTO): void {
-                    throw new Error('Function not implemented.');
-                } }/>
+                actions={[
+                {
+                    label: "Descargar",
+                    icon: "download",
+                    color: "success",
+                    onClick: (row) => handleDownload(row),
+                },
+            ]}/>
         </div>
     );
 };

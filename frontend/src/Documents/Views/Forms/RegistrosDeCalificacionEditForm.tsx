@@ -30,20 +30,21 @@ export const RegistrosDeCalificacionEditForm = ({
         try {
             setLoading(true);
             const text = await extractTextFromPDF(file);
-
+            const normalizeText = (text : string) =>
+            text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const patterns = {
-                empresa: /Empresa:\s*(.*?)\s+En\s+presencia\s+del\s+Calificador\s+autorizado/i,
+                empresa: /(?:Presentado por la Empresa|Presentado por la empresa|Cliente):?\s+([A-ZÁÉÍÓÚÑ\s]+?)(?:\s+S\.?\s*A\.?|$)/i,
                 nombres: /Nombre\(s\):\s*(.*?)\s+Documento\s+de\s+identidad/i,
                 apellido: /Apellido\(s\):\s*(.*?)\s+Ha\s+realizado\s+una\s+calificación/i,
-                validFrom: /desde\s+(?:el\s+)?(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i,
+                validFrom: /desde(?:\s+el)?\s*(?:[^\d]*?)?(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i,
                 validUntil: /hasta\s+(?:el\s+)?(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i
             };
 
-            const datos = extractDataFromText(text, patterns);
+            const datos = extractDataFromText(normalizeText(text), patterns);
 
             // Buscar el ID de la empresa si coincide por nombre
             const empresaEncontrada = companies.find(c =>
-                datos.empresa?.toLowerCase().includes(c.name.toLowerCase())
+                c.name.toLowerCase().includes(datos.empresa?.toLowerCase())
             );
 
             setFormOverrides({

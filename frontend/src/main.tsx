@@ -1,6 +1,6 @@
 ﻿import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { AuthProvider } from "./Security/Context/AuthProvider";
 import App from './App'
 import './index.css'
@@ -19,13 +19,13 @@ const LoadingInitializer = () => {
 initAxiosInterceptors();
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <BrowserRouter>   
-            <AuthProvider>
-                <LoadingProvider>
-                <LoadingInitializer />
+        <HashRouter>
+            <LoadingProvider>
+                <AuthProvider>
+                    <LoadingInitializer />
                     <App />
-                </LoadingProvider>
-            </AuthProvider>
-        </BrowserRouter>
-  </StrictMode>,
+                </AuthProvider>
+            </LoadingProvider>
+        </HashRouter>
+    </StrictMode>,
 )

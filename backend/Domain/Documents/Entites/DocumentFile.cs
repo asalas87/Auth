@@ -51,7 +51,7 @@ namespace Domain.Documents.Entities
 
         public static string BuildRelativePath(string subFolder, string fileName)
         {
-            return Path.Combine("Documents", subFolder, fileName);
+            return Path.Combine(subFolder, fileName);
         }
     }
 }

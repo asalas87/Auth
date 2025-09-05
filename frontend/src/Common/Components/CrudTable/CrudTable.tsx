@@ -4,6 +4,7 @@ import { CrudTableProps } from "./CrudTableProps";
 export function CrudTable<T extends { id: string }>({
     data,
     columns,
+    actions,
     onEdit,
     onDelete,
     onFilter,
@@ -120,13 +121,41 @@ export function CrudTable<T extends { id: string }>({
                             ))}
                             {showActions && (
                                 <td className="actions-col align-middle">
-                                    <a href="#" className="text-primary mx-1 fs-5 text-decoration-none align-middle" title="Editar" onClick={e => { e.preventDefault(); onEdit(row); }}>
-                                        <span className="material-icons">edit</span>
-                                    </a>
-                                    <a href="#" className="text-danger mx-1 fs-5 text-decoration-none align-middle" title="Eliminar" onClick={e => { e.preventDefault(); onDelete(row); }}>
-                                        <span className="material-icons">close</span>
-                                    </a>
-                                </td>
+                                {/* Acciones fijas */}
+                                {onEdit && (
+                                <a
+                                    href="#"
+                                    className="text-primary mx-1 fs-5 text-decoration-none align-middle"
+                                    title="Editar"
+                                    onClick={e => { e.preventDefault(); onEdit(row); }}
+                                >
+                                    <span className="material-icons">edit</span>
+                                </a>
+                                )}
+                                {onDelete && (
+                                <a
+                                    href="#"
+                                    className="text-danger mx-1 fs-5 text-decoration-none align-middle"
+                                    title="Eliminar"
+                                    onClick={e => { e.preventDefault(); onDelete(row); }}
+                                >
+                                    <span className="material-icons">close</span>
+                                </a>
+                                )}
+
+                                {/* Acciones custom */}
+                                {actions?.map((action, i) => (
+                                <a
+                                    key={i}
+                                    href="#"
+                                    className={`text-${action.color ?? "secondary"} mx-1 fs-5 text-decoration-none align-middle`}
+                                    title={action.label}
+                                    onClick={e => { e.preventDefault(); action.onClick(row); }}
+                                >
+                                    <span className="material-icons">{action.icon}</span>
+                                </a>
+                                ))}
+                            </td>
                             )}
                         </tr>
                     ))}

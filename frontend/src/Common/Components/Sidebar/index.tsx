@@ -12,7 +12,7 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
 
     return (
         <>
-            <div className={`offcanvas offcanvas-start${show ? ' show' : ''} d-md-none`} tabIndex={-1} style={{ visibility: show ? 'visible' : 'hidden', paddingTop: "77px" }}>
+            <div className={`offcanvas offcanvas-start${show ? ' show' : ''} d-md-none vh-100`} tabIndex={-1} style={{ visibility: show ? 'visible' : 'hidden', paddingTop: "77px" }}>
                 <nav className="offcanvas-body d-flex flex-column p-3">
                     <ul className="nav nav-pills flex-column mb-auto">
                         {/* Siempre visible para User y Admin */}
