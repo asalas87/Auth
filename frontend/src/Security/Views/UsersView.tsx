@@ -1,16 +1,15 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { IUserDTO } from '../Interfaces';
 import { UserEditForm } from './Forms/UserEditForm';
-import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
-import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import { getUsers } from '@/Security/Services/UserService';
+import { getAllPag, remove, update } from '@/Security/Services/UserService';
 import { usePaginatedList, CrudTable, ColumnConfig } from '@/Common/Components/CrudTable';
-import { deleteUser } from '@/Security/Services/UserService';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 
 const UsersView = () => {
     const [selected, setSelected] = useState<IUserDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
+
+    const memoizedGetAll = useCallback(getAllPag, []);
 
     const {
         data: users,
@@ -21,7 +20,7 @@ const UsersView = () => {
         setFilter,
         pageSize,
         reload
-    } = usePaginatedList(getUsers);
+    } = usePaginatedList(memoizedGetAll);
 
     const fields: ColumnConfig<IUserDTO>[] = [
         { key: 'name', label: 'Nombre' },
@@ -31,30 +30,22 @@ const UsersView = () => {
 
     const handleEdit = (user: IUserDTO) => {
         setSelected(user);
-        setMode('edit');
-    };
-
-    const handleCreate = () => {
-        const empty = getEmptyItem<IUserDTO>([
-            { name: 'name', label: '', type: FieldType.Text },
-            { name: 'email', label: '', type: FieldType.Text },
-        ]);
-        setSelected(empty);
-        setMode('create');
     };
 
     const handleDelete = async (user: IUserDTO) => {
         if (!window.confirm(`¿Eliminar a "${user.name}"?`)) return;
 
         executeWithErrorHandling(
-            () =>  deleteUser(user.id),
-            () =>  reload(),
-            () => setSelected(null)
+            () =>  remove(user.id),
+            () =>  { 
+                reload();
+                setSelected(null)
+            }
         )
     };
 
     const handleSave = (user: IUserDTO) => {
-        setSelected(null);
+        executeWithErrorHandling(() => update(user.id, user), () => { reload(); setSelected(null) });
     };
 
     return (
@@ -70,8 +61,6 @@ const UsersView = () => {
                 onPageChange={setCurrentPage}
                 totalCount={totalCount}
                 onFilter={setFilter}
-                onNew={handleCreate}
-                newLabel="Nuevo"
             />
 
             {selected && (

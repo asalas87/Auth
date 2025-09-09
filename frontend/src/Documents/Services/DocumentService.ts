@@ -1,5 +1,5 @@
 import api from '@/Helpers/api';
-import { IDocumentDTO } from '../Interfaces/IDocumentDTO';
+import { IDocumentDTO, IDocumentResponseDTO } from '../Interfaces';
 
 const endpoint = '/documents/management';
 
@@ -12,7 +12,7 @@ export const getAll = async (
     page: number,
     pageSize: number,
     filter: string = ''
-): Promise<PagedResult<IDocumentDTO>> => {
+): Promise<PagedResult<IDocumentResponseDTO>> => {
     const response = await api.get(`${endpoint}/all`, {
         params: { page, pageSize, filter },
     });
@@ -25,7 +25,7 @@ export const create = async (document: IDocumentDTO): Promise<void> => {
     formData.append('name', document.name ?? '');
     formData.append('description', document.description ?? '');
     formData.append('expirationDate', document.expirationDate?.toString() ?? '');
-    formData.append('assignedTo', document.assignedTo ?? '');
+    formData.append('assignedToId', document.assignedToId ?? '');
 
     if (!(document.file instanceof File)) {
         throw new Error('Invalid file type');

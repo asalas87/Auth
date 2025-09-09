@@ -23,7 +23,7 @@ public static class ApplicationDbSeeder
         if (!db.Users.Any())
         {
             var adminRole = db.Roles.First(r => r.Name == "Admin");
-            db.Users.Add(new User(new UserId(Guid.NewGuid()), "admin", new PasswordHasher().HashPassword("admin123!"), Email.Create("admin@csingenieria.com.ar")!, adminRole, true));
+            db.Users.Add(new User("admin", new PasswordHasher().HashPassword("admin123!"), Email.Create("admin@csingenieria.com.ar")!, adminRole, true));
             db.SaveChanges();
         }
     }

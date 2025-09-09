@@ -3,5 +3,5 @@ export interface IBaseUser {
     name: string;
     email: string;
     role: string;
-    roleId: string;
+    roleId: number;
 }

@@ -1,7 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from 'react-toastify';
-import { getRefreshToken, logout } from '../Security/Services/AuthService';
+import { getRefreshToken, setAccessToken, setRefreshToken } from './auth-helpers';
 import { appsettings } from '../settings/appsettings';
+import { logout } from '@/Security/Services/AccountService';
 
 const api = axios.create({
     baseURL: appsettings.apiUrl,
@@ -19,12 +20,12 @@ const handleTokenRefresh = async () => {
 
         if (!refreshToken) throw new Error('No hay refresh token');
 
-        const response = await api.post('/security/users/refresh', { refreshToken });
+        const response = await api.post('/security/account/refresh', { refreshToken });
 
         const { token, refreshToken: newRefreshToken } = response.data;
 
-        localStorage.setItem('accessToken', token);
-        localStorage.setItem('refreshToken', newRefreshToken);
+        setAccessToken(token);
+        setRefreshToken(newRefreshToken);
 
         return token;
     } catch (error) {
@@ -46,7 +47,7 @@ const handleErrorResponse = async (error: AxiosError) => {
         error.response.status === 401 &&
         !originalRequest._retry &&
         getRefreshToken() &&
-        !originalRequest.url?.includes('/security/users/refresh') // 🔐 clave para evitar loop
+        !originalRequest.url?.includes('/security/account/refresh') // 🔐 clave para evitar loop
     ) {
         originalRequest._retry = true;
 
@@ -70,9 +71,19 @@ const handleErrorResponse = async (error: AxiosError) => {
 
     // Otros errores (400, 403, etc.)
     const data: any = error.response.data;
-    const message =
-        data?.detail || data?.title || 'Ocurrió un error inesperado.';
-    toast.error(message);
+
+    if (data?.message === "Validation failed" && Array.isArray(data.details)) {
+        // Mostrar todos los errores de validación
+        data.details.forEach((fieldError: any) => {
+        fieldError.errors.forEach((msg: string) => {
+            toast.error(`${fieldError.field}: ${msg}`);
+        });
+        });
+    } else {
+        // Otros mensajes de error genéricos
+        const message = data?.detail || data?.title || data?.message || 'Ocurrió un error inesperado.';
+        toast.error(message);
+    }
 
     return Promise.reject(error);
 };
@@ -84,24 +95,20 @@ api.interceptors.request.use(config => {
 });
 
 api.interceptors.response.use(
-    response => {
-        setLoading(false);
+  (response: AxiosResponse) => {
+    setLoading(false);
 
-        const data = response.data;
-        if (typeof data === 'object' && data?.message) {
-            toast.success(data.message);
-        }
-
-        return response;
-    },
-    error => {
-        setLoading(false);
-        return Promise.reject(error);
+    const data = response.data;
+    if (typeof data === 'object' && data?.message) {
+      toast.success(data.message);
     }
-);
-api.interceptors.response.use(
-    (response: AxiosResponse) => response,
-    handleErrorResponse
+
+    return response;
+  },
+  async error => {
+    setLoading(false);
+    return handleErrorResponse(error);
+  }
 );
 
 export default api;

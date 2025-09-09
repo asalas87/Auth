@@ -1,5 +1,7 @@
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
+using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Secutiry.Interfaces;
@@ -13,6 +15,7 @@ public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumen
 {
     private readonly IDocumentFileRepository _documentRepository;
     private readonly IUserRepository _userRepository;
+    private readonly ICompanyRepository _companyRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _env;
 
@@ -20,10 +23,12 @@ public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumen
         IDocumentFileRepository documentRepository,
         IUserRepository userRepository,
         IUnitOfWork unitOfWork,
+        ICompanyRepository companyRepository,
         IWebHostEnvironment env)
     {
         _documentRepository = documentRepository;
         _userRepository = userRepository;
+        _companyRepository = companyRepository;
         _unitOfWork = unitOfWork;
         _env = env;
     }
@@ -51,9 +56,9 @@ public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumen
             return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
         }
 
-        User? assignedUser = request.AssignedTo.HasValue ?  await _userRepository.GetByIdAsync(new UserId(request.AssignedTo.Value)) : null;
+        Company? assignedUser = request.AssignedTo.HasValue ?  await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedTo.Value)) : null;
 
-        var document = new DocumentFile(
+        var document = new GeneralDocument(
             new DocumentFileId(documentId),
             request.Name,
             Path.Combine("documents", assignedFolder, fileName),

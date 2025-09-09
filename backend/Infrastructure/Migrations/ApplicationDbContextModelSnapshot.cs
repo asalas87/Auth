@@ -25,7 +25,10 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<Guid?>("AssignedToId")
                         .HasColumnType("uniqueidentifier");
@@ -35,6 +38,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("ExpirationDate")
                         .HasColumnType("datetime2");
 
@@ -43,7 +49,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Path")
+                    b.Property<string>("RelativePath")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -61,6 +67,34 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UploadedById");
 
                     b.ToTable("DocumentFiles", "DOC");
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("Domain.Partners.Entities.Company", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+                    b.Property<string>("CuitCuil")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Companies", "PAR");
                 });
 
             modelBuilder.Entity("Domain.Sales.Entities.Customer", b =>
@@ -146,7 +180,9 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Security.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -176,9 +212,29 @@ namespace Infrastructure.Migrations
                     b.ToTable("Users", "SEC");
                 });
 
+            modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ValidUntil")
+                        .HasColumnType("datetime2");
+
+                    b.ToTable("Certificates", "DOC");
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.GeneralDocument", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
+
+                    b.ToTable("GeneralDocuments", "DOC");
+                });
+
             modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
-                    b.HasOne("Domain.Security.Entities.User", "AssignedTo")
+                    b.HasOne("Domain.Partners.Entities.Company", "AssignedTo")
                         .WithMany()
                         .HasForeignKey("AssignedToId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -261,6 +317,24 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.Certificate", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.GeneralDocument", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.GeneralDocument", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Security.Entities.User", b =>

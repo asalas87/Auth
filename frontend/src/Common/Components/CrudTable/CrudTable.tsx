@@ -1,24 +1,5 @@
 import * as React from "react";
-
-export interface ColumnConfig<T> {
-    label: string;
-    key: keyof T;
-}
-
-interface CrudTableProps<T> {
-    data: T[];
-    columns: ColumnConfig<T>[];
-    onEdit: (item: T) => void;
-    onDelete: (item: T) => void;
-    onFilter?: (filter: string) => void;
-    onPageChange?: (page: number) => void;
-    onNew?: () => void;
-    pageSize?: number;
-    currentPage?: number;
-    showActions?: boolean;
-    totalCount: number;
-    newLabel?: string;
-}
+import { CrudTableProps } from "./CrudTableProps";
 
 export function CrudTable<T extends { id: string }>({
     data,
@@ -128,7 +109,14 @@ export function CrudTable<T extends { id: string }>({
                     {(data ?? []).map(row => (
                         <tr key={row.id}>
                             {columns.map(col => (
-                                <td key={String(col.key)}>{String(row[col.key])}</td>
+                                <td key={String(col.key)}>
+                                {col.render
+                                    ? col.render(row[col.key], row)
+                                    : row[col.key] === null || row[col.key] === undefined
+                                        ? ''
+                                        : String(row[col.key])
+                                }
+                            </td>
                             ))}
                             {showActions && (
                                 <td className="actions-col align-middle">

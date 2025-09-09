@@ -6,9 +6,9 @@ export default defineConfig({
     plugins: [react()],
     resolve: {
         alias: {
-          '@': path.resolve(__dirname, './src'), // Ruta absoluta a /src
+            '@': path.resolve(__dirname, './src'), // Ruta absoluta a /src
         },
-      },
+    },
     server: {
         https: {
             key: './localhost-key.pem',
@@ -19,5 +19,13 @@ export default defineConfig({
         outDir: 'dist',
         emptyOutDir: true,
         sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    pdfjs: ['pdfjs-dist/build/pdf'],
+                    react: ['react', 'react-dom']
+                }
+            }
+        }
     },
 })

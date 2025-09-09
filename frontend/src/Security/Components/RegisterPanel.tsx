@@ -7,13 +7,12 @@ const RegisterPanel = () => {
     const { signUp } = useAuthContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [id, setId] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [name, setName] = useState("");
     const navigate = useNavigate();
 
     const handleRegister = async () => {
-        const registerData: IRegisterDTO = { id, name, email, password, confirmPassword };
+        const registerData: IRegisterDTO = { name, email, password, confirmPassword };
         try {
             await signUp(registerData);
             navigate("/", { replace: true });

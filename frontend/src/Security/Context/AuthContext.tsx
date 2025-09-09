@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { login as loginService, logout as logoutService, getAccessToken, register } from '../Services/AuthService';
+import { login, logout, register } from '../Services/AccountService';
+import { getAccessToken } from '@/Helpers/auth-helpers';
 import { ILoginDTO } from '../Interfaces/Dtos/ILoginDTO';
 import { jwtDecode } from 'jwt-decode';
 import { IRegisterDTO } from '../Interfaces';
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const signIn = async (credentials: ILoginDTO) => {
-        const result = await loginService(credentials);
+        const result = await login(credentials);
         setUser({
             id: result.id,
             name: result.name,
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const signOut = () => {
-        logoutService();
+        logout();
         setUser(null);
     };
 

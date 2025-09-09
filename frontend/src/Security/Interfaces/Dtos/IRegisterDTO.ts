@@ -1,6 +1,6 @@
-import { IBaseUser } from '../Models/IBaseUser';
-
-export interface IRegisterDTO extends IBaseUser {
+export interface IRegisterDTO {
+    email: string;
+    name: string;
     password: string;
     confirmPassword: string;
 }

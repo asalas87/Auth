@@ -1,7 +1,7 @@
-﻿import { GenericEditForm, FieldConfig } from '@/Common/Components/EditForm';
+﻿import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IRoleDTO, IUserDTO } from '@/Security/Interfaces';
-import { getAllRoles } from '@/Security/Services/RoleService';
+import { getRolesForCombo } from '@/Controls/ControlService';
 import { useEffect, useState } from 'react';
 
 
@@ -20,7 +20,7 @@ export const UserEditForm = ({
     useEffect(() => {
         const loadRoles = async () => {
             try {
-                const response = await getAllRoles();
+                const response = await getRolesForCombo();
                 setRoles(response);
             } catch (error) {
                 console.error('Error al cargar roles', error);

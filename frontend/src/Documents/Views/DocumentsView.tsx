@@ -1,13 +1,12 @@
 import { useCallback, useState } from 'react';
-import { IDocumentDTO } from '../Interfaces/IDocumentDTO';
 import { ColumnConfig, CrudTable, usePaginatedList } from '@/Common/Components/CrudTable';
 import { getEmptyItem, FieldType } from '@/Common/Components/EditForm';
 import { getAll, create } from '../Services/DocumentService';
 import { DocumentEditForm } from './Forms/DocumentEditForm';
+import { IDocumentResponseDTO, IDocumentEditDTO } from '../Interfaces';
 
 export const DocumentsView = () => {
-    const [showForm, setShowForm] = useState(false);
-    const [selected, setSelected] = useState<IDocumentDTO | null>(null);
+    const [selected, setSelected] = useState<IDocumentResponseDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
     const memoizedGetAll = useCallback(getAll, []);
@@ -22,26 +21,23 @@ export const DocumentsView = () => {
         pageSize
     } = usePaginatedList(memoizedGetAll);
 
-    const fields: ColumnConfig<IDocumentDTO>[] = [
+    const fields: ColumnConfig<IDocumentResponseDTO>[] = [
         { key: 'name', label: 'Nombre' },
         { key: 'description', label: 'Descripcion' },
-        { key: 'uploadDate', label: 'Fecha Subida' },
-        { key: 'expirationDate', label: 'Fecha Expiracion' },
         { key: 'uploadedBy', label: 'Subido Por' },
-        { key: 'assignedTo', label: 'Asignado A' },
-        { key: 'path', label: 'Ruta' },
+        { key: 'assignedTo', label: 'Asignado A' }
     ];
 
-    const handleEdit = (document: IDocumentDTO) => {
+    const handleEdit = (document: IDocumentResponseDTO) => {
         setSelected(document);
         setMode('edit');
     };
 
     const handleCreate = () => {
-        const empty = getEmptyItem<IDocumentDTO>([
+        const empty = getEmptyItem<IDocumentResponseDTO>([
             { name: 'name', label: 'Nombre', type: FieldType.Text },
             { name: 'description', label: 'Descripcion', type: FieldType.Text },
-            { name: 'expirationDate', label: 'Fecha Expiracion', type: FieldType.Date },
+            { name: 'expirationDate', label: 'Expiracion', type: FieldType.Date },
             { name: 'assignedTo', label: 'Asignado A', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
@@ -49,7 +45,7 @@ export const DocumentsView = () => {
         setMode('create');
     };
 
-    const handleSave = async (document: IDocumentDTO) => {
+    const handleSave = async (document: IDocumentEditDTO) => {
         try {
             if (mode === 'create') {
                 await create(document);
@@ -65,8 +61,8 @@ export const DocumentsView = () => {
 
     return (
         <div className="container mt-4">
-            <h2>Gestión de Documentos</h2>
-            <CrudTable<IDocumentDTO>
+            <h2>Documentos</h2>
+            <CrudTable<IDocumentResponseDTO>
                 data={documents}
                 columns={fields}
                 onEdit={handleEdit}

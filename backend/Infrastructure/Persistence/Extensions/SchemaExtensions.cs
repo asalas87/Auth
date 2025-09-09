@@ -11,7 +11,7 @@ public static class SchemaExtensions
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        var schemas = new[] { "SEC", "DOC", "SAL" };
+        var schemas = new[] { "SEC", "DOC", "SAL", "PAR" };
 
         foreach (var schema in schemas)
         {

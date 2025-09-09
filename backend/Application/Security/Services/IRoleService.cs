@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Application.Security.Common.DTOS;
 using ErrorOr;
 
-namespace Application.Security.Services
+namespace Application.Security.Services;
+public interface IRoleService
 {
-    public interface IRoleService
-    {
-        Task<ErrorOr<List<RoleDTO>>> GetRolesAsync();
-    }
+    Task<ErrorOr<List<RoleDTO>>> GetRolesAsync();
 }

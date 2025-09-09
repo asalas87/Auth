@@ -1,18 +1,27 @@
 import api from './api';
 
-const TOKEN_KEY: string = 'accessToken';
-export function getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+const ACCESS_TOKEN_KEY: string = 'accessToken';
+const REFRESH_TOKEN_KEY: string = 'refreshToken';
+
+export function getAccessToken() {
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
-export function setToken(token : string) {
-    localStorage.setItem(TOKEN_KEY, token);
+export function setAccessToken(token : string) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
 }
-export function deleteToken() {
-    localStorage.removeItem(TOKEN_KEY);
+export function getRefreshToken() {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+export function setRefreshToken(token : string) {
+    localStorage.setItem(REFRESH_TOKEN_KEY, token);
+}
+export function deleteTokens() {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 export function initAxiosInterceptors() {
     api.interceptors.request.use((config) => {
-        const token = getToken();
+        const token = getAccessToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
