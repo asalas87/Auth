@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Notifications.Worker.Worker</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\02.Infrastructure\02.Infrastructure.csproj" />
+    <ProjectReference Include="..\03.Application\03.Application.csproj" />
+  </ItemGroup>
+
+</Project>
