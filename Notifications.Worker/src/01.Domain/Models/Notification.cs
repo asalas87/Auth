@@ -17,6 +17,7 @@ namespace Notifications.Worker.Domain.Models
         public int Attempts { get; private set; }
         public DateTime? LastAttemptAt { get; private set; }
         public DateTime CreatedAt { get; private set; }
+        public DateTime ExpirationDate { get; private set; }
         public DateTime? SentAt { get; private set; }
         public string? ExternalId { get; private set; } // opciona: id del proveedor/servicio
 

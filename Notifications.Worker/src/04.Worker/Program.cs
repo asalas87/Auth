@@ -18,19 +18,18 @@ Host.CreateDefaultBuilder(args)
         // 2. EF Core DbContext
         services.AddDbContext<NotificationsDbContext>(options =>
             options.UseSqlServer(connectionString));
+
         services.Configure<SmtpSettings>(
             context.Configuration.GetSection("Smtp"));
-        // 3. Repository
-        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         // 4. Email sender
         services.AddScoped<IEmailSender, SmtpEmailSender>();
 
         // 5. Notification service
-        services.AddScoped<NotificationService>();
-
+        services.AddScoped<INotificationService, NotificationService>();
         // 6. Worker (background service)
-        services.AddHostedService<Worker>();
+        //builder.Services.AddHostedService<Worker>(); // RabbitMQ
+        services.AddHostedService<SqlNotificationWorker>(); // SQL
     })
     .Build()
     .Run();

@@ -10,7 +10,7 @@ namespace Notifications.Worker.Infrastructure.Persistence
         public NotificationsDbContext(DbContextOptions<NotificationsDbContext> options)
             : base(options) { }
 
-        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
