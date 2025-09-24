@@ -41,6 +41,7 @@ docker-compose.*
 *.local
 appsettings.Development.json
 appsettings.Production.json
+appsettings.Test.Json
 tsconfig.tsbuildinfo
 publish
 

@@ -5,7 +5,7 @@ using Notifications.Worker.Domain.Enums;
 
 namespace Notifications.Worker.Application.Services;
 
-public class NotificationService
+public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _repo;
     private readonly IEmailSender _emailSender;

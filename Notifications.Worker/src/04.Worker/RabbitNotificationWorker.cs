@@ -1,21 +1,18 @@
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Notifications.Worker.Domain.Events;
 using Notifications.Worker.Application.Handlers;
 using Notifications.Worker.Application.Services;
-using Notifications.Worker.Infrastructure.Email;
 using Notifications.Worker.Infrastructure.Messaging;
 using System.Text.Json;
 
 namespace Notifications.Worker;
 
-public class Worker : BackgroundService
+public class RabbitNotificationWorker : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
+    private readonly ILogger<RabbitNotificationWorker> _logger;
     private readonly DocumentUploadedHandler _uploadedHandler;
     private readonly DocumentExpiringHandler _expiringHandler;
 
-    public Worker(ILogger<Worker> logger, NotificationService service)
+    public RabbitNotificationWorker(ILogger<RabbitNotificationWorker> logger, NotificationService service)
     {
         _logger = logger;
         _uploadedHandler = new DocumentUploadedHandler(service);

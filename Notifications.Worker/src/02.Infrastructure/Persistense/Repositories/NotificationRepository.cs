@@ -27,6 +27,7 @@ namespace Notifications.Worker.Infrastructure.Persistence.Repositories
         public async Task<IReadOnlyCollection<Notification>> GetPendingAsync(int maxAttempts = 5, DateTime? before = null)
         {
             var query = _context.Notifications
+                .AsNoTracking()
                 .Where(n => n.Status == Domain.Enums.NotificationStatus.Pending && n.Attempts < maxAttempts);
 
             if (before.HasValue)
