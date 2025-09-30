@@ -9,6 +9,7 @@ using Domain.Secutiry.Interfaces;
 using Infrastructure.Common.Services;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Documents.Repositories;
+using Infrastructure.Persistence.Notifications.Repositories;
 using Infrastructure.Persistence.Partners.Repositories;
 using Infrastructure.Persistence.Sales.Repositories;
 using Infrastructure.Persistence.Security.Repositories;
@@ -17,6 +18,7 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Interfaces;
 
 namespace Infrastructure;
 
@@ -25,6 +27,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddPersistense(configuration);
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         return services;
     }
 

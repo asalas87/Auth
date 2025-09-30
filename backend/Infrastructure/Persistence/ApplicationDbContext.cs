@@ -6,6 +6,7 @@ using Domain.Sales.Entities;
 using Domain.Security.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Entities;
 
 namespace Infrastructure.Persistence;
 public class ApplicationDbContext : DbContext, IApplicationDbContext, IUnitOfWork
@@ -19,6 +20,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext, IUnitOfWor
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Certificate> Certificates => Set<Certificate>();
     public DbSet<GeneralDocument> GeneralDocuments => Set<GeneralDocument>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
     {
@@ -32,8 +34,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext, IUnitOfWor
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.Entity<DocumentFile>().UseTptMappingStrategy();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(SharedKernel.Persistence.Configurations.NotificationConfiguration).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 

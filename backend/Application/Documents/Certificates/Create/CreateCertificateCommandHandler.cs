@@ -1,4 +1,4 @@
-using System.Reflection.Metadata;
+using System.Linq;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
@@ -8,6 +8,9 @@ using Domain.Secutiry.Interfaces;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
+using SharedKernel.Entities;
+using SharedKernel.Enums;
+using SharedKernel.Interfaces;
 
 namespace Application.Documents.Certificate.Create;
 public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCertificateCommand, ErrorOr<Guid>>
@@ -15,6 +18,7 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
     private readonly ICertificateRepository _certificateRepository;
     private readonly IUserRepository _userRepository;
     private readonly ICompanyRepository _companyRepository;
+    private readonly INotificationRepository _notificationRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _env;
 
@@ -23,11 +27,13 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
         IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         ICompanyRepository companyRepository,
+        INotificationRepository notificationRepository,
         IWebHostEnvironment env)
     {
         _certificateRepository = documentRepository;
         _userRepository = userRepository;
         _companyRepository = companyRepository;
+        _notificationRepository = notificationRepository;
         _unitOfWork = unitOfWork;
         _env = env;
     }
@@ -54,7 +60,7 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
             return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
         }
 
-        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedToId)) is not Company assignedComapny)
+        if (await _companyRepository.GetByIdWithUsersAsync(new CompanyId(request.AssignedToId)) is not Company assignedComapny)
         {
             return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
         }
@@ -62,6 +68,7 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
         var relativePath = DocumentFile.BuildRelativePath("Certificates", fileName);
 
         var certificate = new Domain.Documents.Entities.Certificate(
+            new DocumentFileId(documentId),
             request.Name,
             relativePath,
             uploadDate,
@@ -74,8 +81,18 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
         );
 
         await _certificateRepository.AddAsync(certificate);
+
+        var notification = new Notification(
+            recipientEmail: string.Join(",", assignedComapny.Users.Select(x => x.Email.Value)),
+            documentId,
+            subject: "Nuevo documento disponible",
+            body: $"Se ha subido un nuevo certificado el {uploadDate:d}",
+            type: NotificationType.DocumentUploaded
+        );
+        await _notificationRepository.AddAsync(notification, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return certificate.Id.Value;
+        return documentId;
     }
 }
