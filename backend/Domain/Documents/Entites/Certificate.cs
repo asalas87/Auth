@@ -5,6 +5,7 @@ namespace Domain.Documents.Entities;
 public class Certificate : DocumentFile
 {
     public Certificate(
+        DocumentFileId id,
         string name,
         string path,
         DateTime uploadDate,

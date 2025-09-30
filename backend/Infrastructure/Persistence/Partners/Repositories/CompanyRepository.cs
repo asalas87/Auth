@@ -1,7 +1,6 @@
 using Domain.Partners.Entities;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Persistence.Partners.Repositories;
 
@@ -29,5 +28,7 @@ public class CompanyRepository : ICompanyRepository
     }
     public async Task<Company?> GetByCuitAsync(Cuit cuit, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.CuitCuil == cuit, cancellationToken);
 
-    public async Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+    public async Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+    public async Task<Company?> GetByIdWithUsersAsync(CompanyId id, CancellationToken cancellationToken = default) =>
+        await _context.Companies.Include(u => u.Users).SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
 }
