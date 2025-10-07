@@ -1,7 +1,10 @@
-name: Deploy .NET + React App to FTP
+name: CI/CD Pipeline
 
 on:
   push:
+    branches:
+      - develop
+  pull_request:
     branches:
       - main
 defaults:
@@ -9,58 +12,87 @@ defaults:
     working-directory: ./
     
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      DOTNET_VERSION: '8.0.x'
-
     steps:
+      # 1️⃣ Clona el repositorio
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Backend publish
+      # 2️⃣ Configura .NET
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: '9.0.x'
 
+      # 3️⃣ Restaura dependencias backend
       - name: Restore backend dependencies
-        run: dotnet restore ./backend/Web.API/Web.API.csproj
+        run: dotnet restore ./backend/Web.api/Web.api.csproj
 
-      - name: Publish backend
-        run: dotnet publish ./backend/Web.API/Web.API.csproj -c Release -o ./backend/publish
+      # 4️⃣ Compila backend
+      - name: Build backend
+        run: dotnet build ./backend/Web.api/Web.api.csproj --configuration Release --no-restore
 
-      # Frontend build
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+      # 5️⃣ Ejecuta tests del backend
+      - name: Run backend tests
+        run: dotnet test ./backend --no-build --verbosity normal
 
+      # 6️⃣ Instala dependencias frontend
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
 
+      # 7️⃣ (Opcional) Lint — actualmente comentado
+      # - name: Run ESLint
+      #   working-directory: ./frontend
+      #   run: npm run lint
+
+      # 8️⃣ Build frontend
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
 
-      # FTP Deploy - Backend
-      - name: Deploy backend via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./backend/publish/
-          server-dir: ${{ secrets.FTP_BACKEND_PATH }}
+      # 9️⃣ Copia el build del frontend dentro del backend (para servirlo con .NET si aplicara)
+      # ⚠️ Tu frontend corre separado, así que esto se mantiene solo como ejemplo
+      # - name: Copy frontend build to backend publish
+      #   run: |
+      #     mkdir -p ./publish/backend/wwwroot
+      #     cp -r frontend/build/* ./publish/backend/wwwroot/
 
-      # FTP Deploy - Frontend (React)
-      - name: Deploy frontend via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4
+      # 🔟 Publica backend (para empaquetar artefacto final)
+      - name: Publish backend
+        run: dotnet publish ./backend/Web.api/Web.api.csproj -c Release -o ./publish/backend
+
+      # 1️⃣1️⃣ Guarda artefactos (útil para debugging o descargar)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./frontend/dist/
-          server-dir: ${{ secrets.FTP_FRONTEND_PATH }}
+          name: app-artifacts
+          path: ./publish
+
+  # 🚀 2️⃣ Job opcional: Deploy por FTP (solo corre en PR a main o manualmente)
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: app-artifacts
+          path: ./publish
+
+      # 💾 Despliegue FTP (descomentá para usarlo)
+      # - name: Deploy via FTP
+      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      #   with:
+      #     server: ${{ secrets.FTP_HOST }}
+      #     username: ${{ secrets.FTP_USER }}
+      #     password: ${{ secrets.FTP_PASS }}
+      #     local-dir: ./publish/backend
+      #     server-dir: /path/to/your/site/
