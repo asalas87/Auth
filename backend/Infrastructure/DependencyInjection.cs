@@ -47,6 +47,8 @@ public static class DependencyInjection
         services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
         services.AddScoped<ICertificateRepository, CertificateRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IEmailService, EmailService>();
+
         return services;
     }
 }

@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Application;
 using Infrastructure;
 using Infrastructure.Persistence.Extensions;
+using Web.Api.Jobs;
 using Web.API;
 using Web.API.Extensions;
 using Web.API.Middlewares;
@@ -37,6 +38,8 @@ builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddDataProtectionKeys(builder.Configuration)
     .AddInvalidModelStateMiddlewares();
+
+builder.Services.AddHostedService<NotificationsJob>();
 
 var app = builder.Build();
 

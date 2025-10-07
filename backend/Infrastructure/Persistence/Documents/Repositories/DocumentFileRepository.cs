@@ -48,4 +48,17 @@ public class DocumentFileRepository : IDocumentFileRepository
 
         return (files, totalCount);
     }
+
+    public async Task<List<DocumentFile>> GetExpiringAsync(int batchSize)
+    {
+        var query = _context.DocumentFiles
+            .Include(d => d.AssignedTo)
+            .Where(f => f.ExpirationDate != null && f.AssignedTo != null && f.AssignedTo.Users.Any())
+            .AsQueryable();
+
+        return await query
+            .OrderByDescending(u => u.ExpirationDate)
+            .Take(batchSize)
+            .ToListAsync();
+    }
 }

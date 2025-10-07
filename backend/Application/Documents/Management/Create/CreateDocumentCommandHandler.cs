@@ -1,14 +1,13 @@
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
-using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Secutiry.Interfaces;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 
 namespace Application.Documents.Management.Create;
 public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumentCommand, ErrorOr<Guid>>

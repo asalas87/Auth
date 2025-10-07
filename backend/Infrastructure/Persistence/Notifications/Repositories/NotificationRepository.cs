@@ -19,18 +19,20 @@ public class NotificationRepository : INotificationRepository
         await _db.Notifications.AddAsync(notification, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Notification>> GetPendingAsync(int batchSize = 50, CancellationToken cancellationToken = default)
+    public async Task<bool> IsAlreadySentAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var documentSent = await _db.Notifications
+            .Where(n => n.DocumentId == id && n.Type != NotificationType.DocumentUploaded)
+            .SingleOrDefaultAsync();
+        return documentSent != null;
+    }
+
+    public async Task<List<Notification>> GetPendingAsync(CancellationToken cancellationToken = default)
     {
         return await _db.Notifications
             .Where(n => n.Status == NotificationStatus.Pending)
             .OrderBy(n => n.CreatedAt)
-            .Take(batchSize)
             .ToListAsync(cancellationToken);
-    }
-
-    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
     }
 
     public Task UpdateAsync(Notification notification, CancellationToken cancellationToken = default)
@@ -39,8 +41,8 @@ public class NotificationRepository : INotificationRepository
         return Task.CompletedTask;
     }
 
-    Task<List<Notification>> INotificationRepository.GetPendingAsync(int batchSize, CancellationToken cancellationToken)
+    public async Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _db.Notifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
     }
 }
