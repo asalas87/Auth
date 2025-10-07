@@ -85,3 +85,4 @@ dist/
 !src/**/*.ts
 !src/**/*.tsx
 /backend/Web.API/wwwroot/
+/Workers

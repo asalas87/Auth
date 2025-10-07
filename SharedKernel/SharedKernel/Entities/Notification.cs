@@ -14,6 +14,7 @@ public class Notification
     public NotificationStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? ExpirationDate { get; private set; }
+    public int RetryCount { get; private set; } = 0;
 
     // Constructor privado para EF
     private Notification() { }
@@ -38,6 +39,8 @@ public class Notification
 
     // Métodos de cambio de estado
     public void MarkProcessing() => Status = NotificationStatus.Processing;
-    public void MarkSent() => Status = NotificationStatus.Sent;
+    public void MarkSent() =>  Status = NotificationStatus.Sent;
     public void MarkFailed() => Status = NotificationStatus.Failed;
+    public void MarkPending() => Status = NotificationStatus.Pending;
+    public void IncrementRetryCount() => RetryCount++;
 }

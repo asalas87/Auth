@@ -1,7 +1,5 @@
-namespace Application.Common.Dtos
+namespace Application.Common.Dtos;
+public class FileEditDTO : FileDTO
 {
-    public class FileEditDTO : FileDTO
-    {
-        public Guid Id { get; set; }
-    }
-}
+    public Guid Id { get; set; }
+};

@@ -28,6 +28,7 @@ namespace Application
             services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddValidatorsFromAssemblyContaining<ApplicationAssembllyReference>();
 
