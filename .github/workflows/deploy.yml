@@ -21,15 +21,15 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '8.0.x'
 
       # 3️⃣ Restaura dependencias backend
       - name: Restore backend dependencies
-        run: dotnet restore ./backend/Web.api/Web.api.csproj
+        run: dotnet restore ./backend/Web.Api/Web.API.csproj
 
       # 4️⃣ Compila backend
       - name: Build backend
-        run: dotnet build ./backend/Web.api/Web.api.csproj --configuration Release --no-restore
+        run: dotnet build ./backend/Web.Api/Web.API.csproj --configuration Release --no-restore
 
       # 5️⃣ Ejecuta tests del backend
       - name: Run backend tests
