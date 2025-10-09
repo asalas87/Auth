@@ -31,15 +31,18 @@ jobs:
 
       # 3️⃣ Restaurar dependencias de toda la solución
       - name: Restore backend dependencies
-        run: dotnet restore ${{ github.workspace }}/Auth.sln
+        working-directory: ${{ github.workspace }}
+        run: dotnet restore Auth.sln
 
       # 4️⃣ Compilar toda la solución
       - name: Build backend
-        run: dotnet build ${{ github.workspace }}/Auth.sln --configuration Release --no-restore
+        working-directory: ${{ github.workspace }}
+        run: dotnet build Auth.sln --configuration Release --no-restore
 
       # 5️⃣ Ejecutar tests de toda la solución
       - name: Run backend tests
-        run: dotnet test ${{ github.workspace }}/Auth.sln --no-build --verbosity normal
+        working-directory: ${{ github.workspace }}
+        run: dotnet test Auth.sln --no-build --verbosity normal
 
       # 6️⃣ Instalar dependencias frontend
       - name: Install frontend dependencies
@@ -53,7 +56,8 @@ jobs:
 
       # 8️⃣ Publicar backend (empaquetar artefacto final)
       - name: Publish backend
-        run: dotnet publish ${{ github.workspace }}/backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
+        working-directory: ${{ github.workspace }}
+        run: dotnet publish backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
 
       # 9️⃣ Guardar artefactos (útil para debugging o descarga manual)
       - name: Upload build artifacts
