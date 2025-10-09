@@ -26,50 +26,56 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      # 🔍 Paso opcional para debug (puede comentarse luego)
+      - name: Debug paths
+        run: |
+          pwd
+          ls -R ${{ github.workspace }}/backend
+
       # 3️⃣ Restaura dependencias backend
       - name: Restore backend dependencies
-        run: dotnet restore ./backend/Web.Api/Web.API.csproj
+        run: dotnet restore ${{ github.workspace }}/backend/Web.API/Web.API.csproj
 
       # 4️⃣ Compila backend
       - name: Build backend
-        run: dotnet build ./backend/Web.Api/Web.API.csproj --configuration Release --no-restore
+        run: dotnet build ${{ github.workspace }}/backend/Web.API/Web.API.csproj --configuration Release --no-restore
 
       # 5️⃣ Ejecuta tests del backend
       - name: Run backend tests
-        run: dotnet test ./backend --no-build --verbosity normal
+        run: dotnet test ${{ github.workspace }}/backend --no-build --verbosity normal
 
       # 6️⃣ Instala dependencias frontend
       - name: Install frontend dependencies
-        working-directory: ./frontend
+        working-directory: ${{ github.workspace }}/frontend
         run: npm install
 
       # 7️⃣ (Opcional) Lint — actualmente comentado
       # - name: Run ESLint
-      #   working-directory: ./frontend
+      #   working-directory: ${{ github.workspace }}/frontend
       #   run: npm run lint
 
       # 8️⃣ Build frontend
       - name: Build frontend
-        working-directory: ./frontend
+        working-directory: ${{ github.workspace }}/frontend
         run: npm run build
 
-      # 9️⃣ Copia el build del frontend dentro del backend (para servirlo con .NET si aplicara)
-      # ⚠️ Tu frontend corre separado, así que esto se mantiene solo como ejemplo
+      # 9️⃣ Copia el build del frontend dentro del backend (si aplica)
+      # ⚠️ Tu frontend corre separado, así que esto es opcional
       # - name: Copy frontend build to backend publish
       #   run: |
-      #     mkdir -p ./publish/backend/wwwroot
-      #     cp -r frontend/build/* ./publish/backend/wwwroot/
+      #     mkdir -p ${{ github.workspace }}/publish/backend/wwwroot
+      #     cp -r ${{ github.workspace }}/frontend/build/* ${{ github.workspace }}/publish/backend/wwwroot/
 
-      # 🔟 Publica backend (para empaquetar artefacto final)
+      # 🔟 Publica backend (empaqueta artefacto final)
       - name: Publish backend
-        run: dotnet publish ./backend/Web.api/Web.api.csproj -c Release -o ./publish/backend
+        run: dotnet publish ${{ github.workspace }}/backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
 
       # 1️⃣1️⃣ Guarda artefactos (útil para debugging o descargar)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: app-artifacts
-          path: ./publish
+          path: ${{ github.workspace }}/publish
 
   # 🚀 2️⃣ Job opcional: Deploy por FTP (solo corre en PR a main o manualmente)
   deploy:
@@ -85,7 +91,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-artifacts
-          path: ./publish
+          path: ${{ github.workspace }}/publish
 
       # 💾 Despliegue FTP (descomentá para usarlo)
       # - name: Deploy via FTP
@@ -94,5 +100,5 @@ jobs:
       #     server: ${{ secrets.FTP_HOST }}
       #     username: ${{ secrets.FTP_USER }}
       #     password: ${{ secrets.FTP_PASS }}
-      #     local-dir: ./publish/backend
+      #     local-dir: ${{ github.workspace }}/publish/backend
       #     server-dir: /path/to/your/site/
