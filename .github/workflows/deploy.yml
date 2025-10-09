@@ -26,51 +26,46 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # 🔍 Paso opcional de debug (puede eliminarse luego)
+      # 🔍 Debug paths (opcional)
       - name: Debug paths
         run: |
           pwd
           ls -R ${{ github.workspace }}
 
-      # 3️⃣ Restaura dependencias backend
+      # 3️⃣ Restaurar dependencias de toda la solución
       - name: Restore backend dependencies
-        run: dotnet restore ${{ github.workspace }}/backend/Web.API/Web.API.csproj
+        run: dotnet restore ${{ github.workspace }}/Auth.sln
 
-      # 4️⃣ Compila backend
+      # 4️⃣ Compilar toda la solución
       - name: Build backend
-        run: dotnet build ${{ github.workspace }}/backend/Web.API/Web.API.csproj --configuration Release --no-restore
+        run: dotnet build ${{ github.workspace }}/Auth.sln --configuration Release --no-restore
 
-      # 5️⃣ Ejecuta tests usando la solución (.sln)
+      # 5️⃣ Ejecutar tests de toda la solución
       - name: Run backend tests
         run: dotnet test ${{ github.workspace }}/Auth.sln --no-build --verbosity normal
 
-      # 6️⃣ Instala dependencias frontend
+      # 6️⃣ Instalar dependencias frontend
       - name: Install frontend dependencies
         working-directory: ${{ github.workspace }}/frontend
         run: npm install
 
-      # 7️⃣ (Opcional) Lint — actualmente comentado
-      # - name: Run ESLint
-      #   working-directory: ${{ github.workspace }}/frontend
-      #   run: npm run lint
-
-      # 8️⃣ Build frontend
+      # 7️⃣ Build frontend
       - name: Build frontend
         working-directory: ${{ github.workspace }}/frontend
         run: npm run build
 
-      # 9️⃣ Publica backend (empaqueta artefacto final)
+      # 8️⃣ Publicar backend (empaquetar artefacto final)
       - name: Publish backend
         run: dotnet publish ${{ github.workspace }}/backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
 
-      # 🔟 Guarda artefactos (útil para debugging o descarga manual)
+      # 9️⃣ Guardar artefactos (útil para debugging o descarga manual)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: app-artifacts
           path: ${{ github.workspace }}/publish
 
-  # 🚀 2️⃣ Job opcional: Deploy por FTP (solo en PR a main)
+  # 🚀 Deploy por FTP (solo en PR a main)
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
