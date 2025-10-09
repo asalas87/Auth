@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clona el repositorio
+      # 1️⃣ Clona la rama correcta (feature o develop)
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       # 2️⃣ Configura .NET
       - name: Setup .NET
@@ -31,18 +33,15 @@ jobs:
 
       # 3️⃣ Restaurar dependencias de toda la solución
       - name: Restore backend dependencies
-        working-directory: ${{ github.workspace }}
-        run: dotnet restore Auth.sln
+        run: dotnet restore ${{ github.workspace }}/Auth.sln
 
       # 4️⃣ Compilar toda la solución
       - name: Build backend
-        working-directory: ${{ github.workspace }}
-        run: dotnet build Auth.sln --configuration Release --no-restore
+        run: dotnet build ${{ github.workspace }}/Auth.sln --configuration Release --no-restore
 
       # 5️⃣ Ejecutar tests de toda la solución
       - name: Run backend tests
-        working-directory: ${{ github.workspace }}
-        run: dotnet test Auth.sln --no-build --verbosity normal
+        run: dotnet test ${{ github.workspace }}/Auth.sln --no-build --verbosity normal
 
       # 6️⃣ Instalar dependencias frontend
       - name: Install frontend dependencies
@@ -56,10 +55,9 @@ jobs:
 
       # 8️⃣ Publicar backend (empaquetar artefacto final)
       - name: Publish backend
-        working-directory: ${{ github.workspace }}
-        run: dotnet publish backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
+        run: dotnet publish ${{ github.workspace }}/backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
 
-      # 9️⃣ Guardar artefactos (útil para debugging o descarga manual)
+      # 9️⃣ Guardar artefactos
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -75,6 +73,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
