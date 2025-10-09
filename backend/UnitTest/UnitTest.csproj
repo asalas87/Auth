@@ -1,89 +1,41 @@
-name: CI/CD Pipeline
+<Project Sdk="Microsoft.NET.Sdk">
 
-on:
-  push:
-    branches:
-      - develop
-  pull_request:
-    branches:
-      - main
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
 
-    steps:
-      # 1️⃣ Clona el repositorio
-      - name: Checkout code
-        uses: actions/checkout@v4
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-      # 2️⃣ Configura .NET
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
 
-      # 🔍 Debug paths (opcional)
-      - name: Debug paths
-        run: |
-          pwd
-          ls -R ${{ github.workspace }}
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
 
-      # 3️⃣ Restaurar dependencias de toda la solución
-      - name: Restore backend dependencies
-        run: dotnet restore ${{ github.workspace }}/Auth.sln
+  <ItemGroup>
+    <Folder Include="Application.Customer.UnitTests\Delete\" />
+    <Folder Include="Application.Customer.UnitTests\GetAll\" />
+  </ItemGroup>
 
-      # 4️⃣ Compilar toda la solución
-      - name: Build backend
-        run: dotnet build ${{ github.workspace }}/Auth.sln --configuration Release --no-restore
-
-      # 5️⃣ Ejecutar tests de toda la solución (forzando .NET 8)
-      - name: Run backend tests
-        run: dotnet test ${{ github.workspace }}/Auth.sln --no-build --verbosity normal --framework net8.0
-
-      # 6️⃣ Instalar dependencias frontend
-      - name: Install frontend dependencies
-        working-directory: ${{ github.workspace }}/frontend
-        run: npm install
-
-      # 7️⃣ Build frontend
-      - name: Build frontend
-        working-directory: ${{ github.workspace }}/frontend
-        run: npm run build
-
-      # 8️⃣ Publicar backend (empaquetar artefacto final)
-      - name: Publish backend
-        run: dotnet publish ${{ github.workspace }}/backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
-
-      # 9️⃣ Guardar artefactos (útil para debugging o descarga manual)
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-artifacts
-          path: ${{ github.workspace }}/publish
-
-  # 🚀 Deploy por FTP (solo en PR a main)
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: app-artifacts
-          path: ${{ github.workspace }}/publish
-
-      # 💾 Despliegue FTP (descomentá para usarlo)
-      # - name: Deploy via FTP
-      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      #   with:
-      #     server: ${{ secrets.FTP_HOST }}
-      #     username: ${{ secrets.FTP_USER }}
-      #     password: ${{ secrets.FTP_PASS }}
-      #     local-dir: ${{ github.workspace }}/publish/backend
-      #     server-dir: /path/to/your/site/
+</Project>
