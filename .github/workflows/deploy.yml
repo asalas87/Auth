@@ -30,7 +30,7 @@ jobs:
       - name: Debug paths
         run: |
           pwd
-          ls -R ${{ github.workspace }}/backend
+          ls -R ${{ github.workspace }}
 
       # 3️⃣ Restaura dependencias backend
       - name: Restore backend dependencies
@@ -59,25 +59,18 @@ jobs:
         working-directory: ${{ github.workspace }}/frontend
         run: npm run build
 
-      # 9️⃣ Copia el build del frontend dentro del backend (si aplica)
-      # ⚠️ Tu frontend corre separado, así que esto es opcional
-      # - name: Copy frontend build to backend publish
-      #   run: |
-      #     mkdir -p ${{ github.workspace }}/publish/backend/wwwroot
-      #     cp -r ${{ github.workspace }}/frontend/build/* ${{ github.workspace }}/publish/backend/wwwroot/
-
-      # 🔟 Publica backend (empaqueta artefacto final)
+      # 9️⃣ Publica backend (empaqueta artefacto final)
       - name: Publish backend
         run: dotnet publish ${{ github.workspace }}/backend/Web.API/Web.API.csproj -c Release -o ${{ github.workspace }}/publish/backend
 
-      # 1️⃣1️⃣ Guarda artefactos (útil para debugging o descargar)
+      # 🔟 Guarda artefactos (útil para debugging o descarga manual)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: app-artifacts
           path: ${{ github.workspace }}/publish
 
-  # 🚀 2️⃣ Job opcional: Deploy por FTP (solo corre en PR a main o manualmente)
+  # 🚀 2️⃣ Job opcional: Deploy por FTP (solo en PR a main)
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
