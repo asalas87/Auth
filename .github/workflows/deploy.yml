@@ -41,7 +41,7 @@ jobs:
 
       # 5️⃣ Ejecutar tests de toda la solución
       - name: Run backend tests
-        run: dotnet test ${{ github.workspace }}/Auth.sln --no-build --verbosity normal
+        run: dotnet test ${{ github.workspace }}/Auth.sln --verbosity normal
 
       # 6️⃣ Instalar dependencias frontend
       - name: Install frontend dependencies
