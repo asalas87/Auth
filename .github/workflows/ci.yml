@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, feature/**]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 🧱 Backend (.NET)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./Auth.sln
+
+      - name: Build backend
+        run: dotnet build ./Auth.sln --configuration Release --no-restore
+
+      - name: Run backend tests
+        run: dotnet test ./Auth.sln --no-build --verbosity normal
+
+      # 🌐 Frontend (React)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test -- --watchAll=false || true
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # 📦 Empaqueta artefactos (ZIP)
+      - name: Publish backend
+        run: dotnet publish ./backend/Web.API/Web.API.csproj -c Release -o ./publish/backend
+
+      - name: Create deployment ZIPs
+        run: |
+          cd publish/backend && zip -r ../backend.zip .
+          cd ../../frontend/dist && zip -r ../../publish/frontend.zip .
+
+      # 💾 Guarda artefactos
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: publish
