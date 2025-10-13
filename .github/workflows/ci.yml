@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [develop, feature/**]
+    branches: [main, develop, feature/**]
   pull_request:
     branches: [develop, main]
 
@@ -27,7 +27,7 @@ jobs:
         run: dotnet build ./Auth.sln --configuration Release --no-restore
 
       - name: Run backend tests
-        run: dotnet test ./Auth.sln --no-build --verbosity normal
+        run: dotnet test ./Auth.sln --verbosity normal
 
       # 🌐 Frontend (React)
       - name: Setup Node.js
