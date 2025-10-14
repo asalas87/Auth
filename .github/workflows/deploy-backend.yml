@@ -1,0 +1,49 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  deploy-backend:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./publish
+
+      - name: Prepare backup folder
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
+          echo "BACKUP_DIR=/api.csingenieria.com.ar/backup_$TIMESTAMP" >> $GITHUB_ENV
+
+      - name: Backup current version via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./publish/backend
+          server-dir: /api.csingenieria.com.ar
+          protocol: ftps
+          log-level: verbose
+          backup: true
+          backup-name: api_backup_${{ github.run_id }}
+
+      - name: Deploy new version
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./publish/backend
+          server-dir: /api.csingenieria.com.ar
+          protocol: ftps
+          log-level: verbose

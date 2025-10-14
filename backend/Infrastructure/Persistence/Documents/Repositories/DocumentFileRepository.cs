@@ -53,6 +53,7 @@ public class DocumentFileRepository : IDocumentFileRepository
     {
         var query = _context.DocumentFiles
             .Include(d => d.AssignedTo)
+                .ThenInclude(c => c.Users)
             .Where(f => f.ExpirationDate != null && f.AssignedTo != null && f.AssignedTo.Users.Any())
             .AsQueryable();
 
