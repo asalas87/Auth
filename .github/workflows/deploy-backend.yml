@@ -1,15 +1,18 @@
 name: Deploy Backend
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["CI"]
+    branches: [main]
     types:
       - completed
 
+permissions:
+  contents: read
+
 jobs:
   deploy-backend:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
