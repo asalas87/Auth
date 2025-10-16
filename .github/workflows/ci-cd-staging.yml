@@ -8,10 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    environment: 'staging'
 
     env:
-      ASPNETCORE_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
+      ASPNETCORE_ENVIRONMENT:  'Staging'
       API_HOST: ${{ vars.API_HOST }}
       APP_HOST: ${{ vars.APP_HOST }}
       FTP_API_DIR: ${{ vars.FTP_API_DIR }}
@@ -48,7 +48,7 @@ jobs:
                   "Audience": "https://${{ env.API_HOST }}/"
               },
               "Database": {
-                  "ApplyMigrations": false
+                  "ApplyMigrations": true
               },
               "Cors": {
                   "AllowedOrigins": [ "https://${{ env.APP_HOST }}" ]
