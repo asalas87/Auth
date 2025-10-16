@@ -14,8 +14,6 @@ jobs:
       ASPNETCORE_ENVIRONMENT:  'Staging'
       API_HOST: ${{ vars.API_HOST }}
       APP_HOST: ${{ vars.APP_HOST }}
-      FTP_API_DIR: ${{ vars.FTP_API_DIR }}
-      FTP_APP_DIR: ${{ vars.FTP_APP_DIR }}
 
     steps:
       - name: 🧾 Checkout repository
@@ -93,7 +91,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./publish/backend
-          server-dir: ${{ env.FTP_API_DIR }}
+          server-dir: "/${{ env.APP_HOST }}"
           protocol: ftps
           log-level: verbose
 
@@ -105,6 +103,6 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./frontend/dist
-          server-dir: ${{ env.FTP_APP_DIR }}
+          server-dir: "/${{ env.APP_HOST }}"
           protocol: ftps
           log-level: verbose
