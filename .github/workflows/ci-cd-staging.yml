@@ -1,0 +1,110 @@
+name: 🚀 Deploy to Staging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+
+    env:
+      ASPNETCORE_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'Production' || 'Staging' }}
+      API_HOST: ${{ vars.API_HOST }}
+      APP_HOST: ${{ vars.APP_HOST }}
+      FTP_API_DIR: ${{ vars.FTP_API_DIR }}
+      FTP_APP_DIR: ${{ vars.FTP_APP_DIR }}
+
+    steps:
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # 🏗️ Crear appsettings dinámico (Staging o Production)
+      - name: Generate appsettings.json
+        run: |
+          cat > ./backend/Web.API/appsettings.${{ env.ASPNETCORE_ENVIRONMENT }}.json <<EOL
+          {
+              "Logging": {
+                  "LogLevel": {
+                      "Default": "Warning",
+                      "Microsoft.AspNetCore": "Warning",
+                      "Microsoft.EntityFrameworkCore.Database.Command": "Error",
+                      "System": "Error"
+                  }
+              },
+              "ConnectionStrings": {
+                  "DefaultConnection": "${{ secrets.DB_CONNECTION_STRING }}"
+              },
+              "Jwt": {
+                  "Key": "${{ secrets.JWT_KEY }}",
+                  "Issuer": "https://${{ env.API_HOST }}/",
+                  "Audience": "https://${{ env.API_HOST }}/"
+              },
+              "Database": {
+                  "ApplyMigrations": false
+              },
+              "Cors": {
+                  "AllowedOrigins": [ "https://${{ env.APP_HOST }}" ]
+              },
+              "DataProtection": {
+                  "KeysPath": "${{ secrets.DATA_PROTECTION_KEYS_PATH }}"
+              },
+              "Smtp": {
+                  "Host": "csingenieria.com.ar",
+                  "Port": 587,
+                  "User": "notificaciones@csingenieria.com.ar",
+                  "From": "notificaciones@csingenieria.com.ar",
+                  "Pass": "${{ secrets.SMTP_PASS }}",
+                  "EnableSsl": true
+              }
+          }
+          EOL
+
+      # 📦 Publicar backend
+      - name: Publish backend
+        run: dotnet publish ./backend/Web.API/Web.API.csproj -c Release -o ./publish/backend
+
+      # ⚙️ Build frontend con variable dinámica
+      - name: Build frontend
+        run: |
+          echo "VITE_API_HOST=${{ env.API_HOST }}" > ./frontend/.env
+          cd frontend
+          npm install
+          npm run build
+
+      # 📦 Crear ZIPs
+      - name: Create deployment ZIPs
+        run: |
+          cd publish/backend && zip -r ../backend.zip .
+          cd ../../frontend/dist && zip -r ../../publish/frontend.zip .
+
+      # 🚀 Deploy backend (usa variable para ruta)
+      - name: Deploy backend
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./publish/backend
+          server-dir: ${{ env.FTP_API_DIR }}
+          protocol: ftps
+          log-level: verbose
+
+      # 🚀 Deploy frontend (usa variable para ruta)
+      - name: Deploy frontend
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          local-dir: ./frontend/dist
+          server-dir: ${{ env.FTP_APP_DIR }}
+          protocol: ftps
+          log-level: verbose
