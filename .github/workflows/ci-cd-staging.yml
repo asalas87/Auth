@@ -69,6 +69,11 @@ jobs:
       - name: Publish backend
         run: dotnet publish ./backend/Web.API/Web.API.csproj -c Release -o ./publish/backend
 
+      # Crear DataProtectionKeys si no existe
+      - name: Ensure DataProtectionKeys directory exists
+        run: |
+          echo "placeholder" > ./publish/backend/placeholder.txt
+
       # ⚙️ Build frontend con variable dinámica
       - name: Build frontend
         run: |
@@ -93,7 +98,11 @@ jobs:
           local-dir: ./publish/backend/
           server-dir: ${{ env.API_HOST }}
           protocol: ftp
+          active: true
           log-level: verbose
+          upload-batch-size: 10
+          dangerous-clean-slate: false
+          retry: 3
 
       # 🚀 Deploy frontend (usa variable para ruta)
       - name: Deploy frontend
@@ -104,5 +113,9 @@ jobs:
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./frontend/dist/
           server-dir: ${{ env.APP_HOST }}
-          protocol: ftps
+          protocol: ftp
+          active: true
           log-level: verbose
+          upload-batch-size: 10
+          dangerous-clean-slate: false
+          retry: 3
