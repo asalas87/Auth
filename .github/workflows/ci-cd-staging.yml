@@ -85,7 +85,7 @@ jobs:
       # ⚙️ Build frontend con variable dinámica
       - name: Build frontend
         run: |
-          echo "VITE_API_HOST=${{ env.API_HOST }}" > ./frontend/.env.Staging
+          echo "VITE_API_URL=${{ env.API_HOST }}" > ./frontend/.env
           cd frontend
           npm install
           npm run build
