@@ -85,7 +85,7 @@ jobs:
       # ⚙️ Build frontend con variable dinámica
       - name: Build frontend
         run: |
-          echo "VITE_API_URL=${{ env.API_HOST }}" > ./frontend/.env
+          echo "VITE_API_URL=https://${{ env.API_HOST }}/" > ./frontend/.env
           cd frontend
           npm install
           npm run build
@@ -104,7 +104,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./publish/backend/
-          server-dir: ${{ env.API_HOST }}
+          server-dir: "${{ env.API_HOST }}/"
           protocol: ftp
           active: true
           log-level: verbose
@@ -120,7 +120,7 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASS }}
           local-dir: ./frontend/dist/
-          server-dir: ${{ env.APP_HOST }}
+          server-dir: "${{ env.APP_HOST }}/"
           protocol: ftp
           active: true
           log-level: verbose
