@@ -69,15 +69,23 @@ jobs:
       - name: Publish backend
         run: dotnet publish ./backend/Web.API/Web.API.csproj -c Release -o ./publish/backend
 
-      # Crear DataProtectionKeys si no existe
-      - name: Ensure DataProtectionKeys directory exists
+      # Crear carpetas necesarias antes del deploy
+      - name: Ensure required directories exist
         run: |
-          echo "placeholder" > ./publish/backend/placeholder.txt
+          echo "📁 Creating DataProtectionKeys and wwwroot directories..."
+          mkdir -p ./publish/backend/DataProtectionKeys
+          mkdir -p ./publish/backend/wwwroot
+          
+          echo "🛠 Setting write permissions..."
+          chmod -R 777 ./publish/backend/DataProtectionKeys
+          chmod -R 777 ./publish/backend/wwwroot
+          
+          echo "✅ Directories ready."
 
       # ⚙️ Build frontend con variable dinámica
       - name: Build frontend
         run: |
-          echo "VITE_API_HOST=${{ env.API_HOST }}" > ./frontend/.env
+          echo "VITE_API_HOST=${{ env.API_HOST }}" > ./frontend/.env.Staging
           cd frontend
           npm install
           npm run build
