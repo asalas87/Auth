@@ -6,13 +6,9 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Security;
 [Route("security/[controller]")]
-public class AccountController : ApiController
+public class AccountController(IUserService service) : ApiController
 {
-    private readonly IUserService _service;
-    public AccountController(IUserService service)
-    {
-        _service = service ?? throw new ArgumentException(nameof(service));
-    }
+    private readonly IUserService _service = service ?? throw new ArgumentException(null, nameof(service));
 
     [AllowAnonymous]
     [HttpPost("register", Name = "register")]

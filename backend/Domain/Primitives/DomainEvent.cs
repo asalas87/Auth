@@ -1,10 +1,9 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediatR;
 
 namespace Domain.Primitives;
 
-public record DomainEvent(Guid Id) : IDomainEvent, INotification;
+public abstract record DomainEvent : INotification
+{
+    public Guid Id { get; init; } = Guid.NewGuid();
+    public DateTime OccurredOnUtc { get; init; } = DateTime.UtcNow;
+}

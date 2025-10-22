@@ -1,18 +1,13 @@
 using Domain.Security.Entities;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Interfaces;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Security.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(ApplicationDbContext context) : IUserRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public UserRepository(ApplicationDbContext context)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ApplicationDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task AddAsync(User user) => await _context.Users.AddAsync(user);
     public void Delete(User user) => _context.Users.Remove(user);

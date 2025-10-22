@@ -1,3 +1,4 @@
+using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Security.Entities;
 

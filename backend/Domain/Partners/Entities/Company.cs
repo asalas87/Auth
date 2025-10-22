@@ -13,8 +13,8 @@ public sealed class Company : AggergateRoot<CompanyId>
     }
     public Company() { }
     public string Name { get; private set; } = string.Empty;
-    public Cuit CuitCuil { get; private set; }
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public Cuit CuitCuil { get; private set; } = default!;
+    public ICollection<User> Users { get; set; } = [];
     public bool IsActive { get; private set; }
     public void UpdateCompany(string name, Cuit cuitCuil, bool active)
     {

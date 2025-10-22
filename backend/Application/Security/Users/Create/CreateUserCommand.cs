@@ -8,7 +8,6 @@ namespace Application.Security.Users.Create
     public record CreateUserCommand(
         string Name,
         Email Email,
-        string Password,
-        string ConfirmPassword,
+        CompanyId CompanyId,
         int RoleId) : IRequest<ErrorOr<Guid>>;
 }

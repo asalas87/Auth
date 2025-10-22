@@ -1,53 +1,46 @@
-using Domain.Primitives;
 using ErrorOr;
 using MediatR;
 using Application.Security.Common.DTOS;
 using Application.Common.Responses;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Interfaces;
 
-namespace Application.Security.Users.GetAll
+namespace Application.Security.Users.GetAll;
+
+public sealed class GetUsersPaginatedQueryHandler(IUserRepository userRepository) : IRequestHandler<GetUsersPaginatedQuery, ErrorOr<PaginatedResult<UserDTO>>>, IRequestHandler<GetAllUsersQuery, ErrorOr<List<UserDTO>>>
 {
-    public sealed class GetUsersPaginatedQueryHandler : IRequestHandler<GetUsersPaginatedQuery, ErrorOr<PaginatedResult<UserDTO>>>, IRequestHandler<GetAllUsersQuery, ErrorOr<List<UserDTO>>>
+    private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+
+    public async Task<ErrorOr<PaginatedResult<UserDTO>>> Handle(GetUsersPaginatedQuery request, CancellationToken cancellationToken)
     {
-        private readonly IUserRepository _userRepository;
+        var (users, totalCount) = await _userRepository.GetPaginatedAsync(request.Page, request.PageSize, request.Filter);
 
-        public GetUsersPaginatedQueryHandler(IUserRepository userRepository)
+        var items = users.Select(u => new UserDTO
         {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        }
+            Id = u.Id.Value,
+            Name = u.Name,
+            Email = u.Email.Value,
+            Role = u.Role.Name ?? string.Empty,
+            Company = u.Company?.Name ?? string.Empty,
+        }).ToList();
 
-        public async Task<ErrorOr<PaginatedResult<UserDTO>>> Handle(GetUsersPaginatedQuery request, CancellationToken cancellationToken)
+        return new PaginatedResult<UserDTO>
         {
-            var (users, totalCount) = await _userRepository.GetPaginatedAsync(request.Page, request.PageSize, request.Filter);
+            Items = items,
+            TotalCount = totalCount
+        };
+    }
 
-            var items = users.Select(u => new UserDTO
-            {
-                Id = u.Id.Value,
-                Name = u.Name,
-                Email = u.Email.Value,
-                Role = u.Role.Name ?? string.Empty,
-                Company = u.Company?.Name ?? string.Empty,
-            }).ToList();
+    public async Task<ErrorOr<List<UserDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+    {
+        var users = await _userRepository.GetAll();
 
-            return new PaginatedResult<UserDTO>
-            {
-                Items = items,
-                TotalCount = totalCount
-            };
-        }
-
-        public async Task<ErrorOr<List<UserDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
+        var items = users.Select(u => new UserDTO
         {
-            var users = await _userRepository.GetAll();
+            Id = u.Id.Value,
+            Name = u.Name,
+            Email = u.Email.Value,
+        }).ToList();
 
-            var items = users.Select(u => new UserDTO
-            {
-                Id = u.Id.Value,
-                Name = u.Name,
-                Email = u.Email.Value,
-            }).ToList();
-
-            return items;
-        }
+        return items;
     }
 }

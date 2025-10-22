@@ -5,7 +5,6 @@ using Domain.Documents.Interfaces;
 using Domain.Primitives;
 using Domain.Sales.Customers;
 using Domain.Security.Interfaces;
-using Domain.Secutiry.Interfaces;
 using Infrastructure.Common.Services;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Documents.Repositories;

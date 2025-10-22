@@ -1,3 +1,4 @@
+using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Security.Entities;
@@ -5,14 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Documents.Repositories;
 
-public class DocumentFileRepository : IDocumentFileRepository
+public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFileRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public DocumentFileRepository(ApplicationDbContext context)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ApplicationDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task AddAsync(DocumentFile file) => await _context.DocumentFiles.AddAsync(file);
 
@@ -52,7 +48,7 @@ public class DocumentFileRepository : IDocumentFileRepository
     public async Task<List<DocumentFile>> GetExpiringAsync(int batchSize)
     {
         var query = _context.DocumentFiles
-            .Include(d => d.AssignedTo)
+            .Include(d => d.AssignedTo!)
                 .ThenInclude(c => c.Users)
             .Where(f => f.ExpirationDate != null && f.AssignedTo != null && f.AssignedTo.Users.Any())
             .AsQueryable();

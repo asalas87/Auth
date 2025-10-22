@@ -1,4 +1,5 @@
 using Application.Data;
+using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Partners.Entities;
 using Domain.Primitives;
@@ -43,17 +44,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext, IUnitOfWor
     {
         var domainEvents = ChangeTracker.Entries<IAggregateRoot>()
             .Select(e => e.Entity)
-            .Where(e => e.GetDomainEvents().Any())
+            .Where(e => e.GetDomainEvents().Count != 0)
             .SelectMany(e => e.GetDomainEvents());
 
         var result = await base.SaveChangesAsync(cancellationToken);
-        if (_publisher is not null)
-        {
-            foreach (var domainEvent in domainEvents)
-            {
-                await _publisher.Publish(domainEvent, cancellationToken);
-            }
-        }
         return result;
     }
 }

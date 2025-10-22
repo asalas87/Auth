@@ -2,20 +2,15 @@ using ErrorOr;
 using MediatR;
 using Domain.Security.Entities;
 using Application.Interfaces;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Interfaces;
+using Application.Security.Users.Create;
 
-namespace Application.Security.Users.Create
+namespace Application.Security.Users.GetByEmail
 {
-    public sealed class GetUserByEmailQueryHandler : IRequestHandler<GetUserByEmailQuery, ErrorOr<User>>
+    public sealed class GetUserByEmailQueryHandler(IUserRepository userRepository, IPasswordHasher passwordHasher) : IRequestHandler<GetUserByEmailQuery, ErrorOr<User>>
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasher _passwordHasher;
-
-        public GetUserByEmailQueryHandler(IUserRepository userRepository, IPasswordHasher passwordHasher)
-        {
-            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-            _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
-        }
+        private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+        private readonly IPasswordHasher _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
 
         public async Task<ErrorOr<User>> Handle(GetUserByEmailQuery request, CancellationToken cancellationToken)
         {

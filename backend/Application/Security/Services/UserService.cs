@@ -16,20 +16,12 @@ using ErrorOr;
 using MediatR;
 
 namespace Application.Security.Services;
-public class UserService : IUserService
+public class UserService(ISender mediator, IMapper mapper, IAuthenticationService authenticationService, IRefreshTokenService refreshTokenService) : IUserService
 {
-    private readonly IMapper _mapper;
-    private readonly ISender _mediator;
-    private readonly IAuthenticationService _authenticationService;
-    private readonly IRefreshTokenService _refreshTokenService;
-
-    public UserService(ISender mediator, IPasswordHasher passwordHasher, IMapper mapper, IAuthenticationService authenticationService, IRefreshTokenService refreshTokenService)
-    {
-        _mapper = mapper;
-        _mediator = mediator;
-        _authenticationService = authenticationService;
-        _refreshTokenService = refreshTokenService;
-    }
+    private readonly IMapper _mapper = mapper;
+    private readonly ISender _mediator = mediator;
+    private readonly IAuthenticationService _authenticationService = authenticationService;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
 
     public async Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO registerDTO)
     {
@@ -156,6 +148,17 @@ public class UserService : IUserService
             return result.Errors;
 
         return new SuccessResponse("Usuario editado correctamente.", result.Value.Value);
+    }
+
+    public async Task<ErrorOr<SuccessResponse>> CreateUserAsync(EditUserRequest dto)
+    {
+        var command = _mapper.Map<CreateUserCommand>(dto);
+        var result = await _mediator.Send(command);
+
+        if (result.IsError)
+            return result.Errors;
+
+        return new SuccessResponse("Usuario creado correctamente.", result.Value);
     }
 
     public async Task<ErrorOr<UserEditDTO>> GetUserByIdAsync(Guid id)

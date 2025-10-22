@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Primitives
+namespace Domain.Primitives;
+public interface IAggregateRoot
 {
-    public interface IAggregateRoot
-    {
-        IReadOnlyCollection<IDomainEvent> GetDomainEvents();
-    }
+    IReadOnlyCollection<DomainEvent> GetDomainEvents();
+    void ClearDomainEvents();
 }

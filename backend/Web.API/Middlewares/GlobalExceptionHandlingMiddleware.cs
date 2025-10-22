@@ -4,13 +4,10 @@ using System.Text.Json;
 
 namespace Web.API.Middlewares
 {
-    public class GlobalExceptionHandlingMiddleware : IMiddleware
+    public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger) : IMiddleware
     {
-        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
-        public GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger = logger;
+
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
@@ -19,7 +16,7 @@ namespace Web.API.Middlewares
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, "Unhandled exception occurred: {Message}", e.Message);
 
                 if (context.Response.HasStarted)
                     throw;

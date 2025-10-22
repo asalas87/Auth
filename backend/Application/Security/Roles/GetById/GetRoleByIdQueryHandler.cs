@@ -1,25 +1,15 @@
-using Application.Security.Common.DTOS;
-using Application.Security.Roles.GetById;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Interfaces;
-using Domain.Secutiry.Interfaces;
 using ErrorOr;
 using MediatR;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace Application.Security.Roles.GetAll;
+namespace Application.Security.Roles.GetById;
 
-public class GetRolesByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, ErrorOr<Role>>
+public class GetRolesByIdQueryHandler(IRoleRepository roleRepository) : IRequestHandler<GetRoleByIdQuery, ErrorOr<Role>>
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IRoleRepository _roleRepository;
+    private readonly IRoleRepository _roleRepository = roleRepository ?? throw new ArgumentNullException(nameof(roleRepository));
 
-    public GetRolesByIdQueryHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
-    {
-        _roleRepository = roleRepository ?? throw new ArgumentNullException(nameof(roleRepository));
-        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-    }
     public async Task<ErrorOr<Role>> Handle(GetRoleByIdQuery request, CancellationToken cancellationToken)
     {
         if (await _roleRepository.GetByIdAsync(request.Id) is not Role role)
