@@ -1,3 +1,4 @@
+using Application.Controls.Interfaces;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
@@ -46,7 +47,7 @@ public sealed class CreateDocumentCommandHandler(
             return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
         }
 
-        Company? assignedUser = request.AssignedTo.HasValue ? await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedTo.Value), cancellationToken) : null;
+        Company? assignedUser = request.AssignedTo.HasValue ? await _companyRepository.GetByIdReadOnlyAsync(new CompanyId(request.AssignedTo.Value), cancellationToken) : null;
 
         var document = new GeneralDocument(
             new DocumentFileId(documentId),

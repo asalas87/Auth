@@ -1,4 +1,5 @@
 using Application.Controls.Commands;
+using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
 using Domain.Primitives;
 using ErrorOr;
