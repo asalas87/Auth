@@ -1,3 +1,4 @@
+import { jwtDecode } from 'jwt-decode';
 import api from './api';
 
 const ACCESS_TOKEN_KEY: string = 'accessToken';
@@ -27,4 +28,14 @@ export function initAxiosInterceptors() {
         }
         return config;
     });
+}
+export function decodeUserFromToken(token: string) {
+  const decoded: any = jwtDecode(token);
+  return {
+    id: decoded.sub,
+    name: decoded.name,
+    email: decoded.email,
+    role: decoded.role,
+    company: decoded.company
+  };
 }

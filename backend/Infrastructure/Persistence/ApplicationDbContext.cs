@@ -5,14 +5,12 @@ using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Sales.Entities;
 using Domain.Security.Entities;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Entities;
 
 namespace Infrastructure.Persistence;
-public class ApplicationDbContext : DbContext, IApplicationDbContext, IUnitOfWork
+public class ApplicationDbContext(DbContextOptions options) : DbContext(options), IApplicationDbContext, IUnitOfWork
 {
-    private readonly IPublisher _publisher;
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<User> Users => Set<User>();
     public DbSet<DocumentFile> DocumentFiles => Set<DocumentFile>();
@@ -22,16 +20,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext, IUnitOfWor
     public DbSet<Certificate> Certificates => Set<Certificate>();
     public DbSet<GeneralDocument> GeneralDocuments => Set<GeneralDocument>();
     public DbSet<Notification> Notifications => Set<Notification>();
-
-    public ApplicationDbContext(DbContextOptions options, IPublisher publisher) : base(options)
-    {
-        _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
-    }
-
-    public ApplicationDbContext(DbContextOptions options) : base(options)
-    {
-        _publisher = null!;
-    }
+    public DbSet<UserActivationToken> UserActivationTokens => Set<UserActivationToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

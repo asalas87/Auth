@@ -1,6 +1,7 @@
 import api from '../../Helpers/api';
 import { setAccessToken, setRefreshToken, deleteTokens } from '../../Helpers/auth-helpers';
 import { IRegisterDTO, ILoginDTO } from '../Interfaces';
+import { IActivateAccountDTO } from '../Interfaces/Dtos/IActivateAccountDTO';
 
 export const login = async (userData: ILoginDTO) => {
     const response = await api.post('/security/account/login', userData);
@@ -21,6 +22,11 @@ export const register = async (userData: IRegisterDTO) => {
     setAccessToken(token);
     setRefreshToken(refreshToken);
 
+    return response.data;
+};
+
+export const activateAccount = async (data: IActivateAccountDTO) => {
+    const response = await api.post("/security/account/activate", data);
     return response.data;
 };
 

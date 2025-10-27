@@ -47,7 +47,10 @@ public static class DependencyInjection
         services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
         services.AddScoped<ICertificateRepository, CertificateRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
+        services.AddScoped<IActivationTokenService, ActivationTokenService>();
 
         return services;
     }

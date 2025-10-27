@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Controls\Responses\" />
+    <Folder Include="Notifications\Templates\" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -47,4 +47,10 @@ public sealed class User : AggergateRoot<UserId>
         var user = new User(name, email, role, company, false);
         return user;
     }
+
+    public void Activate(string hashedPassword)
+    {
+        Password = hashedPassword;
+        Active = true;
+    }
 }

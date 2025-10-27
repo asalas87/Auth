@@ -1,6 +1,8 @@
+using Application.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Events;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using SharedKernel.Entities;
 using SharedKernel.Enums;
 using SharedKernel.Interfaces;
@@ -9,16 +11,23 @@ namespace Application.Notifications.Handlers;
 
 public class UserCreatedEventHandler(
     INotificationRepository notificationRepository,
-    IUnitOfWork unitOfWork) : INotificationHandler<UserCreatedEvent>
+    IUnitOfWork unitOfWork,
+    IActivationTokenService activationTokenService,
+    INotificationTemplateService notificationTemplateService,
+    IConfiguration configuration) : INotificationHandler<UserCreatedEvent>
 {
     private readonly INotificationRepository _notificationRepository = notificationRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IActivationTokenService _activationTokenService = activationTokenService;
+    private readonly INotificationTemplateService _templateService = notificationTemplateService;
+    private readonly IConfiguration _configuration = configuration;
 
     public async Task Handle(UserCreatedEvent notification, CancellationToken cancellationToken)
     {
-        // Podés personalizar el mail acá:
-        var subject = "Activación de usuario";
-        var body = $"Hola! Se ha creado tu cuenta. Email: {notification.Email}";
+        var token = _activationTokenService.GenerateActivationToken(notification.UserId, notification.Email);
+        var frontendUrl = _configuration["Cors:AllowedOrigins"]!.Last().ToString();
+        var activationLink = $"{frontendUrl}/security/auth?token={token}";
+        var (subject, body) = _templateService.GenerateUserActivationEmail(notification.Email, activationLink);
 
         var notif = new Notification(
             recipientEmail: notification.Email,
