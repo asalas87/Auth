@@ -9,7 +9,7 @@ const AuthView = () => {
         <div className="container d-flex justify-content-center align-items-center vh-100">
             <div className="text-center">
                 {isLogin ? <LoginPanel /> : <RegisterPanel />}
-                <p className="mt-3">
+                {/* <p className="mt-3">
                     {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
                     <button
                         className="btn btn-link"
@@ -17,7 +17,7 @@ const AuthView = () => {
                     >
                         {isLogin ? "Regístrate" : "Inicia sesión"}
                     </button>
-                </p>
+                </p> */}
             </div>
         </div>
     );

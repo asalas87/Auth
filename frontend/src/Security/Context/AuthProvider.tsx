@@ -8,6 +8,7 @@ import { IActivateAccountDTO } from "../Interfaces/Dtos/IActivateAccountDTO";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUserDTO | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadUserFromToken = () => {
     const token = getAccessToken();
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
       }
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -50,16 +52,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
+  if (loading) return null; // 👈 evita renderizar hasta cargar token
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      isAuthenticated: !!user,
-      isAdmin: user?.role === "Admin",
-      signIn,
-      signUp,
-      signOut,
-      activate
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === "Admin",
+        signIn,
+        signUp,
+        signOut,
+        activate,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
