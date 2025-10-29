@@ -21,7 +21,7 @@ public sealed class ActivateUserCommandHandler(
 
     public async Task<ErrorOr<Guid>> Handle(ActivateUserCommand request, CancellationToken cancellationToken)
     {
-        var token = await _tokenRepository.GetByTokenAsync(request.Token);
+        var token = await _tokenRepository.GetByTokenAsync(request.Token, cancellationToken);
         if (token is null)
             return Error.NotFound("ActivationToken.NotFound", "Token de activación no encontrado.");
 
@@ -39,7 +39,7 @@ public sealed class ActivateUserCommandHandler(
         user.Activate(passwordHash);
 
         token.MarkAsUsed();
-        _tokenRepository.Update(token);
+        _tokenRepository.Update(token, cancellationToken);
 
         _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

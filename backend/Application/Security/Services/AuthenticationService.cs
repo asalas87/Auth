@@ -1,32 +1,29 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
-using Application.Security.Users.Validate;
+using Application.Interfaces;
 using Application.Security.Common.DTOS;
 using Application.Security.Common.Responses;
 using Application.Security.Users.Activate;
 using Application.Security.Users.Create;
 using Application.Security.Users.GetById;
+using Application.Security.Users.Validate;
 using AutoMapper;
 using Domain.Security.Entities;
 using ErrorOr;
 using MediatR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Security.Services;
 
 public class AuthenticationService(
-    IConfiguration configuration,
     IRefreshTokenService refreshTokenService,
     IMediator mediator,
-    IMapper mapper) : IAuthenticationService
+    IMapper mapper,
+    IJwtTokenGenerator jwtTokenGenerator) : IAuthenticationService
 {
-    private readonly IConfiguration _configuration = configuration;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly IMediator _mediator = mediator;
     private readonly IMapper _mapper = mapper;
+    private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
 
     public string GenerateAccessToken(User user)
     {
@@ -38,17 +35,7 @@ public class AuthenticationService(
             new("role", user.Role.Name.ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15),
-            signingCredentials: creds);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return _jwtTokenGenerator.GenerateToken(claims, DateTime.UtcNow.AddMinutes(15));
     }
 
     public async Task<string> GenerateRefreshTokenAsync(Guid userId)

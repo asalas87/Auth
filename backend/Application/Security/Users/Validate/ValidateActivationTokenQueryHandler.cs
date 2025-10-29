@@ -1,4 +1,3 @@
-using Domain.Security.Entities;
 using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
@@ -17,7 +16,7 @@ public sealed class ValidateActivationTokenQueryHandler(
         ValidateActivationTokenQuery request,
         CancellationToken cancellationToken)
     {
-        var token = await _tokenRepository.GetByTokenAsync(request.Token);
+        var token = await _tokenRepository.GetByTokenAsync(request.Token, cancellationToken);
 
         if (token is null)
             return Error.NotFound("ActivationToken.NotFound", "El token de activación no existe.");
