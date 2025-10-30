@@ -15,7 +15,10 @@ public static class SchemaExtensions
 
         foreach (var schema in schemas)
         {
-            db.Database.ExecuteSqlRaw($"IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = '{schema}') EXEC('CREATE SCHEMA [{schema}]');");
+        #pragma warning disable EF1002
+            db.Database.ExecuteSqlRaw(
+                $"IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = '{schema}') EXEC('CREATE SCHEMA [{schema}]');");
+        #pragma warning restore EF1002
         }
     }
 }

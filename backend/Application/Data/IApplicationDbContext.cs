@@ -3,6 +3,7 @@ using Domain.Documents.Entities;
 using Microsoft.EntityFrameworkCore;
 using Domain.Security.Entities;
 using Domain.Partners.Entities;
+using Domain.Documents.Entites;
 
 namespace Application.Data;
 public interface IApplicationDbContext

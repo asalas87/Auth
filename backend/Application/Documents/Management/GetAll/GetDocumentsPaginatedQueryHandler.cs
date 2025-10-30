@@ -8,16 +8,11 @@ using MediatR;
 
 namespace Application.Documents.Management.GetAll;
 
-public sealed class GetDocumentsPaginatedQueryHandler : IRequestHandler<GetDocumentsPaginatedQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>,
+public sealed class GetDocumentsPaginatedQueryHandler(IDocumentFileRepository documentRepository) : IRequestHandler<GetDocumentsPaginatedQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>,
                                                        IRequestHandler<GetDocumentsPaginatedByAssignedToQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>,
                                                        IRequestHandler<GetExpiringQuery, ErrorOr<List<DocumentExpiringDTO>>>
 {
-    private readonly IDocumentFileRepository _documentRepository;
-
-    public GetDocumentsPaginatedQueryHandler(IDocumentFileRepository documentRepository)
-    {
-        _documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
-    }
+    private readonly IDocumentFileRepository _documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
 
     public async Task<ErrorOr<PaginatedResult<DocumentResponseDTO>>> Handle(GetDocumentsPaginatedQuery request, CancellationToken cancellationToken)
     {
@@ -72,8 +67,8 @@ public sealed class GetDocumentsPaginatedQueryHandler : IRequestHandler<GetDocum
         {
             DocumentId = d.Id.Value,
             Name = d.Name,
-            ExpirationDate = d.ExpirationDate.Value,
-            AssignedToEmails = d.AssignedTo?.Users.Select(u => u.Email.Value).ToList() ?? new List<string>()
+            ExpirationDate = d.ExpirationDate!.Value,
+            AssignedToEmails = d.AssignedTo?.Users.Select(u => u.Email.Value).ToList() ?? []
 
         }).ToList();
     }

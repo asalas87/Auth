@@ -1,26 +1,29 @@
-using Domain.Primitives;
-using Domain.Security.Entities;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
+using Application.Interfaces;
+using Application.Security.Common.DTOS;
+using Application.Security.Common.Responses;
+using Application.Security.Users.Activate;
+using Application.Security.Users.Create;
+using Application.Security.Users.GetById;
+using Application.Security.Users.Validate;
+using AutoMapper;
+using Domain.Security.Entities;
+using ErrorOr;
+using MediatR;
 
 namespace Application.Security.Services;
 
-public class AuthenticationService : IAuthenticationService
+public class AuthenticationService(
+    IRefreshTokenService refreshTokenService,
+    IMediator mediator,
+    IMapper mapper,
+    IJwtTokenGenerator jwtTokenGenerator) : IAuthenticationService
 {
-    private readonly IConfiguration _configuration;
-    private readonly IRefreshTokenService _refreshTokenService;
-
-    public AuthenticationService(
-        IConfiguration configuration,
-        IRefreshTokenService refreshTokenService)
-    {
-        _configuration = configuration;
-        _refreshTokenService = refreshTokenService;
-    }
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+    private readonly IMediator _mediator = mediator;
+    private readonly IMapper _mapper = mapper;
+    private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
 
     public string GenerateAccessToken(User user)
     {
@@ -32,17 +35,7 @@ public class AuthenticationService : IAuthenticationService
             new("role", user.Role.Name.ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15),
-            signingCredentials: creds);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return _jwtTokenGenerator.GenerateToken(claims, DateTime.UtcNow.AddMinutes(15));
     }
 
     public async Task<string> GenerateRefreshTokenAsync(Guid userId)
@@ -53,5 +46,137 @@ public class AuthenticationService : IAuthenticationService
         await _refreshTokenService.GenerateAsync(token, expiresOn, userId);
 
         return token;
+    }
+
+    public async Task<ErrorOr<LoginResponse>> RegisterUserAsync(RegisterDTO registerDTO)
+    {
+        var command = _mapper.Map<CreateUserCommand>(registerDTO);
+
+        var createResult = await _mediator.Send(command);
+
+        if (createResult.IsError)
+            return createResult.Errors;
+
+        var query = new GetUserByIdQuery(createResult.Value);
+        var userResult = await _mediator.Send(query);
+
+        if (userResult.IsError)
+            return userResult.Errors;
+
+        var userDto = _mapper.Map<UserDTO>(userResult.Value);
+
+        var accessToken = GenerateAccessToken(userResult.Value);
+        var refreshToken = await GenerateRefreshTokenAsync(userDto.Id);
+
+        return new LoginResponse(
+            userDto.Id,
+            userDto.Name,
+            userDto.Email,
+            userDto.Role,
+            accessToken,
+            refreshToken
+        );
+    }
+
+    public async Task<ErrorOr<LoginResponse>> LoginUserAsync(LoginDTO loginDTO)
+    {
+        var query = _mapper.Map<GetUserByEmailQuery>(loginDTO);
+        var userResult = await _mediator.Send(query);
+
+        if (userResult.IsError)
+            return userResult.Errors;
+
+        var userDto = _mapper.Map<UserDTO>(userResult.Value);
+        var accessToken = GenerateAccessToken(userResult.Value);
+        var refreshToken = await GenerateRefreshTokenAsync(userDto.Id);
+
+        var response = new LoginResponse(
+            userDto.Id,
+            userDto.Name,
+            userDto.Email,
+            userDto.Role,
+            accessToken,
+            refreshToken
+        );
+
+        return response;
+    }
+    public async Task<ErrorOr<LoginResponse>> RefreshTokenAsync(string refreshToken)
+    {
+        var isValid = await _refreshTokenService.ValidateAsync(refreshToken);
+        if (!isValid)
+        {
+            return Error.Unauthorized("Invalid or expired refresh token.");
+        }
+
+        var existingToken = await _refreshTokenService.GetByValueAsync(refreshToken);
+        if (existingToken is null)
+        {
+            return Error.Unauthorized("Refresh token not found.");
+        }
+
+        var userId = existingToken.UserId;
+        var userResult = await _mediator.Send(new GetUserByIdQuery(userId.Value));
+
+        var userDto = _mapper.Map<UserDTO>(userResult.Value);
+        await _refreshTokenService.RevokeAsync(refreshToken);
+        var newAccessToken = GenerateAccessToken(userResult.Value);
+        var newRefreshToken = await GenerateRefreshTokenAsync(userDto.Id);
+
+        var response = new LoginResponse(
+            userDto.Id,
+            userDto.Name,
+            userDto.Email,
+            userDto.Role,
+            newAccessToken,
+            newRefreshToken
+        );
+
+        return response;
+    }
+
+    public async Task<ErrorOr<LoginResponse>> ActivateUserAsync(ActivateAccountDTO dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Token))
+            return Error.Validation("Activation.MissingToken", "Token de activación requerido.");
+
+        if (string.IsNullOrWhiteSpace(dto.Password) || string.IsNullOrWhiteSpace(dto.ConfirmPassword))
+            return Error.Validation("Activation.PasswordRequired", "La contraseña y la confirmación son requeridas.");
+
+        if (dto.Password != dto.ConfirmPassword)
+            return Error.Validation("Activation.PasswordMismatch", "Las contraseñas no coinciden.");
+
+        var validateResult = await _mediator.Send(new ValidateActivationTokenQuery(dto.Token));
+        if (validateResult.IsError)
+            return validateResult.Errors;
+
+        var activation = validateResult.Value;
+        var userId = activation.UserId;
+
+        var activateCmd = new ActivateUserCommand(userId, dto.Password, dto.Token);
+        var activateResult = await _mediator.Send(activateCmd);
+        if (activateResult.IsError)
+            return activateResult.Errors;
+
+        var userQueryResult = await _mediator.Send(new GetUserByIdQuery(userId));
+        if (userQueryResult.IsError)
+            return userQueryResult.Errors;
+
+        var user = userQueryResult.Value;
+
+        var accessToken = GenerateAccessToken(user);
+        var userDto = _mapper.Map<UserDTO>(user);
+        var refreshToken = await GenerateRefreshTokenAsync(userDto.Id);
+
+        var response = new LoginResponse(
+            userDto.Id,
+            userDto.Name,
+            userDto.Email,
+            userDto.Role,
+            accessToken,
+            refreshToken
+        );
+
+        return response;
     }
 }

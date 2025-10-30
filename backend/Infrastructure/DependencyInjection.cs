@@ -1,11 +1,11 @@
 using Application.Common.Interfaces;
+using Application.Controls.Interfaces;
 using Application.Data;
 using Application.Interfaces;
 using Domain.Documents.Interfaces;
 using Domain.Primitives;
 using Domain.Sales.Customers;
 using Domain.Security.Interfaces;
-using Domain.Secutiry.Interfaces;
 using Infrastructure.Common.Services;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Documents.Repositories;
@@ -47,7 +47,11 @@ public static class DependencyInjection
         services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
         services.AddScoped<ICertificateRepository, CertificateRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
+        services.AddScoped<IActivationTokenService, ActivationTokenService>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         return services;
     }

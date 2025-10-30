@@ -19,13 +19,13 @@ const LoadingInitializer = () => {
 initAxiosInterceptors();
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
-        <HashRouter>
+        <BrowserRouter>
             <LoadingProvider>
                 <AuthProvider>
                     <LoadingInitializer />
                     <App />
                 </AuthProvider>
             </LoadingProvider>
-        </HashRouter>
+        </BrowserRouter>
     </StrictMode>,
 )

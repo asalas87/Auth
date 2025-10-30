@@ -22,7 +22,7 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
+            modelBuilder.Entity("Domain.Documents.Entites.DocumentFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -189,7 +189,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<Guid?>("CompanyId")
+                    b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -217,6 +217,31 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users", "SEC");
+                });
+
+            modelBuilder.Entity("Domain.Security.Entities.UserActivationToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserActivationToken", "SEC");
                 });
 
             modelBuilder.Entity("SharedKernel.Entities.Notification", b =>
@@ -274,7 +299,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
                 {
-                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
+                    b.HasBaseType("Domain.Documents.Entites.DocumentFile");
 
                     b.Property<DateTime>("ValidFrom")
                         .HasColumnType("datetime2");
@@ -287,12 +312,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.GeneralDocument", b =>
                 {
-                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
+                    b.HasBaseType("Domain.Documents.Entites.DocumentFile");
 
                     b.ToTable("GeneralDocuments", "DOC");
                 });
 
-            modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
+            modelBuilder.Entity("Domain.Documents.Entites.DocumentFile", b =>
                 {
                     b.HasOne("Domain.Partners.Entities.Company", "AssignedTo")
                         .WithMany()
@@ -373,7 +398,8 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Partners.Entities.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Domain.Security.Entities.Role", "Role")
                         .WithMany()
@@ -388,7 +414,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
                 {
-                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
+                    b.HasOne("Domain.Documents.Entites.DocumentFile", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.Certificate", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -397,7 +423,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.GeneralDocument", b =>
                 {
-                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
+                    b.HasOne("Domain.Documents.Entites.DocumentFile", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.GeneralDocument", "Id")
                         .OnDelete(DeleteBehavior.Cascade)

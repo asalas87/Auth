@@ -15,7 +15,7 @@ const Header = ({ onHamburgerClick, showSidebar }: HeaderProps) => (
         >
             <span className="navbar-toggler-icon"></span>
         </button>
-        <a className="navbar-brand d-flex align-items-center" href="/" target="_blank" rel="noopener noreferrer">
+        <a className="navbar-brand d-flex align-items-center" href="/" rel="noopener noreferrer">
         <img src="https://csingenieria.com.ar/assets/img/CSIngenieria.png" alt="CS Ingeniería" style={{ height: "50px", marginRight: "8px" }} />
         </a>
     </header>

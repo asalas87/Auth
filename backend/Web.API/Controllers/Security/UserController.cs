@@ -8,19 +8,15 @@ using Web.API.Controllers.Common;
 namespace Web.API.Controllers.Security;
 
 [Route("security/[controller]")]
-public class UserController : ApiController
+public class UserController(IUserService service) : ApiController
 {
-    private readonly IUserService _service;
-    public UserController(IUserService service)
-    {
-        _service = service ?? throw new ArgumentException(nameof(service));
-    }
+    private readonly IUserService _service = service ?? throw new ArgumentException(null, nameof(service));
 
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
-        PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
+        PaginateDTO dto = new() { Filter = filter, Page = page, PageSize = pageSize };
         var result = await _service.GetUsersPaginatedAsync(dto);
 
         return result.Match(
@@ -49,6 +45,18 @@ public class UserController : ApiController
             return BadRequest("Route ID and body ID do not match.");
 
         var result = await _service.EditUserAsync(dto);
+
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Post([FromBody] EditUserRequest dto)
+    {
+        var result = await _service.CreateUserAsync(dto);
 
         return result.Match(
             success => Ok(success),

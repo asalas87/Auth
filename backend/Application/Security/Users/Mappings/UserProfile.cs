@@ -7,7 +7,7 @@ using Application.Security.Users.GetAll;
 using AutoMapper;
 using Domain.Security.Entities;
 
-namespace Application.Security.Users.Profiles;
+namespace Application.Security.Users.Mappings;
 public class UserProfile : Profile
 {
     public UserProfile()
@@ -24,5 +24,6 @@ public class UserProfile : Profile
         CreateMap<GetUserByEmailQuery, LoginDTO>().ReverseMap();
         CreateMap<GetUsersPaginatedQuery, PaginateDTO>().ReverseMap();
         CreateMap<EditUserCommand, EditUserRequest>().ReverseMap();
+        CreateMap<CreateUserCommand, EditUserRequest>().ReverseMap();
     }
 }

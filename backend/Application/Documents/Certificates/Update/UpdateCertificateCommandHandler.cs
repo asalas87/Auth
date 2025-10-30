@@ -1,3 +1,5 @@
+using Application.Controls.Interfaces;
+using Application.Documents.Certificate.Update;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
@@ -5,23 +7,16 @@ using Domain.Primitives;
 using ErrorOr;
 using MediatR;
 
-namespace Application.Documents.Certificate.Update;
+namespace Application.Documents.Certificates.Update;
 
-public sealed class UpdateCertificateCommandHandler : IRequestHandler<UpdateCertificateCommand, ErrorOr<Guid>>
+public sealed class UpdateCertificateCommandHandler(
+    ICertificateRepository documentRepository,
+    ICompanyRepository ICompanyRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<UpdateCertificateCommand, ErrorOr<Guid>>
 {
-    private readonly ICertificateRepository _certificateRepository;
-    private readonly ICompanyRepository _companyRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public UpdateCertificateCommandHandler(
-        ICertificateRepository documentRepository,
-        ICompanyRepository ICompanyRepository,
-        IUnitOfWork unitOfWork)
-    {
-        _certificateRepository = documentRepository;
-        _companyRepository = ICompanyRepository;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly ICertificateRepository _certificateRepository = documentRepository;
+    private readonly ICompanyRepository _companyRepository = ICompanyRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ErrorOr<Guid>> Handle(UpdateCertificateCommand request, CancellationToken cancellationToken)
     {
@@ -31,7 +26,7 @@ public sealed class UpdateCertificateCommandHandler : IRequestHandler<UpdateCert
             return Error.NotFound("Certificate.NotFound", "The certificate with the provide Id was not found.");
         }
 
-        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedToId)) is not Company assignedComapny)
+        if (await _companyRepository.GetByIdReadOnlyAsync(new CompanyId(request.AssignedToId), cancellationToken) is not Company assignedComapny)
         {
             return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
         }

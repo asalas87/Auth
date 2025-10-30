@@ -21,6 +21,10 @@ export const update = async (id: string, user: IUserEditDTO): Promise<void> => {
     await api.put(`/security/user/${id}`, user);
 };
 
+export const create = async (user: IUserEditDTO): Promise<void> => {
+    await api.post(`/security/user/`, user);
+};
+
 export const getById = async (id: string): Promise<IUserEditDTO> => {
     const response = await api.get(`/security/user/${id}`);
      return response.data;

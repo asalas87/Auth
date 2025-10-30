@@ -6,13 +6,9 @@ using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Security;
 [Route("security/[controller]")]
-public class AccountController : ApiController
+public class AccountController(IAuthenticationService service) : ApiController
 {
-    private readonly IUserService _service;
-    public AccountController(IUserService service)
-    {
-        _service = service ?? throw new ArgumentException(nameof(service));
-    }
+    private readonly IAuthenticationService _service = service ?? throw new ArgumentException(null, nameof(service));
 
     [AllowAnonymous]
     [HttpPost("register", Name = "register")]
@@ -43,6 +39,18 @@ public class AccountController : ApiController
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDTO dto)
     {
         var result = await _service.RefreshTokenAsync(dto.RefreshToken);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [AllowAnonymous]
+    [HttpPost("activate")]
+    public async Task<IActionResult> Activate([FromBody] ActivateAccountDTO dto)
+    {
+        var result = await _service.ActivateUserAsync(dto);
 
         return result.Match(
             value => Ok(value),

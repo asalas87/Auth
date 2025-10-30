@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Security.Repositories;
 
-public class RoleRepository : IRoleRepository
+public class RoleRepository(ApplicationDbContext context) : IRoleRepository
 {
-    private readonly ApplicationDbContext _context;
-
-    public RoleRepository(ApplicationDbContext context)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ApplicationDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public async Task<List<Role>> GetAll() => await _context.Roles.ToListAsync();
 

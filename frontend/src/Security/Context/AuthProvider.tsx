@@ -1,75 +1,71 @@
-import { ReactNode, useState, useEffect } from "react";
-import { ILoginDTO } from "../Interfaces/Dtos/ILoginDTO";
-import { ILoginResponseDTO } from "../Interfaces/Responses/ILoginResponseDTO";
-import { IRegisterDTO } from "../Interfaces/Dtos/IRegisterDTO";
-import { IUserDTO } from "../Interfaces";
-import { login, register } from "../Services/AccountService";
+import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
-import { deleteTokens, getAccessToken, setAccessToken } from "@/Helpers/auth-helpers";
-import { jwtDecode } from "jwt-decode";
+import { activateAccount, login, logout, register } from "../Services/AccountService";
+import { decodeUserFromToken, getAccessToken, setAccessToken } from "@/Helpers/auth-helpers";
+import { ILoginDTO } from "../Interfaces/Dtos/ILoginDTO";
+import { ILoginResponseDTO, IRegisterDTO, IUserDTO } from "../Interfaces";
+import { IActivateAccountDTO } from "../Interfaces/Dtos/IActivateAccountDTO";
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUserDTO | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // cargar user desde token al iniciar
-  useEffect(() => {
+  const loadUserFromToken = () => {
     const token = getAccessToken();
     if (token) {
       try {
-        const decoded: any = jwtDecode(token);
-        setUser({
-          id: decoded.sub || "",
-          name: decoded.name || "",
-          email: decoded.email || "",
-          role: decoded.role || "",
-          company: decoded.company || ""
-        });
+        setUser(decodeUserFromToken(token));
       } catch (error) {
         console.error("Error al decodificar el token:", error);
         setUser(null);
       }
     }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadUserFromToken();
   }, []);
 
   const signIn = async (data: ILoginDTO) => {
-    try {
-      const response: ILoginResponseDTO = await login(data);
-      setAccessToken(response.token);
-      setUser({
-        id: response.id,
-        name: response.name,
-        email: response.email,
-        role: response.role,
-        company: response.company
-      });
-    } catch (error) {
-      console.error("Error al iniciar sesión", error);
-    }
+    const response: ILoginResponseDTO = await login(data);
+    setAccessToken(response.token);
+    setUser(decodeUserFromToken(response.token));
   };
 
   const signUp = async (data: IRegisterDTO) => {
-    try {
-      const response = await register(data);
+    const response = await register(data);
+    setAccessToken(response.token);
+    setUser(decodeUserFromToken(response.token));
+  };
+
+  const activate = async (data: IActivateAccountDTO) => {
+    const response = await activateAccount(data);
+    if (response?.token) {
       setAccessToken(response.token);
-      setUser({
-        id: response.id.value,
-        name: response.name,
-        email: response.email,
-        role: response.role,
-        company: response.company
-      });
-    } catch (error) {
-      console.error("Error al registrar usuario", error);
+      setUser(decodeUserFromToken(response.token));
     }
   };
 
   const signOut = () => {
-    deleteTokens();
+    logout();
     setUser(null);
   };
 
+  if (loading) return null; // 👈 evita renderizar hasta cargar token
+
   return (
-    <AuthContext.Provider value={{ user, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === "Admin",
+        signIn,
+        signUp,
+        signOut,
+        activate,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

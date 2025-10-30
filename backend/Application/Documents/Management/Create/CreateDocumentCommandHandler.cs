@@ -1,36 +1,28 @@
+using Application.Controls.Interfaces;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Security.Entities;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 
 
 namespace Application.Documents.Management.Create;
-public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumentCommand, ErrorOr<Guid>>
+public sealed class CreateDocumentCommandHandler(
+    IDocumentFileRepository documentRepository,
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    ICompanyRepository companyRepository,
+    IWebHostEnvironment env) : IRequestHandler<CreateDocumentCommand, ErrorOr<Guid>>
 {
-    private readonly IDocumentFileRepository _documentRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly ICompanyRepository _companyRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IWebHostEnvironment _env;
-
-    public CreateDocumentCommandHandler(
-        IDocumentFileRepository documentRepository,
-        IUserRepository userRepository,
-        IUnitOfWork unitOfWork,
-        ICompanyRepository companyRepository,
-        IWebHostEnvironment env)
-    {
-        _documentRepository = documentRepository;
-        _userRepository = userRepository;
-        _companyRepository = companyRepository;
-        _unitOfWork = unitOfWork;
-        _env = env;
-    }
+    private readonly IDocumentFileRepository _documentRepository = documentRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IWebHostEnvironment _env = env;
 
     public async Task<ErrorOr<Guid>> Handle(CreateDocumentCommand request, CancellationToken cancellationToken)
     {
@@ -55,7 +47,7 @@ public sealed class CreateDocumentCommandHandler : IRequestHandler<CreateDocumen
             return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
         }
 
-        Company? assignedUser = request.AssignedTo.HasValue ?  await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedTo.Value)) : null;
+        Company? assignedUser = request.AssignedTo.HasValue ? await _companyRepository.GetByIdReadOnlyAsync(new CompanyId(request.AssignedTo.Value), cancellationToken) : null;
 
         var document = new GeneralDocument(
             new DocumentFileId(documentId),

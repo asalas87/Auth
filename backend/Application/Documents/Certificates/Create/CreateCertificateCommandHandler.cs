@@ -1,10 +1,12 @@
-using System.Linq;
+using Application.Controls.Interfaces;
+using Application.Documents.Certificate.Create;
+using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Security.Entities;
-using Domain.Secutiry.Interfaces;
+using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
@@ -12,31 +14,21 @@ using SharedKernel.Entities;
 using SharedKernel.Enums;
 using SharedKernel.Interfaces;
 
-namespace Application.Documents.Certificate.Create;
-public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCertificateCommand, ErrorOr<Guid>>
+namespace Application.Documents.Certificates.Create;
+public sealed class CreateCertificateCommandHandler(
+    ICertificateRepository documentRepository,
+    IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
+    ICompanyRepository companyRepository,
+    INotificationRepository notificationRepository,
+    IWebHostEnvironment env) : IRequestHandler<CreateCertificateCommand, ErrorOr<Guid>>
 {
-    private readonly ICertificateRepository _certificateRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly ICompanyRepository _companyRepository;
-    private readonly INotificationRepository _notificationRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IWebHostEnvironment _env;
-
-    public CreateCertificateCommandHandler(
-        ICertificateRepository documentRepository,
-        IUserRepository userRepository,
-        IUnitOfWork unitOfWork,
-        ICompanyRepository companyRepository,
-        INotificationRepository notificationRepository,
-        IWebHostEnvironment env)
-    {
-        _certificateRepository = documentRepository;
-        _userRepository = userRepository;
-        _companyRepository = companyRepository;
-        _notificationRepository = notificationRepository;
-        _unitOfWork = unitOfWork;
-        _env = env;
-    }
+    private readonly ICertificateRepository _certificateRepository = documentRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly INotificationRepository _notificationRepository = notificationRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IWebHostEnvironment _env = env;
 
     public async Task<ErrorOr<Guid>> Handle(CreateCertificateCommand request, CancellationToken cancellationToken)
     {
@@ -60,7 +52,7 @@ public sealed class CreateCertificateCommandHandler : IRequestHandler<CreateCert
             return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
         }
 
-        if (await _companyRepository.GetByIdWithUsersAsync(new CompanyId(request.AssignedToId)) is not Company assignedComapny)
+        if (await _companyRepository.GetByIdWithUsersAsync(new CompanyId(request.AssignedToId), cancellationToken) is not Company assignedComapny)
         {
             return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
         }

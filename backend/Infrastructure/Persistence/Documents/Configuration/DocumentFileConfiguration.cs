@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Domain.Documents.Entities;
 using Domain.Security.Entities;
 using Domain.Partners.Entities;
+using Domain.Documents.Entites;
 
 namespace Infrastructure.Persistence.Documents.Configuration;
 

@@ -1,20 +1,17 @@
+using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Partners.Repositories;
 
-public class CompanyRepository : ICompanyRepository
+public class CompanyRepository(ApplicationDbContext context) : ICompanyRepository
 {
-    private readonly ApplicationDbContext _context;
-    public CompanyRepository(ApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly ApplicationDbContext _context = context;
 
     public async Task<Guid> AddAsync(Company company, CancellationToken cancellationToken = default)
     {
-        var result = await _context.Companies.AddAsync(company);
+        var result = await _context.Companies.AddAsync(company, cancellationToken);
         return result.Entity.Id.Value;
     }
 
@@ -28,7 +25,8 @@ public class CompanyRepository : ICompanyRepository
     }
     public async Task<Company?> GetByCuitAsync(Cuit cuit, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.CuitCuil == cuit, cancellationToken);
 
-    public async Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+    public async Task<Company?> GetByIdReadOnlyAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+    public async Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
     public async Task<Company?> GetByIdWithUsersAsync(CompanyId id, CancellationToken cancellationToken = default) =>
         await _context.Companies.Include(u => u.Users).SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
 }

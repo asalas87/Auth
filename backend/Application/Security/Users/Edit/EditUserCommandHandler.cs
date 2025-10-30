@@ -1,31 +1,23 @@
+using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Interfaces;
-using Domain.Secutiry.Interfaces;
 using Domain.ValueObjects;
 using ErrorOr;
 using MediatR;
 
 namespace Application.Security.Users.Edit;
-public class EditUserCommandHandler : IRequestHandler<EditUserCommand, ErrorOr<UserId>>
+public class EditUserCommandHandler(
+    IUserRepository userRepository,
+    IRoleRepository roleRepository,
+    ICompanyRepository companyRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<EditUserCommand, ErrorOr<UserId>>
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IRoleRepository _roleRepository;
-    private readonly ICompanyRepository _companyRepository;
-    private readonly IUnitOfWork _unitOfWork;
-
-    public EditUserCommandHandler(
-        IUserRepository userRepository,
-        IRoleRepository roleRepository,
-        ICompanyRepository companyRepository,
-        IUnitOfWork unitOfWork)
-    {
-        _userRepository = userRepository;
-        _roleRepository = roleRepository;
-        _companyRepository = companyRepository;
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IRoleRepository _roleRepository = roleRepository;
+    private readonly ICompanyRepository _companyRepository = companyRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ErrorOr<UserId>> Handle(EditUserCommand command, CancellationToken cancellationToken)
     {
@@ -44,9 +36,9 @@ public class EditUserCommandHandler : IRequestHandler<EditUserCommand, ErrorOr<U
         if (role is null)
             return Error.NotFound("Role.NotFound", "El rol no existe.");
 
-        Company? company = null;
-        if (command.CompanyId != null)
-            company = await _companyRepository.GetByIdAsync(new CompanyId(command.CompanyId.Value));
+        var company = await _companyRepository.GetByIdAsync(new CompanyId(command.CompanyId), cancellationToken);
+        if (company is null)
+            return Error.NotFound("Company.NotFound", "La empresa no existe.");
 
         user.Update(command.Name, emailResult, role, company);
 

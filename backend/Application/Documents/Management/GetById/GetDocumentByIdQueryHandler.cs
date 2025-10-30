@@ -1,5 +1,6 @@
 using Application.Common.Dtos;
 using Application.Documents.Management.GetById;
+using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using ErrorOr;

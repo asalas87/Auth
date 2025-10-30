@@ -1,21 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Application.Security.Common.DTOS;
 
 namespace Application.Security.Common.DTOs;
 
-public class EditUserRequest
+public class EditUserRequest : CreateUserRequest
 {
     [Required]
     public Guid Id { get; set; }
-
-    [Required]
-    [StringLength(100, MinimumLength = 2)]
-    public string Name { get; set; } = default!;
-
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = default!;
-
-    [Required]
-    public int RoleId { get; set; } = default!;
-    public Guid? CompanyId { get; set; } = default!;
 }
