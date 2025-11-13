@@ -1,10 +1,9 @@
-using Domain.Documents.Entities;
 using Domain.Enums;
 using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Security.Entities;
 
-namespace Domain.Documents.Entites;
+namespace Domain.Documents.Entities;
 
 public abstract class DocumentFile : AggergateRoot<DocumentFileId>
 {
@@ -18,6 +17,7 @@ public abstract class DocumentFile : AggergateRoot<DocumentFileId>
         UploadedBy = uploadedBy;
         AssignedTo = assignedTo;
         DocumentType = documentType;
+        IsRead = false;
     }
     public DocumentFile() { }
     public string Name { get; protected set; } = string.Empty;
@@ -28,6 +28,7 @@ public abstract class DocumentFile : AggergateRoot<DocumentFileId>
     public Company? AssignedTo { get; protected set; }
     public string RelativePath { get; protected set; } = string.Empty;
     public DocumentType DocumentType { get; protected set; }
+    public bool IsRead { get; private set; }
     public void Update(string name, string description, DateTime? expirationDate, Company? assignedTo)
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -54,5 +55,9 @@ public abstract class DocumentFile : AggergateRoot<DocumentFileId>
     public static string BuildRelativePath(string subFolder, string fileName)
     {
         return Path.Combine(subFolder, fileName);
+    }
+    public void MarkAsRead()
+    {
+        IsRead = true;
     }
 }

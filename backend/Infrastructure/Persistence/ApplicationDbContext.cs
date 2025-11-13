@@ -1,5 +1,4 @@
 using Application.Data;
-using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Partners.Entities;
 using Domain.Primitives;

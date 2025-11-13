@@ -1,4 +1,3 @@
-using Domain.Documents.Entites;
 using Domain.Partners.Entities;
 using Domain.Security.Entities;
 

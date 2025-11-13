@@ -24,7 +24,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
         if (!string.IsNullOrWhiteSpace(filter))
         {
-            query = query.Where(u => u.Name.Contains(filter) || u.Email.Value.Contains(filter));
+            query = query.Where(u => u.Name.Contains(filter));
         }
 
         var totalCount = await query.CountAsync();

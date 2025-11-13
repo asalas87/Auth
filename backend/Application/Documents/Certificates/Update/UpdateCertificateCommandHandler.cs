@@ -32,6 +32,9 @@ public sealed class UpdateCertificateCommandHandler(
         }
 
         certificate.Update(
+            request.CertificateNumber,
+            request.EmployerName,          
+            request.Code,
             request.ValidFrom,
             request.ValidUntil,
             assignedComapny);

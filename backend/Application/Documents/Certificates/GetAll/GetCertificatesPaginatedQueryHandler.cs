@@ -27,7 +27,7 @@ public sealed class GetCertificatesPaginatedQueryHandler : IRequestHandler<GetCe
             UploadDate = d.UploadDate,
             AssignedToId = d.AssignedTo?.Id.Value,
             AssignedTo = d.AssignedTo?.Name ?? string.Empty,
-            ValidUntil = d.ValidUntil,
+            ExpirationDate = d.ExpirationDate,
             ValidFrom = d.ValidFrom
         }).ToList();
 

@@ -11,9 +11,9 @@ public class CreateCertificateValidator : AbstractValidator<CreateCertificateCom
             .MaximumLength(50);
         RuleFor(r => r.ValidFrom)
             .NotEmpty()
-            .LessThanOrEqualTo(r => r.ValidUntil)
+            .LessThanOrEqualTo(r => r.ExpirationDate)
             .WithMessage("Valid From date must be before or equal to Valid Until date.");
-        RuleFor(r => r.ValidUntil)
+        RuleFor(r => r.ExpirationDate)
             .NotEmpty();
         RuleFor(r => r.File)
             .NotNull()

@@ -6,5 +6,7 @@ public class CertificateDTO : DocumentEditDTO
 {
     public string AssignedTo { get; set; } = string.Empty;
     public DateTime ValidFrom { get; set; }
-    public DateTime ValidUntil { get; set; }
+    public string CertificateNumber { get; set; } = string.Empty;
+    public string EmployerName { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
 }

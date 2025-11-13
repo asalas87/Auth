@@ -1,6 +1,5 @@
 using Application.Controls.Interfaces;
 using Application.Documents.Certificate.Create;
-using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
@@ -64,12 +63,14 @@ public sealed class CreateCertificateCommandHandler(
             request.Name,
             relativePath,
             uploadDate,
-            request.ValidUntil,
+            request.ExpirationDate,
             string.Empty,
             uploadedUser,
             assignedComapny,
             request.ValidFrom,
-            request.ValidUntil
+            request.CertificateNumber,
+            request.EmployerName,
+            request.Code
         );
 
         await _certificateRepository.AddAsync(certificate);
