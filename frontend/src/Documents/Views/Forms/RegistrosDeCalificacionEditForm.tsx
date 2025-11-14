@@ -37,7 +37,7 @@ export const RegistrosDeCalificacionEditForm = ({
                 nombres: /Nombre\(s\):\s*(.*?)\s+Documento\s+de\s+identidad/i,
                 apellido: /Apellido\(s\):\s*(.*?)\s+Ha\s+realizado\s+una\s+calificación/i,
                 validFrom: /desde(?:\s+el)?\s*(?:[^\d]*?)?(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i,
-                validUntil: /hasta\s+(?:el\s+)?(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i
+                expirationDate: /hasta\s+(?:el\s+)?(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i
             };
 
             const datos = extractDataFromText(normalizeText(text), patterns);
@@ -51,7 +51,7 @@ export const RegistrosDeCalificacionEditForm = ({
                 name: file.name,
                 assignedToId: empresaEncontrada?.id,
                 validFrom: datos.validFrom ? parse(datos.validFrom, 'dd/MM/yyyy', new Date()) : undefined,
-                validUntil: datos.validUntil ? parse(datos.validUntil, 'dd/MM/yyyy', new Date()) : undefined,
+                expirationDate: datos.expirationDate ? parse(datos.expirationDate, 'dd/MM/yyyy', new Date()) : undefined,
                 file: file
             });
         } catch (e) {
@@ -64,7 +64,10 @@ export const RegistrosDeCalificacionEditForm = ({
     const getFields = (): FieldConfig<ICertificateDTO>[] => {
         const baseFields: FieldConfig<ICertificateDTO>[] = [
             { name: 'validFrom', label: 'Válido desde', type: FieldType.Date },
-            { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
+            { name: 'expirationDate', label: 'Vigencia', type: FieldType.Date },
+            { name: 'certificateNumber', label: 'Número de Certificado', type: FieldType.Text },
+            { name: 'employerName', label: 'Soldador', type: FieldType.Text },
+            { name: 'code', label: 'Norma o Código', type: FieldType.Text },
             {
                 name: 'assignedToId',
                 label: 'Empresa',

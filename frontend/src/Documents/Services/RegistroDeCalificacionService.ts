@@ -26,7 +26,10 @@ export const create = async (document: ICertificateDTO): Promise<void> => {
 
     const formData = new FormData();
     formData.append("name", document.name);
-    formData.append("validUntil", document.validUntil.toISOString());
+    formData.append("certificateNumber", document.certificateNumber);
+    formData.append("employerName", document.employerName);
+    formData.append("code", document.code);
+    formData.append("expirationDate", document.expirationDate.toISOString());
     formData.append("validFrom", document.validFrom.toISOString());
     formData.append("assignedToId", document.assignedToId ?? '');
     formData.append("file", document.file);

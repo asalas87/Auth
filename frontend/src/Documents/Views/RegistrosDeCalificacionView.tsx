@@ -27,25 +27,28 @@ export const RegistrosDeCalificacionView = () => {
     } = usePaginatedList(memoizedGetAll);
 
     const fields: ColumnConfig<ICertificateResponseDTO>[] = [
-        { key: 'name', label: 'Nombre' },
-        { key: 'assignedTo', label: 'Empresa' },
-        { key: 'uploadDate', label: 'Fecha subido', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : '' },
-        { key: 'validUntil', label: 'Válido hasta', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : ''  }
+        { key: 'certificateNumber', label: 'Número de Certificado' },
+        { key: 'employerName', label: 'Soldador' },
+        { key: 'expirationDate', label: 'Vigencia', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : '' },
+        { key: 'code', label: 'Norma o Código' }
     ];
 
     const handleEdit = (document: ICertificateDTO) => {
-        setSelected(parseDates(document, ['validFrom', 'validUntil']));
+        setSelected(parseDates(document, ['expirationDate']));
         setMode('edit');
     };
 
     const handleCreate = () => {
         const empty = getEmptyItem<ICertificateDTO>([
-            { name: 'name', label: 'Nombre archivo', type: FieldType.Text },
-            { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
+            { name: 'certificateNumber', label: 'Nombre archivo', type: FieldType.Text },
+            { name: 'employerName', label: 'Soldador', type: FieldType.Text },
+            { name: 'code', label: 'Norma o Código', type: FieldType.Text },
+            { name: 'validFrom', label: 'Válido desde', type: FieldType.Date },
+            { name: 'expirationDate', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
-        setSelected(parseDates(empty,['validUntil']));
+        setSelected(parseDates(empty,['validFrom']));
         setMode('create');
     };
 
