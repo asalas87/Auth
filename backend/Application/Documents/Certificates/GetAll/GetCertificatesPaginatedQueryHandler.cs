@@ -28,7 +28,10 @@ public sealed class GetCertificatesPaginatedQueryHandler : IRequestHandler<GetCe
             AssignedToId = d.AssignedTo?.Id.Value,
             AssignedTo = d.AssignedTo?.Name ?? string.Empty,
             ExpirationDate = d.ExpirationDate,
-            ValidFrom = d.ValidFrom
+            ValidFrom = d.ValidFrom,
+            CertificateNumber = d.CertificateNumber,
+            Code = d.Code,
+            EmployerName = d.EmployerName
         }).ToList();
 
         return new PaginatedResult<CertificateResponseDTO>

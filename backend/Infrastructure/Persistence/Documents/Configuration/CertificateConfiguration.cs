@@ -10,8 +10,8 @@ public class CertificateConfiguration : IEntityTypeConfiguration<Certificate>
         builder.ToTable("Certificates", "DOC");
 
         builder.Property(c => c.ValidFrom).IsRequired();
-        builder.Property(c => c.CertificateNumber).IsRequired();
-        builder.Property(c => c.EmployerName).IsRequired();
-        builder.Property(c => c.Code).IsRequired();
+        builder.Property(c => c.CertificateNumber);
+        builder.Property(c => c.EmployerName);
+        builder.Property(c => c.Code);
     }
 }
