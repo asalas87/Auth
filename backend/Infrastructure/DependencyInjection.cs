@@ -3,6 +3,7 @@ using Application.Controls.Interfaces;
 using Application.Data;
 using Application.Interfaces;
 using Domain.Documents.Interfaces;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Sales.Customers;
 using Domain.Security.Interfaces;
@@ -27,7 +28,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddPersistense(configuration);
-        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddServices();
         return services;
     }
 
@@ -37,9 +38,6 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
-        services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
-
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -47,7 +45,18 @@ public static class DependencyInjection
         services.AddScoped<IDocumentFileRepository, DocumentFileRepository>();
         services.AddScoped<ICertificateRepository, CertificateRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<IControlCompanyRepository, CompanyRepository>();
         services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
+        services.AddScoped<IRenovationRepository, RenovationRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
         services.AddScoped<IActivationTokenService, ActivationTokenService>();

@@ -1,5 +1,5 @@
 using Application.Common.Responses;
-using Application.Documents.Certificate.DTOs;
+using Application.Documents.Certificate.Dtos;
 using ErrorOr;
 using MediatR;
 

@@ -1,5 +1,5 @@
 using Application.Common.Responses;
-using Application.Documents.Certificate.DTOs;
+using Application.Documents.Certificate.Dtos;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
 using ErrorOr;

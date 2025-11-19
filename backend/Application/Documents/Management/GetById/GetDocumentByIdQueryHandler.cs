@@ -6,7 +6,7 @@ using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Application.Documents.Certificates.GetById;
+namespace Application.Documents.Certificate.GetById;
 
 public class GetDocumentByIdQueryHandler : IRequestHandler<GetDocumentByIdQuery, ErrorOr<FileDownloadDTO>>
 {

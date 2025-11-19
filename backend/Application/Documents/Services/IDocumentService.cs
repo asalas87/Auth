@@ -1,8 +1,10 @@
 using Application.Common.Dtos;
 using Application.Common.Responses;
-using Application.Documents.Certificate.DTOs;
+using Application.Documents.Certificate.Dtos;
 using Application.Documents.Common.DTOs;
 using Application.Documents.Management.DTOs;
+using Application.Documents.Renovation.Dtos;
+using Application.Documents.Renovation.DTOs;
 using ErrorOr;
 
 namespace Application.Documents.Services;
@@ -17,4 +19,8 @@ public interface IDocumentService
     Task<ErrorOr<Guid>> UpdateCertificateAsync(CertificateEditDTO dto);
     Task<ErrorOr<Guid>> DeleteCertificateAsync(Guid id);
     Task<ErrorOr<FileDownloadDTO>> GetDocumentByIdAsync(Guid id);
+    Task<ErrorOr<PaginatedResult<RenovationResponseDTO>>> GetRenovationsPaginatedAsync(PaginateDTO paginateDTO);
+    Task<ErrorOr<Guid>> CreateRenovationAsync(RenovationDTO dto);
+    Task<ErrorOr<Guid>> UpdateRenovationAsync(RenovationEditDTO dto);
+    Task<ErrorOr<Guid>> DeleteRenovationAsync(Guid id);
 }

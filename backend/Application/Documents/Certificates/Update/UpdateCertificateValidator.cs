@@ -1,7 +1,6 @@
-using Application.Documents.Certificate.Update;
 using FluentValidation;
 
-namespace Application.Documents.Certificates.Update;
+namespace Application.Documents.Certificate.Update;
 public class UpdateCertificateValidator : AbstractValidator<UpdateCertificateCommand>
 {
     public UpdateCertificateValidator()

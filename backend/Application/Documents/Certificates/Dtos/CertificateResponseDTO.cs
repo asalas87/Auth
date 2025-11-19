@@ -1,4 +1,4 @@
-namespace Application.Documents.Certificate.DTOs;
+namespace Application.Documents.Certificate.Dtos;
 
 public class CertificateResponseDTO : CertificateEditDTO
 {

@@ -1,5 +1,5 @@
-using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.ValueObjects;
 using ErrorOr;

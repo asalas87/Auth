@@ -306,15 +306,18 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("CertificateNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("EmployerName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("ValidFrom")
                         .HasColumnType("datetime2");
@@ -327,6 +330,13 @@ namespace Infrastructure.Migrations
                     b.HasBaseType("Domain.Documents.Entities.DocumentFile");
 
                     b.ToTable("GeneralDocuments", "DOC");
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.Certificate");
+
+                    b.ToTable("Renovations", "DOC");
                 });
 
             modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
@@ -438,6 +448,15 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Documents.Entities.DocumentFile", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.GeneralDocument", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.Certificate", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.Renovation", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

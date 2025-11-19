@@ -1,7 +1,6 @@
-using Application.Documents.Certificate.Create;
 using FluentValidation;
 
-namespace Application.Documents.Certificates.Create;
+namespace Application.Documents.Certificate.Create;
 public class CreateCertificateValidator : AbstractValidator<CreateCertificateCommand>
 {
     public CreateCertificateValidator()

@@ -1,7 +1,7 @@
-using Application.Controls.Interfaces;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Interfaces;

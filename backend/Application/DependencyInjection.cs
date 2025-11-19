@@ -3,7 +3,6 @@ using Application.Controls.Services;
 using Application.Documents.Services;
 using Application.Security.Services;
 using FluentValidation;
-using Infrastructure.Documents.Services;
 using Infrastructure.Security;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;

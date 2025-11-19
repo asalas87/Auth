@@ -14,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<Role> Roles { get; }
     DbSet<Company> Companies { get; }
     DbSet<Certificate> Certificates { get; }
+    DbSet<Renovation> Renovations { get; }
     DbSet<GeneralDocument> GeneralDocuments { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

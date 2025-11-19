@@ -1,11 +1,10 @@
-using Application.Documents.Certificate.DTOs;
-using Application.Documents.Certificate.GetById;
+using Application.Documents.Certificate.Dtos;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using ErrorOr;
 using MediatR;
 
-namespace Application.Documents.Certificates.GetById;
+namespace Application.Documents.Certificate.GetById;
 public class GetCertificateByIdQueryHandler : IRequestHandler<GetCertificateByIdQuery, ErrorOr<CertificateResponseDTO>>
 {
     private readonly ICertificateRepository _certificateRepository;

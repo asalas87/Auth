@@ -1,8 +1,7 @@
-using Application.Controls.Interfaces;
-using Application.Documents.Certificate.Create;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Interfaces;
@@ -13,7 +12,7 @@ using SharedKernel.Entities;
 using SharedKernel.Enums;
 using SharedKernel.Interfaces;
 
-namespace Application.Documents.Certificates.Create;
+namespace Application.Documents.Certificate.Create;
 public sealed class CreateCertificateCommandHandler(
     ICertificateRepository documentRepository,
     IUserRepository userRepository,

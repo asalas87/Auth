@@ -5,7 +5,7 @@ using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Application.Documents.Certificates.Delete;
+namespace Application.Documents.Certificate.Delete;
 
 public sealed class DeleteCertificateCommandHandler : IRequestHandler<DeleteCertificateCommand, ErrorOr<Guid>>
 {

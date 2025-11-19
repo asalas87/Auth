@@ -1,21 +1,20 @@
-using Application.Controls.Interfaces;
-using Application.Documents.Certificate.Update;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using ErrorOr;
 using MediatR;
 
-namespace Application.Documents.Certificates.Update;
+namespace Application.Documents.Certificate.Update;
 
 public sealed class UpdateCertificateCommandHandler(
     ICertificateRepository documentRepository,
-    ICompanyRepository ICompanyRepository,
+    ICompanyRepository companyRepository,
     IUnitOfWork unitOfWork) : IRequestHandler<UpdateCertificateCommand, ErrorOr<Guid>>
 {
     private readonly ICertificateRepository _certificateRepository = documentRepository;
-    private readonly ICompanyRepository _companyRepository = ICompanyRepository;
+    private readonly ICompanyRepository _companyRepository = companyRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ErrorOr<Guid>> Handle(UpdateCertificateCommand request, CancellationToken cancellationToken)

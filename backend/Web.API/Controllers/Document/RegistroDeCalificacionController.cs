@@ -1,5 +1,5 @@
 using Application.Common.Dtos;
-using Application.Documents.Certificate.DTOs;
+using Application.Documents.Certificate.Dtos;
 using Application.Documents.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

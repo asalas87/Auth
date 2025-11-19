@@ -1,11 +1,12 @@
 using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Partners.Repositories;
 
-public class CompanyRepository(ApplicationDbContext context) : ICompanyRepository
+public class CompanyRepository(ApplicationDbContext context) : ICompanyRepository, IControlCompanyRepository
 {
     private readonly ApplicationDbContext _context = context;
 
