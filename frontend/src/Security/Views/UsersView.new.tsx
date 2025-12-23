@@ -1,11 +1,14 @@
 import { useCallback, useMemo, useState } from 'react';
 import { IUserDTO, IUserEditDTO } from '../Interfaces';
 import { getAllPag, remove, update, getById, create } from '@/Security/Services/UserService';
-import { usePaginatedList, ColumnConfig } from '@/Common/Components/CrudTable';
+import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 import TableGrid from '@/atoms/TableGrid';
 import { UserEditForm } from './Forms/UserEditForm';
 import { userColumns } from './Forms/userColumns';
+import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
+import { FieldType } from '@/Common/Components/EditForm/FieldType';
+import PageHeader from '@/molecules/PageHeader';
 
 const UsersView = () => {
     const [selected, setSelected] = useState<IUserEditDTO | null>(null);
@@ -45,6 +48,15 @@ const UsersView = () => {
             }
         )
     };
+    
+    const handleCreate = () => {
+            const empty = getEmptyItem<IUserEditDTO>([
+                { name: 'name', label: 'Nombre', type: FieldType.Text },
+                { name: 'email', label: 'Email', type: FieldType.Date }
+            ]);
+            setSelected(empty);
+            setMode('create');
+        };
 
     const columns = useMemo(
         () => userColumns(handleEdit, handleDelete),
@@ -60,7 +72,11 @@ const UsersView = () => {
 
     return (
         <div className="container mt-4">
-            <h2>Gestión de Usuarios</h2>            
+            <PageHeader
+                heading="Gestión de Usuarios"
+                btnLabel="Nuevo Usuario"
+                btnEvent={handleCreate}
+            />
             <TableGrid
                 rows={users}
                 columns={columns}

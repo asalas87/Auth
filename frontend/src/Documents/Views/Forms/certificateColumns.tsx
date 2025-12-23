@@ -1,11 +1,11 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Actions from "../../../molecules/Actions";
-import { IUserDTO } from "@/Security/Interfaces";
+import { ICertificateDTO } from "@/Documents/Interfaces";
 
-export const userColumns = (
+export const certificateColumns = (
   onEdit: (id: string) => void,
   onDelete: (id: string, name: string) => void
-): GridColDef<IUserDTO>[] => [
+): GridColDef<ICertificateDTO>[] => [
   {
     field: "id",
     headerName: "ID",
@@ -17,22 +17,29 @@ export const userColumns = (
     filterable: false,
   },
   {
-    field: "name",
-    headerName: "Name",
+    field: "certificateNumber",
+    headerName: "N° Certificado",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
   },
   {
-    field: "email",
-    headerName: "Email",
+    field: "employerName",
+    headerName: "Soldador",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
   },
   {
-    field: "role",
-    headerName: "Role",
+    field: "expirationDate",
+    headerName: "Vigencia",
+    headerClassName: "super-app-theme--header",
+    type: "string",
+    flex: 1
+  },
+  {
+    field: "code",
+    headerName: "Norma o Código",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1
@@ -44,7 +51,7 @@ export const userColumns = (
     flex: 1,
     sortable: false,
     filterable: false,
-    renderCell: (params: GridRenderCellParams<IUserDTO>) => (
+    renderCell: (params: GridRenderCellParams<ICertificateDTO>) => (
       <Actions
         params={params}
         onEdit={() => onEdit(params.row.id)}

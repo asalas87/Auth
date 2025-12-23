@@ -31,6 +31,18 @@ public class RegistroDeCalificacionController : ApiController
         );
     }
 
+    [HttpGet("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetCertificateByIdAsync( id);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
     // POST api/<RegistrosDeCalificacionController>
     [HttpPost]
     [Consumes("multipart/form-data")]

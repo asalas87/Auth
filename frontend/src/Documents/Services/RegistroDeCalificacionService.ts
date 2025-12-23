@@ -19,6 +19,11 @@ export const getAll = async (
     return response.data;
 };
 
+export const getById = async (id: string): Promise<ICertificateEditDTO> => {
+    const response = await api.get(`${endpoint}/${id}`);
+    return response.data;
+}
+
 export const create = async (document: ICertificateDTO): Promise<void> => {
     if (!(document.file instanceof File)) {
         throw new Error('Invalid file type');

@@ -5,6 +5,7 @@ using Application.Documents.Certificate.Create;
 using Application.Documents.Certificate.Delete;
 using Application.Documents.Certificate.Dtos;
 using Application.Documents.Certificate.GetAll;
+using Application.Documents.Certificate.GetById;
 using Application.Documents.Certificate.Update;
 using ErrorOr;
 
@@ -17,6 +18,14 @@ public partial class DocumentService
         return await mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<PaginatedResult<CertificateResponseDTO>>>(result);
+        });
+    }
+    public async Task<ErrorOr<CertificateResponseDTO>> GetCertificateByIdAsync(Guid id)
+    {
+        var query = mapper.Map<GetCertificateByIdQuery>(id);
+        return await mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<CertificateResponseDTO>>(result);
         });
     }
 

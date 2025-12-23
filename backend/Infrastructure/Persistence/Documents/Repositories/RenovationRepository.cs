@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Documents.Repositories
 {
-    public class CertificateRepository(ApplicationDbContext context) : ICertificateRepository
+    public class RenovationRepository(ApplicationDbContext context) : IRenovationRepository
     {
         private readonly ApplicationDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
-        public async Task AddAsync(Certificate file) => await _context.Certificates.AddAsync(file);
+        public async Task AddAsync(Renovation file) => await _context.Renovations.AddAsync(file);
 
-        public void Delete(Certificate file) => _context.Certificates.Remove(file);
+        public void Delete(Renovation file) => _context.Renovations.Remove(file);
 
-        public void Update(Certificate file) => _context.Certificates.Update(file);
+        public void Update(Renovation file) => _context.Renovations.Update(file);
 
-        public async Task<(List<Certificate> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, CompanyId? assignedToId)
+        public async Task<(List<Renovation> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, CompanyId? assignedToId)
         {
-            var query = _context.Certificates
+            var query = _context.Renovations
                 .Include(d => d.UploadedBy)
                 .Include(d => d.AssignedTo)
                 .AsQueryable();
@@ -32,18 +32,20 @@ namespace Infrastructure.Persistence.Documents.Repositories
 
             var totalCount = await query.CountAsync();
 
-            var certificates = await query
+            var renovations = await query
                 .OrderByDescending(u => u.ExpirationDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            return (certificates, totalCount);
+            return (renovations, totalCount);
         }
 
-        public async Task<Certificate?> GetByIdAsync(DocumentFileId id)
+        public async Task<Renovation?> GetByIdAsync(DocumentFileId id)
         {
-            return await _context.Certificates
+            return await _context.Renovations
+                .Include(d => d.UploadedBy)
+                .Include(d => d.AssignedTo)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
     }

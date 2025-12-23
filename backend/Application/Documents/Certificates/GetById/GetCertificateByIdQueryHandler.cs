@@ -28,7 +28,7 @@ public class GetCertificateByIdQueryHandler : IRequestHandler<GetCertificateById
             RelativePath = certificate.RelativePath,
             UploadDate = certificate.UploadDate,
             UploadedBy = certificate.UploadedBy.Name,
-            AssignedTo = certificate.AssignedTo?.Name ?? string.Empty,
+            AssignedToId = certificate.AssignedTo?.Id.Value ?? Guid.Empty,
             ValidFrom = certificate.ValidFrom,
             CertificateNumber = certificate.CertificateNumber,
             EmployerName = certificate.EmployerName,
