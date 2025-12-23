@@ -6,3 +6,6 @@ export * from './IDocumentEditDTO';
 export * from './IDocumentResponseDTO';
 export * from './IFileDTO';
 export * from './IFileEditDTO';
+export * from './IRenovationDTO';
+export * from './IRenovationEditDTO';
+export * from './IRenovationResponseDTO';
