@@ -2,5 +2,6 @@ namespace Domain.Enums;
 public enum DocumentType
 {
     General = 1,
-    Certificate = 2
+    Qualification = 2,
+    Renovation = 3,
 }

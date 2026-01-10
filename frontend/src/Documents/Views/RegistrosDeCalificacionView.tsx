@@ -28,9 +28,9 @@ export const RegistrosDeCalificacionView = () => {
 
     const fields: ColumnConfig<ICertificateResponseDTO>[] = [
         { key: 'certificateNumber', label: 'Número de Certificado' },
-        { key: 'employerName', label: 'Soldador' },
+        { key: 'employerFullName', label: 'Soldador' },
         { key: 'expirationDate', label: 'Vigencia', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : '' },
-        { key: 'code', label: 'Norma o Código' }
+        { key: 'standardCode', label: 'Norma o Código' }
     ];
 
     const handleEdit = (document: ICertificateDTO) => {
@@ -41,25 +41,25 @@ export const RegistrosDeCalificacionView = () => {
     const handleCreate = () => {
         const empty = getEmptyItem<ICertificateDTO>([
             { name: 'certificateNumber', label: 'Nombre archivo', type: FieldType.Text },
-            { name: 'employerName', label: 'Soldador', type: FieldType.Text },
-            { name: 'code', label: 'Norma o Código', type: FieldType.Text },
-            { name: 'validFrom', label: 'Válido desde', type: FieldType.Date },
+            { name: 'employerFullName', label: 'Soldador', type: FieldType.Text },
+            { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
+            { name: 'validity', label: 'Válido desde', type: FieldType.Date },
             { name: 'expirationDate', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
-        setSelected(parseDates(empty,['validFrom']));
+        setSelected(parseDates(empty,['validity']));
         setMode('create');
     };
 
     const handleSave = async (document: ICertificateEditDTO) => {
-            executeWithErrorHandling(
-                () => mode === 'create' ? create(document) : update(document),
-                () => {
-                    reload();
-                    setCurrentPage(1);
-                    setSelected(null);
-                });
+        executeWithErrorHandling(
+            () => mode === 'create' ? create(document) : update(document),
+            () => {
+                reload();
+                setCurrentPage(1);
+                setSelected(null);
+            });
     };
 
     function handleDelete(item: ICertificateResponseDTO): void {

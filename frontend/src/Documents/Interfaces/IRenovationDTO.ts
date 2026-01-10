@@ -1,8 +1,9 @@
 import { IDocumentEditDTO } from "./IDocumentEditDTO";
 
 export interface IRenovationDTO extends IDocumentEditDTO {
-    validFrom: Date;
+    assignedToId: string;
     certificateNumber: string;
-    employerName: string;
-    code: string;
+    employerFullName: string;
+    validity: Date;
+    standardCode: string;
 }

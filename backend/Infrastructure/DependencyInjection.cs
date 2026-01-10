@@ -61,6 +61,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
         services.AddScoped<IActivationTokenService, ActivationTokenService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddScoped<IPdfTextExtractor, PdfPigTextExtractor>();
 
         return services;
     }

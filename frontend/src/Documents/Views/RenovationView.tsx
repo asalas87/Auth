@@ -31,7 +31,7 @@ export const RenovationView = () => {
         executeWithErrorHandling(
             () => getById(id),
             (documentEdit) => {
-                const document = parseDates(documentEdit, ['expirationDate', 'validFrom']);
+                const document = parseDates(documentEdit, ['validity']);
                 setSelected(document);
                 setMode('edit');
             }
@@ -43,7 +43,6 @@ export const RenovationView = () => {
             executeWithErrorHandling(
                 () => remove(id),
                 () => {
-                    // reload();
                     setSelected(null);
                 })
     };
@@ -56,14 +55,13 @@ export const RenovationView = () => {
     const handleCreate = () => {
         const empty = getEmptyItem<IRenovationDTO>([
             { name: 'certificateNumber', label: 'Nombre archivo', type: FieldType.Text },
-            { name: 'employerName', label: 'Soldador', type: FieldType.Text },
-            { name: 'code', label: 'Norma o Código', type: FieldType.Text },
-            { name: 'validFrom', label: 'Válido desde', type: FieldType.Date },
-            { name: 'expirationDate', label: 'Vigencia', type: FieldType.Date },
+            { name: 'employerFullName', label: 'Soldador', type: FieldType.Text },
+            { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
+            { name: 'validity', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
-        setSelected(parseDates(empty,['validFrom']));
+        setSelected(parseDates(empty,['validity']));
         setMode('create');
     };
 
@@ -72,6 +70,7 @@ export const RenovationView = () => {
                 () => mode === 'create' ? create(document) : update(document),
                 () => {
                     setSelected(null);
+                    reload();
                 });
     };
 

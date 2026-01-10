@@ -306,20 +306,20 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("CertificateNumber")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("EmployerFullName")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("EmployerName")
+                    b.Property<string>("StandardCode")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<DateTime>("ValidFrom")
+                    b.Property<DateTime>("Validity")
                         .HasColumnType("datetime2");
 
                     b.ToTable("Certificates", "DOC");

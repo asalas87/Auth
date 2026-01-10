@@ -24,21 +24,21 @@ export const certificateColumns = (
     flex: 1,
   },
   {
-    field: "employerName",
+    field: "employerFullName",
     headerName: "Soldador",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
   },
   {
-    field: "expirationDate",
+    field: "validity",
     headerName: "Vigencia",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1
   },
   {
-    field: "code",
+    field: "standardCode",
     headerName: "Norma o Código",
     headerClassName: "super-app-theme--header",
     type: "string",

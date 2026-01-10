@@ -6,19 +6,17 @@ namespace Domain.Documents.Entities;
 public class Renovation : Certificate
 {
     public Renovation(
-        DocumentFileId id,
         string name,
         string path,
         DateTime uploadDate,
-        DateTime? expirationDate,
         string description,
         User uploadedBy,
         Company? assignedTo,
-        DateTime validFrom,
+        DateTime validity,
         string certificateNumber,
-        string employerName,
-        string code
-    ) : base(id, name, path, uploadDate, expirationDate, description, uploadedBy, assignedTo, validFrom, certificateNumber, employerName, code)
+        string employerFullName,
+        string standardCode
+    ) : base(name, path, uploadDate, description, uploadedBy, assignedTo, validity, certificateNumber, employerFullName, standardCode)
     {
     }
 

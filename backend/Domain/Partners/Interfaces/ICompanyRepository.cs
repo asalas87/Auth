@@ -10,4 +10,5 @@ public interface ICompanyRepository
     Task<Company?> GetByIdWithUsersAsync(CompanyId companyId, CancellationToken cancellationToken);
     Task<Company?> GetByCuitAsync(Cuit cuit, CancellationToken cancellationToken = default);
     Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default);
+    Task<Company?> FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default);
 }

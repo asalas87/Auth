@@ -31,7 +31,7 @@ export const CertificatesView = () => {
         await executeWithErrorHandling(
             () => getById(id),
             (documentEdit) => {
-                const document = parseDates(documentEdit, ['expirationDate', 'validFrom']);
+                const document = parseDates(documentEdit, ['validity']);
                 setSelected(document);
                 setMode('edit');
             }
@@ -41,23 +41,22 @@ export const CertificatesView = () => {
     const handleCreate = () => {
         const empty = getEmptyItem<ICertificateDTO>([
             { name: 'certificateNumber', label: 'Nombre archivo', type: FieldType.Text },
-            { name: 'employerName', label: 'Soldador', type: FieldType.Text },
-            { name: 'code', label: 'Norma o Código', type: FieldType.Text },
-            { name: 'validFrom', label: 'Válido desde', type: FieldType.Date },
-            { name: 'expirationDate', label: 'Vigencia', type: FieldType.Date },
+            { name: 'employerFullName', label: 'Soldador', type: FieldType.Text },
+            { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
+            { name: 'validity', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
-        setSelected(parseDates(empty,['validFrom']));
+        setSelected(parseDates(empty,['validity']));
         setMode('create');
     };
 
     const handleSave = async (document: ICertificateEditDTO) => {
-            executeWithErrorHandling(
+            await executeWithErrorHandling(
                 () => mode === 'create' ? create(document) : update(document),
                 () => {
-                    // reload();
                     setSelected(null);
+                    reload();
                 });
     };
 
@@ -66,8 +65,8 @@ export const CertificatesView = () => {
             executeWithErrorHandling(
                 () => remove(id),
                 () => {
-                    // reload();
                     setSelected(null);
+                    reload();
                 })
     };
 

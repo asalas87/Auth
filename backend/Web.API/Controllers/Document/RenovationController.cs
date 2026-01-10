@@ -10,20 +10,15 @@ namespace Web.API.Controllers.Document;
 
 [Route("document/[controller]")]
 [ApiController]
-public class RenovationController : ApiController
+public class RenovationController(IDocumentService service) : ApiController
 {
-    private readonly IDocumentService _service;
-
-    public RenovationController(IDocumentService service)
-    {
-        _service = service ?? throw new ArgumentException(nameof(service));
-    }
+    private readonly IDocumentService _service = service ?? throw new ArgumentException(null, nameof(service));
 
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
-        PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
+        PaginateDTO dto = new (){ Filter = filter, Page = page, PageSize = pageSize };
         var result = await _service.GetRenovationsPaginatedAsync(dto);
 
         return result.Match(

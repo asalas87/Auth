@@ -9,3 +9,4 @@ export * from './IFileEditDTO';
 export * from './IRenovationDTO';
 export * from './IRenovationEditDTO';
 export * from './IRenovationResponseDTO';
+export * from './IParsedDocumentResultDTO';
