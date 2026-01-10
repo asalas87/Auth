@@ -3,7 +3,6 @@ using Domain.Documents.Entities;
 using Microsoft.EntityFrameworkCore;
 using Domain.Security.Entities;
 using Domain.Partners.Entities;
-using Domain.Documents.Entites;
 
 namespace Application.Data;
 public interface IApplicationDbContext
@@ -15,6 +14,7 @@ public interface IApplicationDbContext
     DbSet<Role> Roles { get; }
     DbSet<Company> Companies { get; }
     DbSet<Certificate> Certificates { get; }
+    DbSet<Renovation> Renovations { get; }
     DbSet<GeneralDocument> GeneralDocuments { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

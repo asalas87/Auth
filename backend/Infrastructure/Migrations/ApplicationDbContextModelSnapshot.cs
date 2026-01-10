@@ -44,6 +44,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("ExpirationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -301,10 +304,22 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Domain.Documents.Entites.DocumentFile");
 
-                    b.Property<DateTime>("ValidFrom")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("CertificateNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<DateTime>("ValidUntil")
+                    b.Property<string>("EmployerFullName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("StandardCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("Validity")
                         .HasColumnType("datetime2");
 
                     b.ToTable("Certificates", "DOC");
@@ -317,7 +332,14 @@ namespace Infrastructure.Migrations
                     b.ToTable("GeneralDocuments", "DOC");
                 });
 
-            modelBuilder.Entity("Domain.Documents.Entites.DocumentFile", b =>
+            modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.Certificate");
+
+                    b.ToTable("Renovations", "DOC");
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
                     b.HasOne("Domain.Partners.Entities.Company", "AssignedTo")
                         .WithMany()
@@ -426,6 +448,15 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Documents.Entites.DocumentFile", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.GeneralDocument", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.Certificate", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.Renovation", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -1,19 +1,13 @@
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
-using Domain.Security.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Documents.Repositories
 {
-    public class CertificateRepository : ICertificateRepository
+    public class CertificateRepository(ApplicationDbContext context) : ICertificateRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public CertificateRepository(ApplicationDbContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ApplicationDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
         public async Task AddAsync(Certificate file) => await _context.Certificates.AddAsync(file);
 
@@ -50,6 +44,8 @@ namespace Infrastructure.Persistence.Documents.Repositories
         public async Task<Certificate?> GetByIdAsync(DocumentFileId id)
         {
             return await _context.Certificates
+                .Include(d => d.UploadedBy)
+                .Include(d => d.AssignedTo)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
     }

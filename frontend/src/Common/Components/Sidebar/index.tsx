@@ -29,7 +29,12 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                             <>
                                 <li>
                                     <Link to="/document/registrosDeCalificacion" className="nav-link" onClick={onHide}>
-                                        Registros de calificación
+                                        Calificaciones
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/document/renovations" className="nav-link" onClick={onHide}>
+                                        Renovaciones
                                     </Link>
                                 </li>
                                 <li>
@@ -50,7 +55,7 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
             {/* Sidebar fijo para desktop */}
             <nav className="d-none d-md-flex flex-column p-3 bg-light border-end sidebar-fixed">
                 <ul className="nav nav-pills flex-column mb-auto">
-                    {/* Siempre visible para User y Admin */ }
+                    {/* Siempre visible para User y Admin */}
                     {user?.role === "User" && (
                         <li className="nav-item">
                             <Link to="/document/management" className="nav-link" onClick={onHide}>
@@ -64,7 +69,12 @@ const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
                         <>
                             <li>
                                 <Link to="/document/registrosDeCalificacion" className="nav-link" onClick={onHide}>
-                                    Registros de calificación
+                                    Calificaciones
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/document/renovations" className="nav-link" onClick={onHide}>
+                                    Renovaciones
                                 </Link>
                             </li>
                             <li>

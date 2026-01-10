@@ -5,13 +5,9 @@ using Web.API.Controllers.Common;
 namespace Web.API.Controllers.Security;
 
 [Route("security/[controller]")]
-public class RoleController : ApiController
+public class RoleController(IRoleService service) : ApiController
 {
-    private readonly IRoleService _service;
-    public RoleController(IRoleService service)
-    {
-        _service = service ?? throw new ArgumentException(nameof(service));
-    }
+    private readonly IRoleService _service = service ?? throw new(nameof(service));
 
     [HttpGet]
     public async Task<IActionResult> GetAll()

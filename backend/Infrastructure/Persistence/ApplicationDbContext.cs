@@ -1,5 +1,4 @@
 using Application.Data;
-using Domain.Documents.Entites;
 using Domain.Documents.Entities;
 using Domain.Partners.Entities;
 using Domain.Primitives;
@@ -18,6 +17,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Certificate> Certificates => Set<Certificate>();
+    public DbSet<Renovation> Renovations => Set<Renovation>();
     public DbSet<GeneralDocument> GeneralDocuments => Set<GeneralDocument>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserActivationToken> UserActivationTokens => Set<UserActivationToken>();

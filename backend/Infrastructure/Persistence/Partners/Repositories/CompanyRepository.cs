@@ -1,11 +1,12 @@
 using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Partners.Repositories;
 
-public class CompanyRepository(ApplicationDbContext context) : ICompanyRepository
+public class CompanyRepository(ApplicationDbContext context) : ICompanyRepository, IControlCompanyRepository
 {
     private readonly ApplicationDbContext _context = context;
 
@@ -29,4 +30,9 @@ public class CompanyRepository(ApplicationDbContext context) : ICompanyRepositor
     public async Task<Company?> GetByIdAsync(CompanyId id, CancellationToken cancellationToken = default) => await _context.Companies.SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
     public async Task<Company?> GetByIdWithUsersAsync(CompanyId id, CancellationToken cancellationToken = default) =>
         await _context.Companies.Include(u => u.Users).SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+    public async Task<Company?> FindByNameAsync(string normalizedName, CancellationToken cancellationToken = default) =>
+        await _context.Companies.SingleOrDefaultAsync(c =>
+        c.Name.ToLower().StartsWith(normalizedName),
+        cancellationToken);
 }

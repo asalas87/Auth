@@ -1,9 +1,11 @@
 using Application.Common.Behaviors;
 using Application.Controls.Services;
+using Application.Documents.Analysis.Factories;
+using Application.Documents.Analysis.Parsers;
+using Application.Documents.Analysis.Services;
 using Application.Documents.Services;
 using Application.Security.Services;
 using FluentValidation;
-using Infrastructure.Documents.Services;
 using Infrastructure.Security;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +31,12 @@ namespace Application
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IDocumentAnalysisService, DocumentAnalysisService>();
+
+            services.AddScoped<RenovationPdfParser>();
+            services.AddScoped<QualificationPdfParser>();
+            services.AddScoped<IDocumentParserFactory, DocumentParserFactory>();
+
 
             services.AddValidatorsFromAssemblyContaining<ApplicationAssembllyReference>();
 

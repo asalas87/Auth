@@ -1,4 +1,4 @@
-using Application.Controls.Interfaces;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Events;

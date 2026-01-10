@@ -1,6 +1,9 @@
 import { IDocumentEditDTO } from "./IDocumentEditDTO";
 
 export interface ICertificateDTO extends IDocumentEditDTO {
-    validFrom: Date;
-    validUntil: Date;
+    assignedToId: string;
+    certificateNumber: string;
+    employerFullName: string;
+    validity: Date;
+    standardCode: string;
 }

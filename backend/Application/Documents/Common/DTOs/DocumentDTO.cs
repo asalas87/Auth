@@ -1,6 +1,6 @@
 using Application.Common.Dtos;
 
-namespace Application.Documents.Management.DTOs;
+namespace Application.Documents.Common.DTOs;
 
 public class DocumentDTO : FileEditDTO
 {

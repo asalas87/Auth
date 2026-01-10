@@ -11,7 +11,7 @@ public sealed class GetUsersPaginatedQueryHandler(IUserRepository userRepository
     private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
     public async Task<ErrorOr<PaginatedResult<UserDTO>>> Handle(GetUsersPaginatedQuery request, CancellationToken cancellationToken)
-    {
+   {
         var (users, totalCount) = await _userRepository.GetPaginatedAsync(request.Page, request.PageSize, request.Filter);
 
         var items = users.Select(u => new UserDTO

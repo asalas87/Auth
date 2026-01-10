@@ -19,15 +19,21 @@ export const getAll = async (
     return response.data;
 };
 
+export const getById = async (id: string): Promise<ICertificateEditDTO> => {
+    const response = await api.get(`${endpoint}/${id}`);
+    return response.data;
+}
+
 export const create = async (document: ICertificateDTO): Promise<void> => {
     if (!(document.file instanceof File)) {
         throw new Error('Invalid file type');
     }
 
     const formData = new FormData();
-    formData.append("name", document.name);
-    formData.append("validUntil", document.validUntil.toISOString());
-    formData.append("validFrom", document.validFrom.toISOString());
+    formData.append("certificateNumber", document.certificateNumber);
+    formData.append("employerFullName", document.employerFullName);
+    formData.append("standardCode", document.standardCode);
+    formData.append("validity", document.validity.toISOString());
     formData.append("assignedToId", document.assignedToId ?? '');
     formData.append("file", document.file);
 

@@ -1,12 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-      <Compile Remove="Persistence\Notifications\Configuration\**" />
-      <EmbeddedResource Remove="Persistence\Notifications\Configuration\**" />
-      <None Remove="Persistence\Notifications\Configuration\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\..\SharedKernel\SharedKernel\SharedKernel.csproj" />
         <ProjectReference Include="..\Domain\Domain.csproj" />
         <ProjectReference Include="..\Application\Application.csproj" />
@@ -21,6 +15,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="PdfPig" Version="0.1.13" />
     </ItemGroup>
 
     <PropertyGroup>

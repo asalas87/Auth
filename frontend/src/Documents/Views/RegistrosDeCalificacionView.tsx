@@ -27,36 +27,39 @@ export const RegistrosDeCalificacionView = () => {
     } = usePaginatedList(memoizedGetAll);
 
     const fields: ColumnConfig<ICertificateResponseDTO>[] = [
-        { key: 'name', label: 'Nombre' },
-        { key: 'assignedTo', label: 'Empresa' },
-        { key: 'uploadDate', label: 'Fecha subido', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : '' },
-        { key: 'validUntil', label: 'Válido hasta', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : ''  }
+        { key: 'certificateNumber', label: 'Número de Certificado' },
+        { key: 'employerFullName', label: 'Soldador' },
+        { key: 'expirationDate', label: 'Vigencia', render: (value) => value ? format(new Date(value), 'dd/MM/yyyy', { locale: es }) : '' },
+        { key: 'standardCode', label: 'Norma o Código' }
     ];
 
     const handleEdit = (document: ICertificateDTO) => {
-        setSelected(parseDates(document, ['validFrom', 'validUntil']));
+        setSelected(parseDates(document, ['expirationDate']));
         setMode('edit');
     };
 
     const handleCreate = () => {
         const empty = getEmptyItem<ICertificateDTO>([
-            { name: 'name', label: 'Nombre archivo', type: FieldType.Text },
-            { name: 'validUntil', label: 'Válido hasta', type: FieldType.Date },
+            { name: 'certificateNumber', label: 'Nombre archivo', type: FieldType.Text },
+            { name: 'employerFullName', label: 'Soldador', type: FieldType.Text },
+            { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
+            { name: 'validity', label: 'Válido desde', type: FieldType.Date },
+            { name: 'expirationDate', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File }
         ]);
-        setSelected(parseDates(empty,['validUntil']));
+        setSelected(parseDates(empty,['validity']));
         setMode('create');
     };
 
     const handleSave = async (document: ICertificateEditDTO) => {
-            executeWithErrorHandling(
-                () => mode === 'create' ? create(document) : update(document),
-                () => {
-                    reload();
-                    setCurrentPage(1);
-                    setSelected(null);
-                });
+        executeWithErrorHandling(
+            () => mode === 'create' ? create(document) : update(document),
+            () => {
+                reload();
+                setCurrentPage(1);
+                setSelected(null);
+            });
     };
 
     function handleDelete(item: ICertificateResponseDTO): void {

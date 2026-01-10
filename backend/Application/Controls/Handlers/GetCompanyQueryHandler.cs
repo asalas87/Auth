@@ -1,7 +1,6 @@
-using Application.Controls.Dtos;
-using Application.Controls.Interfaces;
 using Application.Controls.Queries;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using ErrorOr;
 using MediatR;
 

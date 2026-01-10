@@ -67,7 +67,6 @@ export function GenericEditForm<T extends { id?: string }>({
               <button
                 type="submit"
                 className="btn btn-primary"
-                onClick={handleSubmit}
               >
                 Guardar
               </button>

@@ -2,6 +2,7 @@ using Application.Controls.Interfaces;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
+using Domain.Partners.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
 using Domain.Security.Interfaces;
@@ -50,7 +51,6 @@ public sealed class CreateDocumentCommandHandler(
         Company? assignedUser = request.AssignedTo.HasValue ? await _companyRepository.GetByIdReadOnlyAsync(new CompanyId(request.AssignedTo.Value), cancellationToken) : null;
 
         var document = new GeneralDocument(
-            new DocumentFileId(documentId),
             request.Name,
             Path.Combine("documents", assignedFolder, fileName),
             uploadDate,

@@ -1,4 +1,3 @@
-using Application.Controls.Dtos;
 using Application.Controls.Interfaces;
 using Application.Controls.Queries;
 using Domain.Partners.Entities;
@@ -7,14 +6,9 @@ using MediatR;
 
 namespace Application.Controls.Handlers;
 
-public class GetAllCompaniesQueryHandler : IRequestHandler<GetAllCompaniesQuery, ErrorOr<List<Company>>>
+public class GetAllCompaniesQueryHandler(IControlCompanyRepository companyRepository) : IRequestHandler<GetAllCompaniesQuery, ErrorOr<List<Company>>>
 {
-    private readonly ICompanyRepository _companyRepository;
-
-    public GetAllCompaniesQueryHandler(ICompanyRepository companyRepository)
-    {
-        _companyRepository = companyRepository;
-    }
+    private readonly IControlCompanyRepository _companyRepository = companyRepository;
 
     public async Task<ErrorOr<List<Company>>> Handle(GetAllCompaniesQuery request, CancellationToken cancellationToken)
     {

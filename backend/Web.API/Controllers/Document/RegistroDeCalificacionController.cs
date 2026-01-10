@@ -1,5 +1,5 @@
 using Application.Common.Dtos;
-using Application.Documents.Certificate.DTOs;
+using Application.Documents.Certificate.Dtos;
 using Application.Documents.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,21 +9,29 @@ namespace Web.API.Controllers.Document;
 
 [Route("document/[controller]")]
 [ApiController]
-public class RegistroDeCalificacionController : ApiController
+public class RegistroDeCalificacionController(IDocumentService service) : ApiController
 {
-    private readonly IDocumentService _service;
+    private readonly IDocumentService _service = service ?? throw new ArgumentException(null, nameof(service));
 
-    public RegistroDeCalificacionController(IDocumentService service)
-    {
-        _service = service ?? throw new ArgumentException(nameof(service));
-    }
     // GET: api/<RegistrosDeCalificacionController>
     [HttpGet]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
     {
-        PaginateDTO dto = new PaginateDTO { Filter = filter, Page = page, PageSize = pageSize };
+        PaginateDTO dto = new () { Filter = filter, Page = page, PageSize = pageSize };
         var result = await _service.GetCertificatesPaginatedAsync(dto);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpGet("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetCertificateByIdAsync( id);
 
         return result.Match(
             value => Ok(value),
