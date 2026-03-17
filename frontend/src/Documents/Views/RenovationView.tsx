@@ -39,12 +39,12 @@ export const RenovationView = () => {
     };
 
     function handleDelete(id: string): void {
-            if (!window.confirm(`¿Eliminar el documento?`)) return;
-            executeWithErrorHandling(
-                () => remove(id),
-                () => {
-                    setSelected(null);
-                })
+        if (!window.confirm(`¿Eliminar el documento?`)) return;
+        executeWithErrorHandling(
+            () => remove(id),
+            () => {
+                setSelected(null);
+            })
     };
 
     const fields = useMemo(

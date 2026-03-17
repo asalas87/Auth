@@ -9,6 +9,7 @@ namespace Domain.Documents.Interfaces
         void Update(DocumentFile file);
         void Delete(DocumentFile file);
         Task<DocumentFile?> GetById(DocumentFileId id);
+        Task<List<DocumentFile>> GetListByIdsAsync(List<DocumentFileId> ids);
         Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, UserId? assignedToUserId);
         Task<List<DocumentFile>> GetExpiringAsync(int batchSize);
     }

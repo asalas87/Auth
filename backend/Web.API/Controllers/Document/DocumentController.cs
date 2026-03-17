@@ -2,6 +2,7 @@ using Application.Documents.Common.DTOs;
 using Application.Documents.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.API.Common.Request;
 using Web.API.Controllers.Common;
 
 namespace Web.API.Controllers.Document;
@@ -30,7 +31,19 @@ public class DocumentsController : ApiController
     [Authorize(Policy = "UserOnly")]
     public async Task<IActionResult> Download(Guid id)
     {
-        var result = await _service.GetDocumentByIdAsync(id);
+        var result = await _service.DownloadAsync(id);
+
+        return result.Match<IActionResult>(
+            success => File(success.Content, success.ContentType, success.FileName),
+            error => NotFound(error)
+        );
+    }
+
+    [HttpPost("download-multiple")]
+    [Authorize(Policy = "UserOnly")]
+    public async Task<IActionResult> DownloadMultiple([FromBody] MultipleIdsRequest request)
+    {
+        var result = await _service.DownloadMultipleAsync(request.Ids);
 
         return result.Match<IActionResult>(
             success => File(success.Content, success.ContentType, success.FileName),

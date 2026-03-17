@@ -26,3 +26,10 @@ export const download = async (id: string): Promise<Blob> => {
     return response.data;
 }
 
+export const multipleDownload = async (Ids: string[]): Promise<Blob> => {
+    const response = await api.post(`${endpoint}/download-multiple`, 
+        {Ids},
+        {responseType: 'blob'},
+    );
+    return response.data;
+}

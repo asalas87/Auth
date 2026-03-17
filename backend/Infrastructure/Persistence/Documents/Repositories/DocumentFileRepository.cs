@@ -57,4 +57,7 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
             .Take(batchSize)
             .ToListAsync();
     }
+
+    public async Task<List<DocumentFile>> GetListByIdsAsync(List<DocumentFileId> ids) => await _context.DocumentFiles.Where(d => ids.Contains(d.Id))
+    .ToListAsync();
 }

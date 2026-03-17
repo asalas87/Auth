@@ -51,11 +51,21 @@ public partial class DocumentService(ISender mediator, IMapper mapper, IAuthenti
         return await mediator.Send(command);
     }
 
-    public async Task<ErrorOr<FileDownloadDTO>> GetDocumentByIdAsync(Guid id)
+    public async Task<ErrorOr<FileDownloadDTO>> DownloadAsync(Guid id)
     {
-        var command = new GetDocumentByIdQuery(id);
+        var query = new GetDocumentByIdQuery(id);
 
-        return await mediator.Send(command).BindAsync(result =>
+        return await mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<FileDownloadDTO>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<FileDownloadDTO>> DownloadMultipleAsync(List<Guid> ids)
+    {
+        var query = new GetDocumentByIdsQuery(ids);
+
+        return await mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<FileDownloadDTO>>(result);
         });

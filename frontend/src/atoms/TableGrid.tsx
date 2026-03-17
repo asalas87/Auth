@@ -1,27 +1,29 @@
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid, DataGridProps, GridToolbar } from "@mui/x-data-grid";
+type TableGridProps = DataGridProps;
 
-function TableGrid({rows, columns} : {rows: any[], columns: any[]}) {
+function TableGrid({
+  rows,
+  columns,
+  initialState,
+  ...rest
+}: TableGridProps) {
   return (
     <DataGrid
       rows={rows}
       columns={columns}
-      autoHeight={true}
-      showToolbar
+      autoHeight
+      pageSizeOptions={[5, 10, 15, 20]}
       initialState={{
         columns: {
-          columnVisibilityModel: {
-            id: false,
-          },
+          columnVisibilityModel: { id: false },
         },
         pagination: {
           paginationModel: { page: 0, pageSize: 5 },
         },
+        ...initialState,
       }}
-      getRowClassName={(params) =>
-        params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-      }
-      getRowId={(row) => row.id}
-      pageSizeOptions={[5, 10, 15, 20]}
+      showToolbar
+      {...rest}
     />
   );
 }
