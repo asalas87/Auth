@@ -4,7 +4,7 @@ import { MdDelete, MdFileDownload } from "react-icons/md";
 
 function Actions({ params, onEdit, onDelete, onPreview, onDownload, onView }: { params: any; onEdit?: () => void; onDelete?: () => void; onPreview?: () => void; onDownload?: () => void; onView?: () => void }) {
   return (
-    <div className="h-full flex items-center gap-3 cursor-pointer">
+    <div className="h-full flex items-center gap-3 cursor-pointer" role="button">
       {onPreview && (
         <IoEye
           size="22"
@@ -19,26 +19,8 @@ function Actions({ params, onEdit, onDelete, onPreview, onDownload, onView }: { 
           size="22"
           key={`${params.id}-edit`}
           onClick={onEdit}
-          title="edit"
-          aria-label="edit"
-        />
-      )}
-      {onDelete && (
-        <MdDelete
-          size="22"
-          key={`${params.id}-delete`}
-          onClick={onDelete}
-          title="delete"
-          aria-label="delete"
-        />
-      )}
-      {onDownload && (
-        <MdFileDownload
-          size="22"
-          key={`${params.id}-download`}
-          onClick={onDownload}
-          title="download"
-          aria-label="download"
+          title="Editar"
+          aria-label="Editar"
         />
       )}
       {onView && (
@@ -46,8 +28,26 @@ function Actions({ params, onEdit, onDelete, onPreview, onDownload, onView }: { 
           size="22"
           key={`${params.id}-view`}
           onClick={onView}
-          title="view"
-          aria-label="view"
+          title="Ver"
+          aria-label="Ver"
+        />
+      )}
+      {onDownload && (
+        <MdFileDownload
+          size="22"
+          key={`${params.id}-download`}
+          onClick={onDownload}
+          title="Descargar"
+          aria-label="Descargar"
+        />
+      )}
+      {onDelete && (
+        <MdDelete
+          size="22"
+          key={`${params.id}-delete`}
+          onClick={onDelete}
+          title="Borrar"
+          aria-label="Borrar"
         />
       )}
     </div>

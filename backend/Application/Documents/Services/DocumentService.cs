@@ -4,10 +4,12 @@ using Application.Common.Interfaces;
 using Application.Common.Responses;
 using Application.Documents.Common.DTOs;
 using Application.Documents.Management.Create;
+using Application.Documents.Management.Delete;
 using Application.Documents.Management.DTOs;
 using Application.Documents.Management.GetAll;
 using Application.Documents.Management.GetById;
 using AutoMapper;
+using Domain.Security.Entities;
 using ErrorOr;
 using MediatR;
 
@@ -36,6 +38,30 @@ public partial class DocumentService(ISender mediator, IMapper mapper, IAuthenti
         return await mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<PaginatedResult<DocumentResponseDTO>>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<List<DocumentGridResponseDTO>>> GetUserDocumentsAsync()
+    {
+        if (authenticatedUser.UserId is  null)
+            return Error.Failure("Auth", "Usuario no autenticado.");
+
+        var userId = authenticatedUser.UserId;
+
+        var query = new GetUserDocumentsQuery(new UserId(userId.Value));
+        return await mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<List<DocumentGridResponseDTO>>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<Guid>> DeleteDocumentAsync(Guid id)
+    {
+        var command = new DeleteDocumentCommand(id);
+
+        return await mediator.Send(command).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<Guid>>(result);
         });
     }
 

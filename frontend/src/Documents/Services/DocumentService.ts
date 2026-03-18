@@ -8,14 +8,8 @@ export interface PagedResult<T> {
     totalCount: number;
 }
 
-export const getAll = async (
-    page: number,
-    pageSize: number,
-    filter: string = ''
-): Promise<PagedResult<IDocumentResponseDTO>> => {
-    const response = await api.get(`${endpoint}/all`, {
-        params: { page, pageSize, filter },
-    });
+export const getAll = async (): Promise<IDocumentResponseDTO[]> => {
+    const response = await api.get(`${endpoint}/all`);
     return response.data;
 };
 
@@ -33,3 +27,7 @@ export const multipleDownload = async (Ids: string[]): Promise<Blob> => {
     );
     return response.data;
 }
+
+export const remove = async (id: string): Promise<void> => {
+    await api.delete(`${endpoint}/${id}`);
+};

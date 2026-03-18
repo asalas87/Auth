@@ -1,4 +1,3 @@
-using Application.Documents.Common.DTOs;
 using Application.Documents.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,18 +7,15 @@ using Web.API.Controllers.Common;
 namespace Web.API.Controllers.Document;
 
 [Route("documents")]
-public class DocumentsController : ApiController
+public class DocumentsController(IDocumentService service) : ApiController
 {
-    private readonly IDocumentService _service;
-
-    public DocumentsController(IDocumentService service) => _service = service ?? throw new ArgumentException(null, nameof(service));
+    private readonly IDocumentService _service = service ?? throw new ArgumentException(null, nameof(service));
 
     [HttpGet("all")]
     [Authorize(Policy = "UserOnly")]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? filter = null)
+    public async Task<IActionResult> GetAll()
     {
-        DocumentAssignedDTO dto = new() { Filter = filter, Page = page, PageSize = pageSize };
-        var result = await _service.GetDocumentsAsignedToPaginatedAsync(dto);
+        var result = await _service.GetUserDocumentsAsync();
 
         return result.Match(
             value => Ok(value),
@@ -48,6 +44,17 @@ public class DocumentsController : ApiController
         return result.Match<IActionResult>(
             success => File(success.Content, success.ContentType, success.FileName),
             error => NotFound(error)
+        );
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Policy = "UserOnly")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _service.DeleteCertificateAsync(id);
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
         );
     }
 }

@@ -11,25 +11,38 @@ export const userDocumentsColumns = (
     field: "id",
     headerName: "ID",
     headerClassName: "super-app-theme--header",
-    type: "number",
-    width: 90,
+    type: "string",
     sortable: false,
     editable: false,
     filterable: false,
   },
   {
-    field: "name",
-    headerName: "Nombre",
+    field: "certificateNumber",
+    headerName: "Nro Certificado",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
   },
   {
-    field: "description",
-    headerName: "Descripcion",
+    field: "employerFullName",
+    headerName: "Soldador",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
+  },
+  {
+    field: "standardCode",
+    headerName: "Norma",
+    headerClassName: "super-app-theme--header",
+    type: "string",
+    flex: 1
+  }, 
+  {
+    field: "type",
+    headerName: "Tipo",
+    headerClassName: "super-app-theme--header",
+    type: "string",
+    flex: 1
   },
   {
     field: "validity",
@@ -42,15 +55,15 @@ export const userDocumentsColumns = (
     field: "action",
     headerName: "Action",
     headerClassName: "super-app-theme--header",
-    flex: 1,
+    width: 90,
     sortable: false,
     filterable: false,
     renderCell: (params: GridRenderCellParams<IDocumentResponseDTO>) => (
       <Actions
         params={params}
         onView={() => onView(params.row)}
-        onDelete={() => onDelete(params.row.id)}
         onDownload={() => onDownload(params.row)}
+        onDelete={() => onDelete(params.row.id)}
       />
     ),
   },

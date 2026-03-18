@@ -1,7 +1,10 @@
 import { IDocumentDTO } from "./IDocumentDTO";
 
-export interface IDocumentResponseDTO extends IDocumentDTO { 
-    uploadedBy: string;
-    uploadedDate: Date;
-    validity?: string;
+export interface IDocumentResponseDTO extends IDocumentDTO {
+    certificateNumber: string;
+    employerFullName: string;
+    standardCode: string;
+    type: string;
+    validity: Date;
+    isRead: boolean;
 }

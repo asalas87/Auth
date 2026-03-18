@@ -14,7 +14,7 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
     public void Delete(DocumentFile file) => _context.DocumentFiles.Remove(file);
 
     public void Update(DocumentFile file) => _context.DocumentFiles.Update(file);
-    public async Task<DocumentFile?> GetById(DocumentFileId id) => await _context.DocumentFiles.FindAsync(id);
+    public async Task<DocumentFile?> GetByIdAsync(DocumentFileId id) => await _context.DocumentFiles.FindAsync(id);
 
     public async Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, UserId? assignedToUserId)
     {
@@ -56,6 +56,15 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
             .OrderByDescending(u => u.ExpirationDate)
             .Take(batchSize)
             .ToListAsync();
+    }
+
+    public IQueryable<DocumentFile> GetUserDocuments(UserId assignedToUserId)
+    {
+        return _context.DocumentFiles
+            .Include(d => d.AssignedTo!)
+                .ThenInclude(c => c.Users)
+            .Where(f => f.AssignedTo != null &&
+                        f.AssignedTo.Users.Any(u => u.Id == assignedToUserId));
     }
 
     public async Task<List<DocumentFile>> GetListByIdsAsync(List<DocumentFileId> ids) => await _context.DocumentFiles.Where(d => ids.Contains(d.Id))

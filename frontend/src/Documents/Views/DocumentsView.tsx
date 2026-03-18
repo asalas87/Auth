@@ -1,38 +1,62 @@
-import { useCallback, useMemo, useState } from 'react';
-import { usePaginatedList } from '@/Common/Components/CrudTable';
-import { getAll, download, multipleDownload } from '../Services/DocumentService';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getAll, download, multipleDownload, remove } from '../Services/DocumentService';
 import { IDocumentResponseDTO } from '../Interfaces';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 import TableGrid from '@/atoms/TableGrid';
-import PageHeader from '@/molecules/PageHeader';
 import { userDocumentsColumns } from './Forms/userDocumentColumns';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
+import Button from '@/atoms/Button';
 
 export const DocumentsView = () => {
-    const memoizedGetAll = useCallback(getAll, []);
+    const [documents, setDocuments] = useState<IDocumentResponseDTO[]>([]);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [showPreview, setShowPreview] = useState(false);
 
-    const {
-        data: documents,
-    } = usePaginatedList(memoizedGetAll);
+    useEffect(() => {
+        const fetchDocuments = async () => {
+            const data = await getAll();
+            setDocuments(data);
+        };
+
+        fetchDocuments();
+    }, []);
 
     const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>();
 
     const handleView = (row: IDocumentResponseDTO) => {
-        alert(`Vista previa del documento con ID: ${row.id}`);
-    }
+        executeWithErrorHandling(() => download(row.id), (blob: Blob) => {
+            const url = window.URL.createObjectURL(blob);
+            setPreviewUrl(url);
+            setShowPreview(true);
 
-    function handleDelete(id: string): void {
-        if (!window.confirm(`¿Eliminar el documento?`)) return;
-        alert(`Documento con ID ${id} eliminado`);
-    }
+            // marcar como leído
+            setDocuments(prev =>
+                prev.map(doc =>
+                    doc.id === row.id ? { ...doc, isRead: true } : doc
+                )
+            );
+        });
+    };
 
-    function handleMultipleDelete(id: string): void {
+    const handleDelete = useCallback((id: string) => {
         if (!window.confirm(`¿Eliminar el documento?`)) return;
-        alert(`Documento con ID ${id} eliminado`);
+
+        executeWithErrorHandling(
+            () => remove(id),
+            () => {
+                setDocuments(prev => prev.filter(doc => doc.id !== id));
+            }
+        );
+    }, []);
+
+    function handleMultipleDelete(): void {
+        if (!window.confirm(`¿Eliminar el documento?`)) return;
+        alert(`Documentos eliminados`);
     }
 
     function handleMultipleDownload(): void {
-        const ids = selectionModel?.ids.keys().toArray().map<string>(id => id.toString());
+        let ids: string[] = [];
+        selectionModel?.ids.forEach(x => ids.push(x.toString()))
         if (ids)
             executeWithErrorHandling(() => multipleDownload(ids), (blob: Blob) => {
                 const link = document.createElement("a");
@@ -67,11 +91,12 @@ export const DocumentsView = () => {
     return (
         <div className="container mt-4">
             <h2>Documentos</h2>
-            <PageHeader
-                heading=""
-                btnLabel="Descargar seleccionados"
-                btnEvent={handleMultipleDownload}
-            />
+            <Button
+                type="button"
+                size="small"
+                variant="Primary"
+                label="Descargar seleccionados"
+                onClick={handleMultipleDownload} />
             <TableGrid
                 rows={documents}
                 columns={fields}
@@ -83,7 +108,46 @@ export const DocumentsView = () => {
                 onRowSelectionModelChange={(newSelection) => {
                     setSelectionModel(newSelection);
                 }}
+                getRowClassName={(params) =>
+                    params.row.isRead ? "text-muted fw-normal" : "fw-bold"
+                }
             />
+            <div className={`modal ${showPreview ? "d-block" : "d-none"}`} tabIndex={-1}>
+                <div className="modal-dialog modal-xl modal-dialog-centered">
+                    <div className="modal-content">
+
+                        <div className="modal-header">
+                            <h5 className="modal-title">Vista previa</h5>
+                            <button
+                                type="button"
+                                className="btn-close"
+                                onClick={() => {
+                                    setShowPreview(false);
+                                    if (previewUrl) {
+                                        window.URL.revokeObjectURL(previewUrl);
+                                        setPreviewUrl(null);
+                                    }
+                                }}
+                            />
+                        </div>
+
+                        <div className="modal-body" style={{ height: "80vh" }}>
+                            {previewUrl && (
+                                <iframe
+                                    src={previewUrl}
+                                    title="Preview"
+                                    width="100%"
+                                    height="100%"
+                                />
+                            )}
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* backdrop */}
+                {/* <div className="modal-backdrop fade show"></div> */}
+            </div>
         </div>
     );
 };
