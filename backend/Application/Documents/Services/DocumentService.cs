@@ -5,6 +5,7 @@ using Application.Common.Responses;
 using Application.Documents.Common.DTOs;
 using Application.Documents.Management.Create;
 using Application.Documents.Management.Delete;
+using Application.Documents.Management.DownloadById;
 using Application.Documents.Management.DTOs;
 using Application.Documents.Management.GetAll;
 using Application.Documents.Management.GetById;
@@ -79,7 +80,7 @@ public partial class DocumentService(ISender mediator, IMapper mapper, IAuthenti
 
     public async Task<ErrorOr<FileDownloadDTO>> DownloadAsync(Guid id)
     {
-        var query = new GetDocumentByIdQuery(id);
+        var query = new DownloadDocumentByIdQuery(id);
 
         return await mediator.Send(query).BindAsync(result =>
         {
@@ -89,7 +90,7 @@ public partial class DocumentService(ISender mediator, IMapper mapper, IAuthenti
 
     public async Task<ErrorOr<FileDownloadDTO>> DownloadMultipleAsync(List<Guid> ids)
     {
-        var query = new GetDocumentByIdsQuery(ids);
+        var query = new DownloadListByIdsQuery(ids);
 
         return await mediator.Send(query).BindAsync(result =>
         {

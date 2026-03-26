@@ -47,14 +47,14 @@ public class DocumentsController(IDocumentService service) : ApiController
         );
     }
 
-    [HttpDelete("{id}")]
-    [Authorize(Policy = "UserOnly")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var result = await _service.DeleteCertificateAsync(id);
-        return result.Match(
-            success => Ok(success),
-            errors => Problem(errors)
-        );
-    }
+    //[HttpDelete("{id}")]
+    //[Authorize(Policy = "UserOnly")]
+    //public async Task<IActionResult> Delete(Guid id)
+    //{
+    //    var result = await _service.DeleteCertificateAsync(id);
+    //    return result.Match(
+    //        success => Ok(success),
+    //        errors => Problem(errors)
+    //    );
+    //}
 }

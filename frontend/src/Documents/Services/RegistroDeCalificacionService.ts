@@ -8,14 +8,8 @@ export interface PagedResult<T> {
     totalCount: number;
 }
 
-export const getAll = async (
-    page: number,
-    pageSize: number,
-    filter: string = ''
-): Promise<PagedResult<ICertificateResponseDTO>> => {
-    const response = await api.get(`${endpoint}/`, {
-        params: { page, pageSize, filter },
-    });
+export const getAll = async (): Promise<PagedResult<ICertificateResponseDTO>> => {
+    const response = await api.get(`${endpoint}/`);
     return response.data;
 };
 

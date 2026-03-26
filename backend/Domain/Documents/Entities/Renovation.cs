@@ -15,10 +15,14 @@ public class Renovation : Certificate
         DateTime validity,
         string certificateNumber,
         string employerFullName,
-        string standardCode
+        string standardCode,
+        int renovationNumber
+
     ) : base(name, path, uploadDate, description, uploadedBy, assignedTo, validity, certificateNumber, employerFullName, standardCode)
     {
+        RenovationNumber = renovationNumber;
     }
+    public int RenovationNumber { get; private set; }
 
-    public Renovation() : base() { }
+    public Renovation() : base() { }    
 }

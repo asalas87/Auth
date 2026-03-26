@@ -7,6 +7,7 @@ public class Notification
 {
     public Guid Id { get; private set; }
     public Guid? DocumentId { get; private set; }
+    public Guid? CompanyId { get; private set; }
     public string RecipientEmail { get; private set; } = null!;
     public string Subject { get; private set; } = string.Empty;
     public string Body { get; private set; } = string.Empty;
@@ -22,6 +23,7 @@ public class Notification
     public Notification(
         string recipientEmail,
         Guid? documentId,
+        Guid? companyId,
         string subject,
         string body,
         NotificationType type,

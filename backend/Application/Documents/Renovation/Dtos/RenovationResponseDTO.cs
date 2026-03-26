@@ -5,4 +5,5 @@ namespace Application.Documents.Renovation.DTOs;
 public class RenovationResponseDTO : RenovationEditDTO
 {
     public string UploadedBy { get; set; } = string.Empty;
+    public string CompanyName { get; set; } = string.Empty;
 }

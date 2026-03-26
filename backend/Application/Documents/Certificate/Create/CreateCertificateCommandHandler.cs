@@ -34,55 +34,67 @@ public sealed class CreateCertificateCommandHandler(
         var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
         var fileName = $"{documentId}{Path.GetExtension(request.File.FileName)}";
         var filePath = Path.Combine(folderPath, fileName);
-        var uploadDate = DateTime.Now;
-
-        // Crear carpeta si no existe
-        if (!Directory.Exists(folderPath))
-            Directory.CreateDirectory(folderPath);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
+        try
         {
-            await request.File.CopyToAsync(stream, cancellationToken);
-        }
+            var uploadDate = DateTime.UtcNow;
 
-        if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
+            // Crear carpeta si no existe
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await request.File.CopyToAsync(stream, cancellationToken);
+            }
+
+            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
+            {
+                return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
+            }
+
+            if (await _companyRepository.GetByIdWithUsersAsync(new CompanyId(request.AssignedToId), cancellationToken) is not Company assignedCompany)
+            {
+                return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
+            }
+
+            var relativePath = DocumentFile.BuildRelativePath("Certificates", fileName);
+
+            var certificate = new Domain.Documents.Entities.Certificate(
+                fileName,
+                relativePath,
+                uploadDate,
+                string.Empty,
+                uploadedUser,
+                assignedCompany,
+                request.Validity,
+                request.CertificateNumber,
+                request.EmployerFullName,
+                request.StandardCode
+            );
+
+            await _certificateRepository.AddAsync(certificate);
+
+            var notification = new Notification(
+                recipientEmail: string.Join(",", assignedCompany.Users.Select(x => x.Email.Value)),
+                documentId,
+                companyId: assignedCompany.Id.Value,
+                subject: "Nuevo documento disponible",
+                body: $"Se ha subido un nuevo certificado el {uploadDate:d}",
+                type: NotificationType.DocumentUploaded
+            );
+            await _notificationRepository.AddAsync(notification, cancellationToken);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            return documentId;
+
+        }
+        catch (Exception)
         {
-            return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+
+            throw;
         }
-
-        if (await _companyRepository.GetByIdWithUsersAsync(new CompanyId(request.AssignedToId), cancellationToken) is not Company assignedComapny)
-        {
-            return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
-        }
-
-        var relativePath = DocumentFile.BuildRelativePath("Certificates", fileName);
-
-        var certificate = new Domain.Documents.Entities.Certificate(
-            fileName,
-            relativePath,
-            uploadDate,
-            string.Empty,
-            uploadedUser,
-            assignedComapny,
-            request.Validity,
-            request.CertificateNumber,
-            request.EmployerFullName,
-            request.StandardCode
-        );
-
-        await _certificateRepository.AddAsync(certificate);
-
-        var notification = new Notification(
-            recipientEmail: string.Join(",", assignedComapny.Users.Select(x => x.Email.Value)),
-            documentId,
-            subject: "Nuevo documento disponible",
-            body: $"Se ha subido un nuevo certificado el {uploadDate:d}",
-            type: NotificationType.DocumentUploaded
-        );
-        await _notificationRepository.AddAsync(notification, cancellationToken);
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return documentId;
     }
 }

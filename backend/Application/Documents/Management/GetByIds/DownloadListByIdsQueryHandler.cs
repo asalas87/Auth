@@ -3,18 +3,20 @@ using System.Reflection.Metadata;
 using Application.Common.Dtos;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
+using Domain.Primitives;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Documents.Management.GetById;
 
-public class GetDocumentByIdsQueryHandler(IDocumentFileRepository documentFileRepository, IWebHostEnvironment env) : IRequestHandler<GetDocumentByIdsQuery, ErrorOr<FileDownloadDTO>>
+public class DownloadListByIdsQueryHandler(IDocumentFileRepository documentFileRepository, IWebHostEnvironment env, IUnitOfWork unitOfWork) : IRequestHandler<DownloadListByIdsQuery, ErrorOr<FileDownloadDTO>>
 {
     private readonly IDocumentFileRepository _documentFileRepository = documentFileRepository ?? throw new ArgumentNullException(nameof(documentFileRepository));
     private readonly IWebHostEnvironment _env = env ?? throw new ArgumentNullException(nameof(env));
+    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(_unitOfWork));
 
-    public async Task<ErrorOr<FileDownloadDTO>> Handle(GetDocumentByIdsQuery query, CancellationToken cancellationToken)
+    public async Task<ErrorOr<FileDownloadDTO>> Handle(DownloadListByIdsQuery query, CancellationToken cancellationToken)
     {
         List<DocumentFile> documents = await _documentFileRepository.GetListByIdsAsync(query.Ids.ConvertAll(x => new DocumentFileId(x)));
 
@@ -32,6 +34,8 @@ public class GetDocumentByIdsQueryHandler(IDocumentFileRepository documentFileRe
                 if (!File.Exists(filePath))
                     continue;
 
+                doc.MarkAsReadIfNeeded();
+
                 var entry = archive.CreateEntry(doc.Name, CompressionLevel.Fastest);
 
                 using var entryStream = entry.Open();
@@ -40,12 +44,13 @@ public class GetDocumentByIdsQueryHandler(IDocumentFileRepository documentFileRe
                 await fileStream.CopyToAsync(entryStream);
             }
         }
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new FileDownloadDTO
         {
-            Content = memoryStream.ToArray(),
-            FileName = "documents.pdf",
-            ContentType = "application/pdf"
+            Content = memoryStream,
+            FileName = "documents.zip",
+            ContentType = "application/zip"
         };
     }
 }

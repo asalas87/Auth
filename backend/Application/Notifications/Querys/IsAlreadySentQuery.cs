@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Application.Notifications.Querys;
 
-public record IsAlreadySentQuery(Guid DocumentId) : IRequest<ErrorOr<bool>>;
+public record IsAlreadySentForCompanyQuery(Guid companyId) : IRequest<ErrorOr<bool>>;

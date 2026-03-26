@@ -18,12 +18,6 @@ export const RenovationView = () => {
 
     const {
         data: documents,
-        totalCount,
-        currentPage,
-        setCurrentPage,
-        filter,
-        setFilter,
-        pageSize,
         reload
     } = usePaginatedList(memoizedGetAll);
 

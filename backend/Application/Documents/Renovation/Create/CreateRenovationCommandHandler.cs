@@ -66,7 +66,8 @@ public sealed class CreateRenovationCommandHandler(
             request.Validity,
             request.CertificateNumber,
             request.EmployerFullName,
-            request.StandardCode
+            request.StandardCode,
+            request.RenovationNumber
         );
 
         await _renovationRepository.AddAsync(renovation);
@@ -74,6 +75,7 @@ public sealed class CreateRenovationCommandHandler(
         var notification = new Notification(
             recipientEmail: string.Join(",", assignedCompany.Users.Select(x => x.Email.Value)),
             documentId,
+            companyId: assignedCompany.Id.Value,
             subject: "Nuevo documento de renovación disponible",
             body: $"Se ha subido una nueva renovación el {uploadDate:d}",
             type: NotificationType.DocumentUploaded

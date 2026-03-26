@@ -17,6 +17,6 @@ public class CertificateConfiguration : IEntityTypeConfiguration<Certificate>
         builder.Property(c => c.Validity).IsRequired();
         builder.Property(c => c.CertificateNumber).IsRequired().HasMaxLength(30);
         builder.Property(c => c.EmployerFullName).IsRequired().HasMaxLength(100);
-        builder.Property(c => c.StandardCode).IsRequired().HasMaxLength(30);
+        builder.Property(c => c.StandardCode).IsRequired().HasMaxLength(100);
     }
 }

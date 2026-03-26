@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getAll, download, multipleDownload, remove } from '../Services/DocumentService';
 import { IDocumentResponseDTO } from '../Interfaces';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
@@ -6,6 +6,7 @@ import TableGrid from '@/atoms/TableGrid';
 import { userDocumentsColumns } from './Forms/userDocumentColumns';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
 import Button from '@/atoms/Button';
+import { parseDates } from '@/Helpers/parseDates';
 
 export const DocumentsView = () => {
     const [documents, setDocuments] = useState<IDocumentResponseDTO[]>([]);
@@ -15,7 +16,8 @@ export const DocumentsView = () => {
     useEffect(() => {
         const fetchDocuments = async () => {
             const data = await getAll();
-            setDocuments(data);
+            const docs = data.map(d => parseDates(d, ['validity']));
+            setDocuments(docs);
         };
 
         fetchDocuments();
@@ -37,22 +39,6 @@ export const DocumentsView = () => {
             );
         });
     };
-
-    const handleDelete = useCallback((id: string) => {
-        if (!window.confirm(`¿Eliminar el documento?`)) return;
-
-        executeWithErrorHandling(
-            () => remove(id),
-            () => {
-                setDocuments(prev => prev.filter(doc => doc.id !== id));
-            }
-        );
-    }, []);
-
-    function handleMultipleDelete(): void {
-        if (!window.confirm(`¿Eliminar el documento?`)) return;
-        alert(`Documentos eliminados`);
-    }
 
     function handleMultipleDownload(): void {
         let ids: string[] = [];
@@ -84,8 +70,8 @@ export const DocumentsView = () => {
     };
 
     const fields = useMemo(
-        () => userDocumentsColumns(handleView, handleDelete, handleDownload),
-        [handleView, handleDownload, handleDelete]
+        () => userDocumentsColumns(handleView, handleDownload),
+        [handleView, handleDownload]
     );
 
     return (

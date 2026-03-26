@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Documents.Common.DTOs;
 using Application.Documents.Management.GetAll;
 using Application.Notifications.Commands;
 using Application.Notifications.Commands.MarkNotificationFailed;
@@ -25,28 +26,44 @@ namespace Application.Documents.Services
 
         public async Task<int> CreateExpiringDocumentNotificationsAsync(CancellationToken cancellationToken = default)
         {
-            int batchDays = 10;
+            int batchDays = 30;
             int count = 0;
 
             var query = new GetExpiringQuery(batchDays);
             var expiringDocs = await _mediator.Send(query);
+            var grouped = expiringDocs.Value.GroupBy(d => string.Join(",", d.CompanyId));
 
-            foreach (var doc in expiringDocs.Value)
+            foreach (var group in grouped)
             {
-                var alreadyExists = await _mediator.Send(new IsAlreadySentQuery(doc.DocumentId), cancellationToken);
+                var emails = group
+                    .SelectMany(d => d.AssignedToEmails)
+                    .Distinct()
+                    .ToList();
+
+                var recipientEmail = string.Join(",", emails);
+                var documents = group.ToList();
+
+                // evitar duplicados (podés mejorar esto después)
+                var alreadyExists = await _mediator.Send(
+                    new IsAlreadySentForCompanyQuery(documents.First().CompanyId),
+                    cancellationToken
+                );
 
                 if (alreadyExists.Value)
                     continue;
 
+                var body = BuildGroupedEmailBody(documents);
+
                 var notification = new CreateNotificationCommand(
-                    DocumentId: doc.DocumentId,
-                    RecipientEmail: string.Join(",", doc.AssignedToEmails),
-                    Subject: "Documento próximo a vencer",
-                    Body: $"El documento {doc.Name} vence el {doc.ExpirationDate:dd/MM/yyyy}",
+                    DocumentId: documents.First().DocumentId,
+                    CompanyId: documents.First().CompanyId,
+                    RecipientEmail: recipientEmail,
+                    Subject: "Documento/s próximo/s a vencer",
+                    Body: body,
                     Type: NotificationType.DocumentExpiring,
                     Status: NotificationStatus.Pending,
                     CreatedAt: DateTime.UtcNow,
-                    ExpirationDate: doc.ExpirationDate
+                    ExpirationDate: documents.Min(d => d.ExpirationDate)
                 );
 
                 await _mediator.Send(notification, cancellationToken);
@@ -54,6 +71,26 @@ namespace Application.Documents.Services
             }
 
             return count;
+        }
+
+        private string BuildGroupedEmailBody(List<ExpiringDocumentDTO> documents)
+        {
+            var rows = string.Join("", documents.Select(d => $@"
+                <tr>
+                    <td>{d.Name}</td>
+                    <td>{d.ExpirationDate:dd/MM/yyyy}</td>
+                </tr>"));
+
+                    return $@"
+            <h3>Documentos próximos a vencer</h3>
+            <table border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <th>Documento</th>
+                    <th>Vencimiento</th>
+                </tr>
+                {rows}
+            </table>
+            ";
         }
 
         public async Task<int> SendPendingNotificationsAsync(CancellationToken cancellationToken = default)

@@ -56,8 +56,11 @@ public abstract class DocumentFile : AggergateRoot<DocumentFileId>
     {
         return Path.Combine(subFolder, fileName);
     }
-    public void MarkAsRead()
+    public void MarkAsReadIfNeeded()
     {
-        IsRead = true;
+        if (!IsRead)
+        {
+            IsRead = true;
+        }
     }
 }

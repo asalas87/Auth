@@ -4,7 +4,6 @@ import { IDocumentResponseDTO } from "@/Documents/Interfaces";
 
 export const userDocumentsColumns = (
   onView: (id: IDocumentResponseDTO) => void,
-  onDelete: (id: string) => void,
   onDownload: (id: IDocumentResponseDTO) => void
 ): GridColDef<IDocumentResponseDTO>[] => [
   {
@@ -48,7 +47,7 @@ export const userDocumentsColumns = (
     field: "validity",
     headerName: "Vigencia",
     headerClassName: "super-app-theme--header",
-    type: "string",
+    type: "date",
     flex: 1
   }, 
   {
@@ -63,7 +62,6 @@ export const userDocumentsColumns = (
         params={params}
         onView={() => onView(params.row)}
         onDownload={() => onDownload(params.row)}
-        onDelete={() => onDelete(params.row.id)}
       />
     ),
   },

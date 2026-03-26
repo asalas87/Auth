@@ -54,7 +54,6 @@ export const RenovationEditForm = ({
         ];
         if (mode === 'create') {
             baseFields.push(
-                { name: 'name', label: 'Nombre', type: FieldType.Text },
                 {
                     name: 'file',
                     label: 'Certificado',

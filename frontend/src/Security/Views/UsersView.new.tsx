@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { IUserDTO, IUserEditDTO } from '../Interfaces';
+import { IUserEditDTO } from '../Interfaces';
 import { getAllPag, remove, update, getById, create } from '@/Security/Services/UserService';
 import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
@@ -18,16 +18,10 @@ const UsersView = () => {
 
     const {
         data: users,
-        totalCount,
-        currentPage,
-        setCurrentPage,
-        filter,
-        setFilter,
-        pageSize,
         reload
     } = usePaginatedList(memoizedGetAll);
 
-    
+
     const handleEdit = (id: string) => {
         executeWithErrorHandling(
             () => getById(id),
@@ -41,27 +35,33 @@ const UsersView = () => {
         if (!window.confirm(`¿Eliminar el usuario?`)) return;
 
         executeWithErrorHandling(
-            () =>  remove(id),
-            () =>  { 
+            () => remove(id),
+            () => {
                 reload();
                 setSelected(null)
             }
         )
     };
-    
+
     const handleCreate = () => {
-            const empty = getEmptyItem<IUserEditDTO>([
-                { name: 'name', label: 'Nombre', type: FieldType.Text },
-                { name: 'email', label: 'Email', type: FieldType.Date }
-            ]);
-            setSelected(empty);
-            setMode('create');
-        };
+        const empty = getEmptyItem<IUserEditDTO>([
+            { name: 'name', label: 'Nombre', type: FieldType.Text },
+            { name: 'email', label: 'Email', type: FieldType.Date }
+        ]);
+        setSelected(empty);
+        setMode('create');
+    };
+    
+    const handlers = useMemo(() => ({
+        onEdit: (id: string) => handleEdit(id),
+        onDelete: (id: string, name: string) => handleDelete(id),
+    }), [handleEdit, handleDelete]);
 
     const columns = useMemo(
-        () => userColumns(handleEdit, handleDelete),
+        () => userColumns(handlers.onEdit, handlers.onDelete),
         [handleEdit, handleDelete]
     );
+    
     const handleSave = (user: IUserEditDTO) => {
         executeWithErrorHandling(
             () => mode === 'create' ? create(user) : update(user.id, user)

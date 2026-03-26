@@ -1,5 +1,9 @@
 import { DataGrid, DataGridProps, GridToolbar } from "@mui/x-data-grid";
+import { esES } from '@mui/x-data-grid/locales';
+import { useMemo } from "react";
+
 type TableGridProps = DataGridProps;
+
 
 function TableGrid({
   rows,
@@ -23,7 +27,14 @@ function TableGrid({
         ...initialState,
       }}
       showToolbar
+      localeText={esES.components.MuiDataGrid.defaultProps.localeText}
       {...rest}
+       sx={{
+        '& .MuiTablePagination-root p': {
+          margin: 0,
+        },
+        ...rest.sx
+      }}
     />
   );
 }
