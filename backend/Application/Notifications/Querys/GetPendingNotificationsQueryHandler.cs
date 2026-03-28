@@ -22,7 +22,9 @@ public class GetPendingNotificationsQueryHandler : IRequestHandler<GetPendingNot
             Id = n.Id,
             RecipientEmail = n.RecipientEmail,
             Subject = n.Subject,
-            Body = n.Body
+            Body = n.Body,
+            Type = n.Type,
+            CompanyId = n.CompanyId ?? new Guid()
         }).ToList();
     }
 }

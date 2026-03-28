@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Application.Notifications.Commands.MarkNotificationSent;
 
-public record MarkNotificationSentCommand(Guid NotificationId) : IRequest<ErrorOr<bool>>;
+public record MarkNotificationSentCommand(List<Guid> NotificationIds) : IRequest<ErrorOr<bool>>;

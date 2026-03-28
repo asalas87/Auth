@@ -45,4 +45,8 @@ public class NotificationRepository : INotificationRepository
     {
         return await _db.Notifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
     }
+    public async Task<List<Notification>> GetByListAsync(List<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        return await _db.Notifications.Where(x => ids.Contains(x.Id)).ToListAsync(cancellationToken);
+    }
 }

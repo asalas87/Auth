@@ -43,7 +43,7 @@ export const DocumentsView = () => {
     function handleMultipleDownload(): void {
         let ids: string[] = [];
         selectionModel?.ids.forEach(x => ids.push(x.toString()))
-        if (ids)
+        if (ids.length)
             executeWithErrorHandling(() => multipleDownload(ids), (blob: Blob) => {
                 const link = document.createElement("a");
                 const url = window.URL.createObjectURL(blob);

@@ -9,8 +9,7 @@ using MediatR;
 namespace Application.Documents.Management.GetAll;
 
 public sealed class GetDocumentsPaginatedQueryHandler(IDocumentFileRepository documentRepository) : IRequestHandler<GetDocumentsPaginatedQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>,
-                                                       IRequestHandler<GetDocumentsPaginatedByAssignedToQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>,
-                                                       IRequestHandler<GetExpiringQuery, ErrorOr<List<ExpiringDocumentDTO>>>
+                                                       IRequestHandler<GetDocumentsPaginatedByAssignedToQuery, ErrorOr<PaginatedResult<DocumentResponseDTO>>>
 {
     private readonly IDocumentFileRepository _documentRepository = documentRepository ?? throw new ArgumentNullException(nameof(documentRepository));
 
@@ -57,20 +56,5 @@ public sealed class GetDocumentsPaginatedQueryHandler(IDocumentFileRepository do
             Items = items,
             TotalCount = totalCount
         };
-    }
-
-    public async Task<ErrorOr<List<ExpiringDocumentDTO>>> Handle(GetExpiringQuery request, CancellationToken cancellationToken)
-    {
-        var documents = await _documentRepository.GetExpiringAsync(request.batchSize);
-
-        return documents.Select(d => new ExpiringDocumentDTO
-        {
-            DocumentId = d.Id.Value,
-            Name = d.Name,
-            ExpirationDate = d.ExpirationDate!.Value,
-            CompanyId = d.AssignedTo?.Id.Value ?? new Guid(),
-            AssignedToEmails = d.AssignedTo?.Users.Select(u => u.Email.Value).ToList() ?? []
-
-        }).ToList();
     }
 }

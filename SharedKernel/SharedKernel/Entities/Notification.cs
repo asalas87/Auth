@@ -30,6 +30,7 @@ public class Notification
         DateTime? expirationDate = null)
     {
         DocumentId = documentId;
+        CompanyId = companyId;
         RecipientEmail = recipientEmail;
         Subject = subject;
         Body = body;

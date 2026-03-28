@@ -2,6 +2,8 @@ using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Security.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using SharedKernel.Enums;
 
 namespace Infrastructure.Persistence.Documents.Repositories;
 
@@ -44,18 +46,46 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
         return (files, totalCount);
     }
 
-    public async Task<List<DocumentFile>> GetExpiringAsync(int batchSize)
+    public async Task<List<DocumentFile>> GetExpiringDocumentsNotSendAsync(int batchDays)
     {
-        var query = _context.DocumentFiles
+        var limitDate = DateTime.UtcNow.AddDays(batchDays);
+
+        var validStatuses = new[]
+        {
+        NotificationStatus.Sent,
+        NotificationStatus.Failed
+    };
+
+        // 🔥 1. IDs ya notificados
+        var notifiedIds = await _context.Notifications
+            .Where(n =>
+                n.Type == NotificationType.DocumentExpiring &&
+                validStatuses.Contains(n.Status) &&
+                n.DocumentId != null
+            )
+            .Select(n => n.DocumentId!.Value)
+            .Distinct()
+            .ToListAsync();
+
+        // 🔥 2. Traigo candidatos (DB)
+        var candidates = await _context.DocumentFiles
+            .Where(d =>
+                d.ExpirationDate != null &&
+                d.ExpirationDate < limitDate &&
+                d.AssignedTo != null &&
+                d.AssignedTo.Users.Any()
+            )
             .Include(d => d.AssignedTo!)
                 .ThenInclude(c => c.Users)
-            .Where(f => f.ExpirationDate != null && f.AssignedTo != null && f.AssignedTo.Users.Any())
-            .AsQueryable();
+            .OrderBy(d => d.ExpirationDate)
+            .ToListAsync(); // 👈 🔥 CORTE A MEMORIA
 
-        return await query
-            .OrderByDescending(u => u.ExpirationDate)
-            .Take(batchSize)
-            .ToListAsync();
+        // 🔥 3. Filtro en memoria (LINQ to Objects)
+        var result = candidates
+            .Where(d => !notifiedIds.Contains(d.Id.Value))
+            .ToList();
+
+        return result;
     }
 
     public IQueryable<DocumentFile> GetUserDocuments(UserId assignedToUserId)

@@ -4,6 +4,7 @@ using Application.Documents.Management.GetAll;
 using Application.Notifications.Commands;
 using Application.Notifications.Commands.MarkNotificationFailed;
 using Application.Notifications.Commands.MarkNotificationSent;
+using Application.Notifications.DTOs;
 using Application.Notifications.Querys;
 using AutoMapper;
 using MediatR;
@@ -29,7 +30,7 @@ namespace Application.Documents.Services
             int batchDays = 30;
             int count = 0;
 
-            var query = new GetExpiringQuery(batchDays);
+            var query = new GetExpiringDocumentsNotSendQuery(batchDays);
             var expiringDocs = await _mediator.Send(query);
             var grouped = expiringDocs.Value.GroupBy(d => string.Join(",", d.CompanyId));
 
@@ -42,15 +43,6 @@ namespace Application.Documents.Services
 
                 var recipientEmail = string.Join(",", emails);
                 var documents = group.ToList();
-
-                // evitar duplicados (podés mejorar esto después)
-                var alreadyExists = await _mediator.Send(
-                    new IsAlreadySentForCompanyQuery(documents.First().CompanyId),
-                    cancellationToken
-                );
-
-                if (alreadyExists.Value)
-                    continue;
 
                 var body = BuildGroupedEmailBody(documents);
 
@@ -99,22 +91,74 @@ namespace Application.Documents.Services
 
             int count = 0;
 
-            foreach (var notif in pending.Value)
+            var grouped = pending.Value.GroupBy(n => new { n.CompanyId, n.Type });
+
+            foreach (var group in grouped)
             {
+                var notifications = group.ToList();
                 try
                 {
-                    await _mediator.Send(new MarkNotificationProcessingCommand(notif.Id), cancellationToken);
-                    await _emailService.SendAsync(notif.RecipientEmail, notif.Subject, notif.Body);
-                    await _mediator.Send(new MarkNotificationSentCommand(notif.Id), cancellationToken);
-                    count++;
+                    var ids = notifications.Select(n => n.Id).ToList();
+
+                    await _mediator.Send(
+                        new MarkNotificationProcessingCommand(ids),
+                        cancellationToken
+                    );
+
+                    var recipientEmail = notifications.First().RecipientEmail;
+
+                    string subject;
+                    string body;
+
+                    switch (group.Key.Type)
+                    {
+                        case NotificationType.DocumentUploaded:
+                            subject = "Nuevos documentos disponibles";
+                            body = BuildGroupedUploadEmailBody(notifications);
+                            break;
+
+                        case NotificationType.DocumentExpiring:
+                            subject = "Documentos por vencer";
+                            body = BuildExpiringEmailBody(notifications);
+                            break;
+
+                        default:
+                            continue;
+                    }
+
+                    await _emailService.SendAsync(recipientEmail, subject, body);
+
+                    await _mediator.Send(
+                        new MarkNotificationSentCommand(ids),
+                        cancellationToken
+                    );
+
+                    count += notifications.Count;
                 }
-                catch
+                catch(Exception ex)
                 {
-                    await _mediator.Send(new MarkNotificationFailedCommand(notif.Id, "Error al enviar"), cancellationToken);
+                    await _mediator.Send(
+                        new MarkNotificationFailedCommand(
+                            notifications.Select(n => n.Id).ToList(),
+                            ex.Message),
+                        cancellationToken);
                 }
             }
 
             return count;
+        }
+
+        private string BuildGroupedUploadEmailBody(List<NotificationDTO> notifications)
+        {
+            var docs = notifications.Select(n => n.Id).ToList();
+
+            return $"Se han cargado {docs.Count} nuevos documentos.";
+        }
+        private string BuildExpiringEmailBody(List<NotificationDTO> notifications)
+        {
+            var docs = notifications.Select(n => n.Id).ToList();
+
+            return $"Hay documentos próximos a vencer.";
         }
     }
 }

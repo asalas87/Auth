@@ -3,4 +3,4 @@ using ErrorOr;
 using MediatR;
 
 namespace Application.Documents.Management.GetAll;
-public record GetExpiringQuery(int batchSize) : IRequest<ErrorOr<List<ExpiringDocumentDTO>>>;
+public record GetExpiringDocumentsNotSendQuery(int batchDays) : IRequest<ErrorOr<List<ExpiringDocumentDTO>>>;

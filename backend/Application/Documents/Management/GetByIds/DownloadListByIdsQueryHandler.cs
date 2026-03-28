@@ -10,11 +10,10 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Application.Documents.Management.GetById;
 
-public class DownloadListByIdsQueryHandler(IDocumentFileRepository documentFileRepository, IWebHostEnvironment env, IUnitOfWork unitOfWork) : IRequestHandler<DownloadListByIdsQuery, ErrorOr<FileDownloadDTO>>
+public class DownloadListByIdsQueryHandler(IDocumentFileRepository documentFileRepository, IWebHostEnvironment env) : IRequestHandler<DownloadListByIdsQuery, ErrorOr<FileDownloadDTO>>
 {
     private readonly IDocumentFileRepository _documentFileRepository = documentFileRepository ?? throw new ArgumentNullException(nameof(documentFileRepository));
     private readonly IWebHostEnvironment _env = env ?? throw new ArgumentNullException(nameof(env));
-    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(_unitOfWork));
 
     public async Task<ErrorOr<FileDownloadDTO>> Handle(DownloadListByIdsQuery query, CancellationToken cancellationToken)
     {
@@ -23,9 +22,9 @@ public class DownloadListByIdsQueryHandler(IDocumentFileRepository documentFileR
         if (documents.Count == 0)
             return Error.NotFound(description: "Documentos no encontrados");
 
-        using var memoryStream = new MemoryStream();
+        var memoryStream = new MemoryStream();
 
-        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
             foreach (var doc in documents)
             {
@@ -44,7 +43,8 @@ public class DownloadListByIdsQueryHandler(IDocumentFileRepository documentFileR
                 await fileStream.CopyToAsync(entryStream);
             }
         }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        memoryStream.Position = 0;
 
         return new FileDownloadDTO
         {

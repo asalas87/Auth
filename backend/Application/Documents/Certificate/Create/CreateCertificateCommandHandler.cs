@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Partners.Entities;
@@ -32,7 +33,8 @@ public sealed class CreateCertificateCommandHandler(
     {
         var documentId = Guid.NewGuid();
         var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
-        var fileName = $"{documentId}{Path.GetExtension(request.File.FileName)}";
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        var fileName = $"{timestamp}_{request.CertificateNumber}.pdf";
         var filePath = Path.Combine(folderPath, fileName);
         try
         {
