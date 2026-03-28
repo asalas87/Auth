@@ -259,6 +259,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -316,8 +319,8 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("StandardCode")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("Validity")
                         .HasColumnType("datetime2");
@@ -335,6 +338,10 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
                 {
                     b.HasBaseType("Domain.Documents.Entities.Certificate");
+
+                    b.Property<int>("RenovationNumber")
+                        .HasMaxLength(3)
+                        .HasColumnType("int");
 
                     b.ToTable("Renovations", "DOC");
                 });

@@ -6,4 +6,5 @@ export interface IRenovationDTO extends IDocumentEditDTO {
     employerFullName: string;
     validity: Date;
     standardCode: string;
+    renovationNumber:string
 }

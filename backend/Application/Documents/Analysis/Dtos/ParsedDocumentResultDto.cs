@@ -8,6 +8,7 @@ namespace Application.Documents.Analysis.Dtos
         public string? EmployeeFullName { get; init; }
         public string? StandardCode { get; init; }
         public string? CertificateNumber { get; init; }
+        public int? RenovationNumber { get; init; }
     }
 
 }

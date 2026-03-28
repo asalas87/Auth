@@ -1,18 +1,20 @@
 using Application.Documents.Analysis.Dtos;
 using Application.Documents.Analysis.Factories;
+using Application.Interfaces;
 using Domain.Enums;
 using Domain.Partners.Interfaces;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace Application.Documents.Analysis.Services
 {
     public class DocumentAnalysisService(
         IPdfTextExtractor textExtractor,
+        IPdfStructuredExtractor structuredExtractor,
         IDocumentParserFactory parserFactory,
         ICompanyRepository companyRepository) : IDocumentAnalysisService
     {
         private readonly IPdfTextExtractor _textExtractor = textExtractor;
+        private readonly IPdfStructuredExtractor _structuredExtractor = structuredExtractor;
         private readonly IDocumentParserFactory _parserFactory = parserFactory;
         private readonly ICompanyRepository _companyRepository = companyRepository;
 
@@ -20,13 +22,13 @@ namespace Application.Documents.Analysis.Services
             IFormFile file,
             DocumentType documentType)
         {
-            using var stream = file.OpenReadStream();
-
-            var text = _textExtractor.ExtractText(stream);
-
             var parser = _parserFactory.Resolve(documentType);
+            using var stream = file.OpenReadStream();
+            var text = parser.ExtractText(stream, _textExtractor);
+            stream.Position = 0;
 
-            var parsed = parser.Parse(text);
+            var lines = _structuredExtractor.ExtractLines(stream);
+            var parsed = parser.Parse(text, lines);
 
             Guid? companyId = null;
 
@@ -49,9 +51,9 @@ namespace Application.Documents.Analysis.Services
                 CertificateNumber = parsed.CertificateNumber,
                 Validity = parsed.Validity,
                 EmployeeFullName = parsed.EmployeeFullName,
-                StandardCode = parsed.StandardCode
+                StandardCode = parsed.StandardCode,
+                RenovationNumber = parsed.RenovationNumber
             };
         }
     }
-
 }

@@ -41,7 +41,7 @@ export const userColumns = (
     field: "action",
     headerName: "Action",
     headerClassName: "super-app-theme--header",
-    flex: 1,
+    width: 90,
     sortable: false,
     filterable: false,
     renderCell: (params: GridRenderCellParams<IUserDTO>) => (

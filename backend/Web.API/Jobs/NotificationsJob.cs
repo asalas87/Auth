@@ -6,7 +6,6 @@ public class NotificationsJob : BackgroundService
 {
     private readonly ILogger<NotificationsJob> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly TimeSpan _interval = TimeSpan.FromMinutes(5); // cada 5 min
 
     public NotificationsJob(ILogger<NotificationsJob> logger, IServiceProvider serviceProvider)
     {
@@ -38,9 +37,31 @@ public class NotificationsJob : BackgroundService
                 _logger.LogError(ex, "Error al ejecutar NotificationsJob.");
             }
 
-            await Task.Delay(_interval, stoppingToken);
+            var delay = GetDelayUntilNextRun();
+            _logger.LogInformation("Próxima ejecución en {Delay}", delay);
+
+            await Task.Delay(delay, stoppingToken);
         }
 
         _logger.LogInformation("NotificationsJob detenido.");
+    }
+
+    private TimeSpan GetDelayUntilNextRun()
+    {
+        var now = DateTime.Now;
+
+        var nextRun = new DateTime(
+            now.Year,
+            now.Month,
+            now.Day,
+            9, 0, 0
+        );
+
+        if (now >= nextRun)
+        {
+            nextRun = nextRun.AddDays(1);
+        }
+
+        return nextRun - now;
     }
 }

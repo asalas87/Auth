@@ -3,4 +3,4 @@ using ErrorOr;
 using MediatR;
 
 namespace Application.Documents.Management.GetById;
-public record GetDocumentByIdQuery(Guid Id) : IRequest<ErrorOr<FileDownloadDTO>>;
+public record DownloadListByIdsQuery(List<Guid> Ids) : IRequest<ErrorOr<FileDownloadDTO>>;

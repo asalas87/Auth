@@ -5,6 +5,7 @@ using SharedKernel.Enums;
 namespace Application.Notifications.Commands;
 public record CreateNotificationCommand(
     Guid? DocumentId,
+    Guid? CompanyId,
     string RecipientEmail,
     string Subject,
     string Body,

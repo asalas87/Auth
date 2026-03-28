@@ -22,6 +22,7 @@ export const RegistrosDeCalificacionEditForm = ({
     useEffect(() => {
         getCompaniesForCombo().then(setCompanies).catch(console.error);
     }, []);
+    
     const handlePdfLoad = async (file: File) => {
         try {
             const datos = await analyzeDocument(file, 'Qualification');
@@ -54,7 +55,6 @@ export const RegistrosDeCalificacionEditForm = ({
         ];
         if (mode === 'create') {
             baseFields.push(
-            { name: 'name', label: 'Nombre', type: FieldType.Text },
             { name: 'file',
               label: 'Certificado',
               type: FieldType.File,

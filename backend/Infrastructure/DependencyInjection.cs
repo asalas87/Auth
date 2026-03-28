@@ -62,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IActivationTokenService, ActivationTokenService>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IPdfTextExtractor, PdfPigTextExtractor>();
+        services.AddScoped<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
 
         return services;
     }

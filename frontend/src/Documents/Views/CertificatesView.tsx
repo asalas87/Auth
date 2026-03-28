@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { ICertificateDTO, ICertificateEditDTO, ICertificateResponseDTO } from "../Interfaces";
+import { ICertificateDTO, ICertificateEditDTO } from "../Interfaces";
 import { usePaginatedList } from "@/Common/Components/CrudTable";
 import { FieldType, getEmptyItem } from "@/Common/Components/EditForm";
 import { getAll, create, update, remove, getById } from "../Services/RegistroDeCalificacionService";
@@ -18,12 +18,6 @@ export const CertificatesView = () => {
 
     const {
         data: documents,
-        totalCount,
-        currentPage,
-        setCurrentPage,
-        filter,
-        setFilter,
-        pageSize,
         reload
     } = usePaginatedList(memoizedGetAll);
 
@@ -83,7 +77,7 @@ export const CertificatesView = () => {
                 btnEvent={handleCreate}
             />
             <TableGrid
-                rows={documents}
+                rows={documents.map(d => parseDates(d, ['validity']))}
                 columns={fields}
             />
 

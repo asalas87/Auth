@@ -4,10 +4,13 @@ using Application.Common.Interfaces;
 using Application.Common.Responses;
 using Application.Documents.Common.DTOs;
 using Application.Documents.Management.Create;
+using Application.Documents.Management.Delete;
+using Application.Documents.Management.DownloadById;
 using Application.Documents.Management.DTOs;
 using Application.Documents.Management.GetAll;
 using Application.Documents.Management.GetById;
 using AutoMapper;
+using Domain.Security.Entities;
 using ErrorOr;
 using MediatR;
 
@@ -39,6 +42,30 @@ public partial class DocumentService(ISender mediator, IMapper mapper, IAuthenti
         });
     }
 
+    public async Task<ErrorOr<List<DocumentGridResponseDTO>>> GetUserDocumentsAsync()
+    {
+        if (authenticatedUser.UserId is  null)
+            return Error.Failure("Auth", "Usuario no autenticado.");
+
+        var userId = authenticatedUser.UserId;
+
+        var query = new GetUserDocumentsQuery(new UserId(userId.Value));
+        return await mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<List<DocumentGridResponseDTO>>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<Guid>> DeleteDocumentAsync(Guid id)
+    {
+        var command = new DeleteDocumentCommand(id);
+
+        return await mediator.Send(command).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<Guid>>(result);
+        });
+    }
+
     public async Task<ErrorOr<Guid>> CreateDocumentAsync(DocumentDTO dto)
     {
         var userId = authenticatedUser.UserId;
@@ -51,11 +78,21 @@ public partial class DocumentService(ISender mediator, IMapper mapper, IAuthenti
         return await mediator.Send(command);
     }
 
-    public async Task<ErrorOr<FileDownloadDTO>> GetDocumentByIdAsync(Guid id)
+    public async Task<ErrorOr<FileDownloadDTO>> DownloadAsync(Guid id)
     {
-        var command = new GetDocumentByIdQuery(id);
+        var query = new DownloadDocumentByIdQuery(id);
 
-        return await mediator.Send(command).BindAsync(result =>
+        return await mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<FileDownloadDTO>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<FileDownloadDTO>> DownloadMultipleAsync(List<Guid> ids)
+    {
+        var query = new DownloadListByIdsQuery(ids);
+
+        return await mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<FileDownloadDTO>>(result);
         });

@@ -18,6 +18,8 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 
         builder.Property(n => n.DocumentId);
 
+        builder.Property(n => n.CompanyId);
+
         builder.Property(n => n.Subject)
             .HasMaxLength(500);
 

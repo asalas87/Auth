@@ -34,7 +34,7 @@ export const certificateColumns = (
     field: "validity",
     headerName: "Vigencia",
     headerClassName: "super-app-theme--header",
-    type: "string",
+    type: "date",
     flex: 1
   },
   {
@@ -45,10 +45,17 @@ export const certificateColumns = (
     flex: 1
   },
   {
+    field: "assignedTo",
+    headerName: "Empresa",
+    headerClassName: "super-app-theme--header",
+    type: "string",
+    flex: 1
+  },
+  {
     field: "action",
     headerName: "Action",
     headerClassName: "super-app-theme--header",
-    flex: 1,
+    width: 90,
     sortable: false,
     filterable: false,
     renderCell: (params: GridRenderCellParams<ICertificateDTO>) => (

@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Application.Common;
 using Application.Documents.Analysis.Dtos;
+using Application.Interfaces;
 
-namespace Application.Documents.Analysis.Parsers
+namespace Application.Documents.Analysis.Parsers;
+public interface IDocumentParser
 {
-    public interface IDocumentParser
-    {
-        ParsedDocumentResultDto Parse(string text);
-    }
-
+    string ExtractText(Stream stream, IPdfTextExtractor extractor);
+    ParsedDocumentResultDto Parse(string text, List<PdfLine> lines);
 }

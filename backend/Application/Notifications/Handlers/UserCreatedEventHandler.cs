@@ -35,6 +35,7 @@ public class UserCreatedEventHandler(
         var notif = new Notification(
             recipientEmail: notification.Email,
             documentId: null,
+            companyId: null,
             subject: subject,
             body: body,
             type: NotificationType.UserCreated,

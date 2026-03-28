@@ -16,16 +16,14 @@ export default defineConfig({
         }
     },
     build: {
-        outDir: 'dist',
-        emptyOutDir: true,
-        sourcemap: false,
-        rollupOptions: {
+        rolldownOptions: {
             output: {
-                manualChunks: {
-                    pdfjs: ['pdfjs-dist/build/pdf'],
-                    react: ['react', 'react-dom']
+                codeSplitting: true,
+                manualChunks(id) {
+                    if (id.includes('react')) return 'react';
+                    if (id.includes('axios')) return 'axios';
                 }
             }
         }
-    },
+    }
 })

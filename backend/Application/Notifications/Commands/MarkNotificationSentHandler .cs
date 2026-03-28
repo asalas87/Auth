@@ -3,6 +3,7 @@ using Application.Notifications.Commands.MarkNotificationSent;
 using Domain.Primitives;
 using ErrorOr;
 using MediatR;
+using SharedKernel.Entities;
 using SharedKernel.Interfaces;
 
 public class MarkNotificationSentHandler : IRequestHandler<MarkNotificationSentCommand, ErrorOr<bool>>, IRequestHandler<MarkNotificationFailedCommand, ErrorOr<bool>>, IRequestHandler<MarkNotificationProcessingCommand, ErrorOr<bool>>
@@ -18,27 +19,30 @@ public class MarkNotificationSentHandler : IRequestHandler<MarkNotificationSentC
 
     public async Task<ErrorOr<bool>> Handle(MarkNotificationSentCommand request, CancellationToken cancellationToken)
     {
-        var notification = await _notificationRepository.GetByIdAsync(request.NotificationId);
-        if (notification is null)
-            return Error.NotFound("Notification.NotFound", "Notification not found");
+        var notifications = await _notificationRepository.GetByListAsync(request.NotificationIds);
+        if (notifications.Count == 0)
+            return Error.NotFound("Notifications.NotFound", "Notifications not found");
 
-        notification.MarkSent();
+        notifications.ForEach(n => n.MarkSent());
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
     }
     public async Task<ErrorOr<bool>> Handle(MarkNotificationFailedCommand request, CancellationToken cancellationToken)
     {
-        var notification = await _notificationRepository.GetByIdAsync(request.NotificationId);
-        if (notification is null)
-            return Error.NotFound("Notification.NotFound", "Notification not found");
+        var notifications = await _notificationRepository.GetByListAsync(request.NotificationIds);
+        if (notifications.Count == 0)
+            return Error.NotFound("Notifications.NotFound", "Notifications not found");
 
-        if (notification.RetryCount > 3)
-            notification.MarkFailed();
-        else
+        foreach (var notification in notifications)
         {
-            notification.IncrementRetryCount();
-            notification.MarkPending();
+            if (notification.RetryCount > 3)
+                notification.MarkFailed();
+            else
+            {
+                notification.IncrementRetryCount();
+                notification.MarkPending();
+            }
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -46,11 +50,11 @@ public class MarkNotificationSentHandler : IRequestHandler<MarkNotificationSentC
     }
     public async Task<ErrorOr<bool>> Handle(MarkNotificationProcessingCommand request, CancellationToken cancellationToken)
     {
-        var notification = await _notificationRepository.GetByIdAsync(request.NotificationId);
-        if (notification is null)
-            return Error.NotFound("Notification.NotFound", "Notification not found");
+        var notifications = await _notificationRepository.GetByListAsync(request.NotificationIds);
+        if (notifications.Count == 0)
+            return Error.NotFound("Notifications.NotFound", "Notifications not found");
 
-        notification.MarkProcessing();
+        notifications.ForEach(n => n.MarkProcessing());
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;
