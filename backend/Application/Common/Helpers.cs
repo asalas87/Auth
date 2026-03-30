@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Application.Common
@@ -13,7 +14,19 @@ namespace Application.Common
         public static DateTime? MatchDate(string text, Regex regex)
         {
             var value = Match(text, regex);
-            return DateTime.TryParse(value, out var d) ? d : null;
+
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            return DateTime.TryParseExact(
+                value,
+                "dd/MM/yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var date
+            )
+                ? date
+                : null;
         }
 
     }
