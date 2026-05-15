@@ -1,30 +1,31 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Notifications.Worker;
 using Notifications.Worker.Application.Services;
 using Notifications.Worker.Infrastructure.Email;
 using Notifications.Worker.Infrastructure.Persistence;
 
-Host.CreateDefaultBuilder(args)
-    .ConfigureServices((context, services) =>
-    {
-        // 1. ConnectionString desde appsettings.json
-        var connectionString = context.Configuration.GetConnectionString("DefaultConnection");
+var builder = Host.CreateApplicationBuilder(args);
 
-        // 2. EF Core DbContext
-        services.AddDbContext<NotificationsDbContext>(options =>
-            options.UseSqlServer(connectionString));
+// ✅ Connection string desde appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-        services.Configure<SmtpSettings>(
-            context.Configuration.GetSection("Smtp"));
+// ✅ Registrar DbContext
+builder.Services.AddDbContext<NotificationsDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
-        // 4. Email sender
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+// ✅ Configurar SMTP
+builder.Services.Configure<SmtpSettings>(
+    builder.Configuration.GetSection("Smtp"));
 
-        // 5. Notification service
-        services.AddScoped<INotificationService, NotificationService>();
-        // 6. Worker (background service)
-        //builder.Services.AddHostedService<Worker>(); // RabbitMQ
-        services.AddHostedService<SqlNotificationWorker>(); // SQL
-    })
-    .Build()
-    .Run();
+// ✅ Registrar servicios
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// ✅ Registrar el worker de RabbitMQ
+builder.Services.AddHostedService<RabbitNotificationWorker>();
+
+// ✅ Ejecutar
+var host = builder.Build();
+host.Run();

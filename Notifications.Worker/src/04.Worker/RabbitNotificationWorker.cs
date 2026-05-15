@@ -12,7 +12,7 @@ public class RabbitNotificationWorker : BackgroundService
     private readonly DocumentUploadedHandler _uploadedHandler;
     private readonly DocumentExpiringHandler _expiringHandler;
 
-    public RabbitNotificationWorker(ILogger<RabbitNotificationWorker> logger, NotificationService service)
+    public RabbitNotificationWorker(ILogger<RabbitNotificationWorker> logger, INotificationService service)
     {
         _logger = logger;
         _uploadedHandler = new DocumentUploadedHandler(service);
