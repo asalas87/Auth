@@ -1,4 +1,5 @@
 using Application.Documents.Services;
+using Infrastructure.Security;
 
 namespace Web.Api.Jobs;
 
@@ -23,6 +24,8 @@ public class NotificationsJob : BackgroundService
             {
                 using var scope = _serviceProvider.CreateScope();
                 var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                var refreshCleanup = scope.ServiceProvider.GetRequiredService<RefreshTokenService>();
+                var deleted = await refreshCleanup.CleanupAsync(stoppingToken);
 
                 var created = await notificationService.CreateExpiringDocumentNotificationsAsync(stoppingToken);
                 var sent = await notificationService.SendPendingNotificationsAsync(stoppingToken);

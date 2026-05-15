@@ -1,4 +1,4 @@
-﻿using Application.Security.Services;
+using Application.Security.Services;
 using Domain.Security.Entities;
 using Application.Interfaces;
 using Domain.Primitives;
@@ -43,6 +43,11 @@ public class RefreshTokenService : IRefreshTokenService
             refreshToken.Revoke();
             await _unitOfWork.SaveChangesAsync();
         }
+    }
+
+    public async Task<int> CleanupAsync(CancellationToken cancellationToken = default)
+    {
+        return await _refreshTokenRepository.DeleteExpiredAsync(cancellationToken);
     }
 
     public async Task<RefreshToken?> GetByValueAsync(string value, CancellationToken cancellationToken = default)

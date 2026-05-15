@@ -55,14 +55,14 @@ public static class DependencyInjection
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<INotificationTemplateService, NotificationTemplateService>();
-        services.AddScoped<IActivationTokenService, ActivationTokenService>();
-        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddScoped<IPdfTextExtractor, PdfPigTextExtractor>();
-        services.AddScoped<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
+        services.AddSingleton<INotificationTemplateService, NotificationTemplateService>();
+        services.AddSingleton<IActivationTokenService, ActivationTokenService>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddTransient<IPdfTextExtractor, PdfPigTextExtractor>();
+        services.AddTransient<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
 
         return services;
     }

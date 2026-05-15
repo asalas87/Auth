@@ -34,7 +34,7 @@ public sealed class CreateUserCommandHandler(IUserRepository userRepository, IRo
         await _userRepository.AddAsync(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var userCreatedEvent = new UserCreatedEvent(user.Id.Value, user.Email.Value);
+        var userCreatedEvent = new UserCreatedEvent(user.Id.Value, user.Email.Value, request.CompanyId.Value);
         await _publisher.Publish(userCreatedEvent, cancellationToken);
 
         return user.Id.Value;

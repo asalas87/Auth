@@ -16,7 +16,7 @@ public class GetPendingNotificationsQueryHandler : IRequestHandler<GetPendingNot
 
     public async Task<ErrorOr<List<NotificationDTO>>> Handle(GetPendingNotificationsQuery request, CancellationToken cancellationToken)
     {
-        var pending = await _notificationRepository.GetPendingAsync(cancellationToken);
+        var pending = await _notificationRepository.GetPendingAsync(request.Types, cancellationToken);
         return pending.Select(n => new NotificationDTO
         {
             Id = n.Id,

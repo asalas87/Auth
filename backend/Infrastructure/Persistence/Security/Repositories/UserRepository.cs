@@ -20,7 +20,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     public async Task<User?> GetByEmailAsync(Email email) => await _context.Users.Include(d => d.RefreshTokens).Include(u => u.Company).Include(u => u.Role).SingleOrDefaultAsync(c => c.Email == email);
     public async Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter)
     {
-        var query = _context.Users.Include(d => d.RefreshTokens).Include(u => u.Role).Include(u => u.Company).AsQueryable();
+        var query = _context.Users.Include(u => u.Role).Include(u => u.Company).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter))
         {
@@ -30,6 +30,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
         var totalCount = await query.CountAsync();
 
         var users = await query
+            .AsNoTracking()
             .OrderBy(u => u.Name)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

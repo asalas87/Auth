@@ -27,10 +27,17 @@ public class NotificationRepository : INotificationRepository
         return documentSent != null;
     }
 
-    public async Task<List<Notification>> GetPendingAsync(CancellationToken cancellationToken = default)
+    public async Task<List<Notification>> GetPendingAsync(List<NotificationType>? types = null, CancellationToken cancellationToken = default)
     {
-        return await _db.Notifications
-            .Where(n => n.Status == NotificationStatus.Pending)
+        var query = _db.Notifications
+            .Where(n => n.Status == NotificationStatus.Pending);
+
+        if (types is not null && types.Any())
+        {
+            query = query.Where(n => types.Contains(n.Type));
+        }
+
+        return await query
             .OrderBy(n => n.CreatedAt)
             .ToListAsync(cancellationToken);
     }

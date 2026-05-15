@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 
 namespace Domain.ValueObjects
 {
@@ -9,7 +9,7 @@ namespace Domain.ValueObjects
         public static Email? Create(string value)
         {
             if(string.IsNullOrEmpty(value) || !EmailRegex().IsMatch(value)) return null;
-            return new Email(value);
+            return new Email(value.Trim());
         }
         public string Value { get; init; }
         [GeneratedRegex(Pattern)]

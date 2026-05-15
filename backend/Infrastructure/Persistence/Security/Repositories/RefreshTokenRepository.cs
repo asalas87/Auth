@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Security.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -29,5 +29,14 @@ public class RefreshTokenRepository : IRefreshTokenRepository
     {
         _context.RefreshTokens.Remove(token);
         await Task.CompletedTask;
+    }
+
+    public async Task<int> DeleteExpiredAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.RefreshTokens
+            .Where(t =>
+                t.ExpiresOn <= DateTime.UtcNow ||
+                t.RevokedOn != null)
+            .ExecuteDeleteAsync(cancellationToken);
     }
 }

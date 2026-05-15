@@ -87,7 +87,9 @@ namespace Application.Documents.Services
 
         public async Task<int> SendPendingNotificationsAsync(CancellationToken cancellationToken = default)
         {
-            var pending = await _mediator.Send(new GetPendingNotificationsQuery(), cancellationToken);
+            var pending = await _mediator.Send(new GetPendingNotificationsQuery(
+                new List<NotificationType> { NotificationType.DocumentExpiring, NotificationType.DocumentUploaded }
+            ), cancellationToken);
 
             int count = 0;
 
@@ -99,11 +101,6 @@ namespace Application.Documents.Services
                 try
                 {
                     var ids = notifications.Select(n => n.Id).ToList();
-
-                    await _mediator.Send(
-                        new MarkNotificationProcessingCommand(ids),
-                        cancellationToken
-                    );
 
                     var recipientEmail = notifications.First().RecipientEmail;
 
@@ -123,8 +120,13 @@ namespace Application.Documents.Services
                             break;
 
                         default:
-                            continue;
+                            throw new InvalidOperationException("Tipo de notificación no soportado");
                     }
+
+                    await _mediator.Send(
+                        new MarkNotificationProcessingCommand(ids),
+                        cancellationToken
+                    );
 
                     await _emailService.SendAsync(recipientEmail, subject, body);
 

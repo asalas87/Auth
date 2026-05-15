@@ -33,9 +33,10 @@ namespace Application
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDocumentAnalysisService, DocumentAnalysisService>();
 
-            services.AddScoped<RenovationPdfParser>();
-            services.AddScoped<QualificationPdfParser>();
-            services.AddScoped<IDocumentParserFactory, DocumentParserFactory>();
+            services.AddTransient<RenovationPdfParser>();
+            services.AddTransient<QualificationPdfParser>();
+            services.AddTransient<IDocumentParserFactory, DocumentParserFactory>();
+            services.AddScoped<RefreshTokenService>();
 
 
             services.AddValidatorsFromAssemblyContaining<ApplicationAssembllyReference>();
