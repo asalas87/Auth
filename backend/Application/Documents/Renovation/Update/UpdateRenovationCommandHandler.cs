@@ -23,13 +23,14 @@ public sealed class UpdateRenovationCommandHandler(
             return Error.NotFound("Renovation.NotFound", "The renovation with the provided Id was not found.");
         }
 
-        if (await _companyRepository.GetByIdReadOnlyAsync(new CompanyId(request.AssignedToId), cancellationToken) is not Company assignedCompany)
+        if (await _companyRepository.GetByIdAsync(new CompanyId(request.AssignedToId), cancellationToken) is not Company assignedCompany)
         {
             return Error.NotFound("Company.NotFound", "The company with the provided Id was not found.");
         }
 
         renovation.Update(
             request.CertificateNumber,
+            request.RenovationNumber,
             request.EmployerFullName,
             request.StandardCode,
             request.Validity,

@@ -27,6 +27,18 @@ public class RenovationController(IDocumentService service) : ApiController
         );
     }
 
+    [HttpGet("{id}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _service.GetRenovationByIdAsync(id);
+
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
     [HttpPost]
     [Consumes("multipart/form-data")]
     [Authorize(Policy = "AdminOnly")]

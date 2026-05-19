@@ -22,7 +22,7 @@ function TableGrid({
           columnVisibilityModel: { id: false },
         },
         pagination: {
-          paginationModel: { page: 0, pageSize: 5 },
+          paginationModel: { page: 0, pageSize: 10 },
         },
         ...initialState,
       }}

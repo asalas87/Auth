@@ -5,4 +5,5 @@ export interface IParsedDocumentResultDTO {
     employeeFullName?: string;
     certificateNumber?: string;
     standardCode?: string;
+    renovationNumber?: string;
 }

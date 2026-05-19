@@ -20,6 +20,7 @@ namespace Infrastructure.Persistence.Documents.Repositories
             var query = _context.Certificates
                 .Include(d => d.UploadedBy)
                 .Include(d => d.AssignedTo)
+                .Where(d => d.DocumentType == Domain.Enums.DocumentType.Qualification)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter))

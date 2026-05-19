@@ -21,6 +21,7 @@ public interface IDocumentService
     Task<ErrorOr<CertificateResponseDTO>> GetCertificateByIdAsync(Guid id);
     Task<ErrorOr<FileDownloadDTO>> DownloadAsync(Guid id);
     Task<ErrorOr<PaginatedResult<RenovationResponseDTO>>> GetRenovationsPaginatedAsync(PaginateDTO paginateDTO);
+    Task<ErrorOr<RenovationResponseDTO>> GetRenovationByIdAsync(Guid id);
     Task<ErrorOr<Guid>> CreateRenovationAsync(RenovationDTO dto);
     Task<ErrorOr<Guid>> UpdateRenovationAsync(RenovationEditDTO dto);
     Task<ErrorOr<Guid>> DeleteRenovationAsync(Guid id);

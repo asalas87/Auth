@@ -32,6 +32,7 @@ export const RenovationEditForm = ({
                 certificateNumber: datos.certificateNumber,
                 employerFullName: datos.employeeFullName,
                 standardCode: datos.standardCode,
+                renovationNumber: datos.renovationNumber,
                 file: file
             });
         } catch (e) {
@@ -43,6 +44,7 @@ export const RenovationEditForm = ({
         const baseFields: FieldConfig<IRenovationDTO>[] = [
             { name: 'validity', label: 'Vigencia', type: FieldType.Date },
             { name: 'certificateNumber', label: 'Certificado N°', type: FieldType.Text },
+            { name: 'renovationNumber', label: 'N° Renovación', type: FieldType.Number },
             { name: 'employerFullName', label: 'Soldador', type: FieldType.Text },
             { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
             {

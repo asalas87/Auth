@@ -6,6 +6,7 @@ using Application.Documents.Renovation.Delete;
 using Application.Documents.Renovation.Dtos;
 using Application.Documents.Renovation.DTOs;
 using Application.Documents.Renovation.GetAll;
+using Application.Documents.Renovation.GetById;
 using Application.Documents.Renovation.Update;
 using ErrorOr;
 
@@ -18,6 +19,15 @@ public partial class DocumentService
         return await mediator.Send(query).BindAsync(result =>
         {
             return Task.FromResult<ErrorOr<PaginatedResult<RenovationResponseDTO>>>(result);
+        });
+    }
+
+    public async Task<ErrorOr<RenovationResponseDTO>> GetRenovationByIdAsync(Guid id)
+    {
+        var query = mapper.Map<GetRenovationByIdQuery>(id);
+        return await mediator.Send(query).BindAsync(result =>
+        {
+            return Task.FromResult<ErrorOr<RenovationResponseDTO>>(result);
         });
     }
 

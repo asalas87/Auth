@@ -1,12 +1,12 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Actions from "../../../molecules/Actions";
-import { ICertificateDTO } from "@/Documents/Interfaces";
+import { IRenovationDTO } from "@/Documents/Interfaces";
 import { formatDate } from "date-fns";
 
-export const certificateColumns = (
+export const renovationColumns = (
   onEdit: (id: string) => void,
   onDelete: (id: string, name: string) => void
-): GridColDef<ICertificateDTO>[] => [
+): GridColDef<IRenovationDTO>[] => [
   {
     field: "id",
     headerName: "ID",
@@ -23,6 +23,13 @@ export const certificateColumns = (
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
+  },
+  {
+    field: "renovationNumber",
+    headerName: "N° Ren.",
+    headerClassName: "super-app-theme--header",
+    type: "string",
+    width: 70,
   },
   {
     field: "employerFullName",
@@ -60,7 +67,7 @@ export const certificateColumns = (
     width: 90,
     sortable: false,
     filterable: false,
-    renderCell: (params: GridRenderCellParams<ICertificateDTO>) => (
+    renderCell: (params: GridRenderCellParams<IRenovationDTO>) => (
       <Actions
         params={params}
         onEdit={() => onEdit(params.row.id)}

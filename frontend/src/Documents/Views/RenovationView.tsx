@@ -8,7 +8,7 @@ import { RenovationEditForm } from "./Forms/RenovationEditForm";
 import { parseDates } from "@/Helpers/parseDates";
 import TableGrid from "@/atoms/TableGrid";
 import PageHeader from "@/molecules/PageHeader";
-import { certificateColumns } from "./Forms/certificateColumns";
+import { renovationColumns } from "./Forms/reonvationColumns";
 
 export const RenovationView = () => {
     const [selected, setSelected] = useState<IRenovationDTO | null>(null);
@@ -42,7 +42,7 @@ export const RenovationView = () => {
     };
 
     const fields = useMemo(
-        () => certificateColumns(handleEdit, handleDelete),
+        () => renovationColumns(handleEdit, handleDelete),
         [handleEdit, handleDelete]
     );
 
@@ -53,7 +53,8 @@ export const RenovationView = () => {
             { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
             { name: 'validity', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
-            { name: 'file', label: 'Archivo', type: FieldType.File }
+            { name: 'file', label: 'Archivo', type: FieldType.File },
+            { name: 'renovationNumber', label: 'N° renovacion', type: FieldType.Text }
         ]);
         setSelected(parseDates(empty,['validity']));
         setMode('create');
@@ -76,7 +77,7 @@ export const RenovationView = () => {
                 btnEvent={handleCreate}
             />
             <TableGrid
-                rows={documents}
+                rows={documents.map(d => parseDates(d, ['validity']))}
                 columns={fields}
             />
 

@@ -24,10 +24,10 @@ public class Certificate : DocumentFile
         StandardCode = standardCode;
     }
 
-    public string CertificateNumber { get; private set; } = string.Empty;
-    public string EmployerFullName { get; private set; } = string.Empty;
-    public DateTime Validity { get; private set; }
-    public string StandardCode { get; private set; } = string.Empty;
+    public string CertificateNumber { get; protected set; } = string.Empty;
+    public string EmployerFullName { get; protected set; } = string.Empty;
+    public DateTime Validity { get; protected set; }
+    public string StandardCode { get; protected set; } = string.Empty;
 
     public Certificate() { }
     public void Update(

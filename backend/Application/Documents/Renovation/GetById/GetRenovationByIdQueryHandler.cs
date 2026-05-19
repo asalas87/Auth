@@ -28,6 +28,7 @@ public class GetRenovationByIdQueryHandler(IRenovationRepository renovationRepos
             UploadedBy = item.UploadedBy.Name,
             AssignedTo = item.AssignedTo?.Name ?? string.Empty,
             Validity = item.Validity,
+            RenovationNumber = item.RenovationNumber,
             CertificateNumber = item.CertificateNumber,
             EmployerFullName = item.EmployerFullName,
             StandardCode = item.StandardCode

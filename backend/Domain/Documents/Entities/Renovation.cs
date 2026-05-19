@@ -21,8 +21,25 @@ public class Renovation : Certificate
     ) : base(name, path, uploadDate, description, uploadedBy, assignedTo, validity, certificateNumber, employerFullName, standardCode)
     {
         RenovationNumber = renovationNumber;
+        DocumentType = Enums.DocumentType.Renovation;
     }
     public int RenovationNumber { get; private set; }
 
-    public Renovation() : base() { }    
+    public Renovation() : base() { }
+    public void Update(
+        string certificateNumber,
+        int renovationNumber,
+        string employerFullName,
+        string standardCode,
+        DateTime validity,
+        Company assignedTo)
+    {
+        CertificateNumber = certificateNumber;
+        EmployerFullName = employerFullName;
+        AssignedTo = assignedTo;
+        Validity = validity;
+        ExpirationDate = validity;
+        StandardCode = standardCode;
+        RenovationNumber = renovationNumber;
+    }
 }

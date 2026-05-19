@@ -23,6 +23,7 @@ public sealed class GetRenovationsPaginatedQueryHandler(IRenovationRepository re
             ExpirationDate = d.ExpirationDate,
             Validity = d.Validity,
             CertificateNumber = d.CertificateNumber,
+            RenovationNumber = d.RenovationNumber,
             EmployerFullName = d.EmployerFullName,
             StandardCode = d.StandardCode
         }).ToList();
