@@ -29,5 +29,14 @@ namespace Application.Common
                 : null;
         }
 
+        public static string SanitizeFileName(string fileName)
+        {
+            foreach (char c in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c, '_');
+            }
+
+            return fileName;
+        }
     }
 }

@@ -38,6 +38,7 @@ export const RenovationView = () => {
             () => remove(id),
             () => {
                 setSelected(null);
+                reload();
             })
     };
 
@@ -54,7 +55,7 @@ export const RenovationView = () => {
             { name: 'validity', label: 'Vigencia', type: FieldType.Date },
             { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
             { name: 'file', label: 'Archivo', type: FieldType.File },
-            { name: 'renovationNumber', label: 'N° renovacion', type: FieldType.Text }
+            { name: 'renovationNumber', label: 'N° renovacion', type: FieldType.Number }
         ]);
         setSelected(parseDates(empty,['validity']));
         setMode('create');

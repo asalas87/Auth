@@ -1,9 +1,7 @@
 using System.IO.Compression;
-using System.Reflection.Metadata;
 using Application.Common.Dtos;
 using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
-using Domain.Primitives;
 using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;

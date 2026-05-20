@@ -35,6 +35,7 @@ export const create = async (document: IRenovationDTO): Promise<void> => {
     formData.append("standardCode", document.standardCode);
     formData.append("validity", document.validity.toISOString());
     formData.append("assignedToId", document.assignedToId ?? '');
+    formData.append("renovationNumber", document.renovationNumber.toString());
     formData.append("file", document.file);
 
     await api.post(`${endpoint}/`, formData, {

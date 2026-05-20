@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getAll, download, multipleDownload, remove } from '../Services/DocumentService';
+import { getAll, download, multipleDownload } from '../Services/DocumentService';
 import { IDocumentResponseDTO } from '../Interfaces';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 import TableGrid from '@/atoms/TableGrid';
@@ -30,13 +30,7 @@ export const DocumentsView = () => {
             const url = window.URL.createObjectURL(blob);
             setPreviewUrl(url);
             setShowPreview(true);
-
-            // marcar como leído
-            setDocuments(prev =>
-                prev.map(doc =>
-                    doc.id === row.id ? { ...doc, isRead: true } : doc
-                )
-            );
+            markAsRead([row.id]);
         });
     };
 
@@ -53,6 +47,7 @@ export const DocumentsView = () => {
                 link.click();
                 link.remove();
                 window.URL.revokeObjectURL(url);
+                markAsRead(ids);
             });
     }
 
@@ -66,7 +61,20 @@ export const DocumentsView = () => {
             link.click();
             link.remove();
             window.URL.revokeObjectURL(url);
+            markAsRead([row.id]);
         });
+    };
+
+    const markAsRead = (ids: string[]) => {
+        const idsSet = new Set(ids);
+
+        setDocuments(prev =>
+            prev.map(doc =>
+                idsSet.has(doc.id)
+                    ? { ...doc, isRead: true }
+                    : doc
+            )
+        );
     };
 
     const fields = useMemo(

@@ -1,6 +1,6 @@
-using System.Reflection.Metadata;
-using Domain.Documents.Entities;
+using Application.Interfaces;
 using Domain.Documents.Interfaces;
+using Domain.Enums;
 using Domain.Partners.Entities;
 using Domain.Partners.Interfaces;
 using Domain.Primitives;
@@ -8,7 +8,6 @@ using Domain.Security.Entities;
 using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
 using SharedKernel.Entities;
 using SharedKernel.Enums;
 using SharedKernel.Interfaces;
@@ -20,34 +19,32 @@ public sealed class CreateCertificateCommandHandler(
     IUnitOfWork unitOfWork,
     ICompanyRepository companyRepository,
     INotificationRepository notificationRepository,
-    IWebHostEnvironment env) : IRequestHandler<CreateCertificateCommand, ErrorOr<Guid>>
+    IFileStorageService fileStorageService) : IRequestHandler<CreateCertificateCommand, ErrorOr<Guid>>
 {
     private readonly ICertificateRepository _certificateRepository = documentRepository;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly ICompanyRepository _companyRepository = companyRepository;
     private readonly INotificationRepository _notificationRepository = notificationRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IWebHostEnvironment _env = env;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
 
     public async Task<ErrorOr<Guid>> Handle(CreateCertificateCommand request, CancellationToken cancellationToken)
     {
         var documentId = Guid.NewGuid();
-        var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
+        //var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var fileName = $"{timestamp}_{request.CertificateNumber}.pdf";
-        var filePath = Path.Combine(folderPath, fileName);
+        //var filePath = Path.Combine(folderPath, fileName);
+        string? relativePath = null;
+        var uploadDate = DateTime.UtcNow;
+
         try
         {
-            var uploadDate = DateTime.UtcNow;
 
             // Crear carpeta si no existe
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
+            //if (!Directory.Exists(folderPath))
+            //    Directory.CreateDirectory(folderPath);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await request.File.CopyToAsync(stream, cancellationToken);
-            }
 
             if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
             {
@@ -59,7 +56,7 @@ public sealed class CreateCertificateCommandHandler(
                 return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
             }
 
-            var relativePath = DocumentFile.BuildRelativePath("Certificates", fileName);
+            relativePath = await _fileStorageService.SaveAsync(request.File, DocumentType.Qualification, fileName,  cancellationToken);
 
             var certificate = new Domain.Documents.Entities.Certificate(
                 fileName,
@@ -81,7 +78,7 @@ public sealed class CreateCertificateCommandHandler(
                 documentId,
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento disponible",
-                body: $"Se ha subido un nuevo certificado el {uploadDate:d}",
+                body: request.CertificateNumber,
                 type: NotificationType.DocumentUploaded
             );
             await _notificationRepository.AddAsync(notification, cancellationToken);
@@ -91,12 +88,14 @@ public sealed class CreateCertificateCommandHandler(
             return documentId;
 
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            if (File.Exists(filePath))
-                File.Delete(filePath);
+            if (relativePath is not null)
+            {
+                await _fileStorageService.DeleteAsync(relativePath);
+            }
 
-            throw;
+            throw ex??new Exception("An error occurred while creating the certificate.");
         }
     }
 }

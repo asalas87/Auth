@@ -50,17 +50,11 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
     {
         var limitDate = DateTime.UtcNow.AddDays(batchDays);
 
-        var validStatuses = new[]
-        {
-        NotificationStatus.Sent,
-        NotificationStatus.Failed
-    };
-
         // 🔥 1. IDs ya notificados
         var notifiedIds = await _context.Notifications
             .Where(n =>
                 n.Type == NotificationType.DocumentExpiring &&
-                validStatuses.Contains(n.Status) &&
+                NotificationStatus.Sent == n.Status &&
                 n.DocumentId != null
             )
             .Select(n => n.DocumentId!.Value)

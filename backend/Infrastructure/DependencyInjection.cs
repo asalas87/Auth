@@ -63,6 +63,7 @@ public static class DependencyInjection
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddTransient<IPdfTextExtractor, PdfPigTextExtractor>();
         services.AddTransient<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
+        services.AddScoped<IFileStorageService, FileStorageService>();
 
         return services;
     }
