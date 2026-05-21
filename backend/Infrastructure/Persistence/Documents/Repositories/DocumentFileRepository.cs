@@ -2,7 +2,6 @@ using Domain.Documents.Entities;
 using Domain.Documents.Interfaces;
 using Domain.Security.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using SharedKernel.Enums;
 
 namespace Infrastructure.Persistence.Documents.Repositories;
@@ -38,9 +37,9 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
         var totalCount = await query.CountAsync();
 
         var files = await query
-            .OrderByDescending(u => u.ExpirationDate)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
+            .OrderByDescending(u => u.UploadDate)
+            //.Skip((page - 1) * pageSize)
+            //.Take(pageSize)
             .ToListAsync();
 
         return (files, totalCount);
@@ -67,7 +66,8 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
                 d.ExpirationDate != null &&
                 d.ExpirationDate < limitDate &&
                 d.AssignedTo != null &&
-                d.AssignedTo.Users.Any()
+                d.AssignedTo.Users.Any() &&
+                d.IsRead == false
             )
             .Include(d => d.AssignedTo!)
                 .ThenInclude(c => c.Users)
