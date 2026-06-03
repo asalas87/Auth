@@ -8,33 +8,33 @@ namespace Application.Documents.Analysis.Parsers;
 public class RenovationPdfParser : IDocumentParser
 {
     private static readonly Regex CompanyRegex = new(
-        @"Empresa:\s*([A-Z0-9\.\s]+?)(?=En\s*presencia|El\s*d[ií]a|Apellido)",
-        RegexOptions.IgnoreCase,
+        @"Presentado\s+por\s+la\s+empresa:\s*(.+?)(?=Proceso\(s\)\s+de\s+soldadura)",
+        RegexOptions.IgnoreCase | RegexOptions.Singleline,
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex CertificateNumberRegex = new(
-        @"Certificado\s*N[ºo°]\s*:?\s*(\d{5}-S-\d{2}-\d{2}-CSI)",
+        @"(\d{5}-S-\d{2}-\d{2}-CSI-\d{2}-CSI)",
         RegexOptions.IgnoreCase,
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex FirstNameRegex = new(
-        @"Nombre\(s\):\s*(.+?)(?=Documento de identidad)",
-        RegexOptions.IgnoreCase,
+        @"Nombre\(s\):\s*(.+?)(?=Identificaci[oó]n)",
+        RegexOptions.IgnoreCase | RegexOptions.Singleline,
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex LastNameRegex = new(
-        @"Apellido\(s\):\s*(.+?)(?=Ha realizado una calificación)",
-        RegexOptions.IgnoreCase,
+        @"Apellido\(s\):\s*(.+?)(?=Nombre\(s\))",
+        RegexOptions.IgnoreCase | RegexOptions.Singleline,
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex ValidityRegex = new(
-        @"hasta\s+el\s+.*?(\d{2}/\d{2}/\d{4})",
+        @"Per[ií]odo\s+de\s+validez\s+renovado:\s*desde\s+\d{2}/\d{2}/\d{4}\s+hasta\s+(\d{2}/\d{2}/\d{4})",
         RegexOptions.IgnoreCase,
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex StandardCodeRegex = new(
-        @"Conforme\s+con\s+los\s+requerimientos\s+de\s+la\s+Norma\s*/\s*Código\s*/\s*Especificación\s*\(?\d*\)?:?\s*(.+?)(?=En\s*la\(s\)\s*probeta\(s\))",
-        RegexOptions.IgnoreCase,
+        @"Norma\s*/\s*C[oó]digo\s*/\s*Especificaci[oó]n:\s*(.+?)(?=CERTIFICADO\s+RENOVADO)",
+        RegexOptions.IgnoreCase | RegexOptions.Singleline,
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex RenovationNumberRegex = new(
