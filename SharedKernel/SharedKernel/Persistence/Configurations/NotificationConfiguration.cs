@@ -17,6 +17,8 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .ValueGeneratedOnAdd();
 
         builder.Property(n => n.DocumentId);
+        builder.Property(n => n.RecipientName)
+            .HasMaxLength(255);
 
         builder.Property(n => n.CompanyId);
 

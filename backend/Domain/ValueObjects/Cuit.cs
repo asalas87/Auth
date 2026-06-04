@@ -19,12 +19,12 @@ public sealed class Cuit : IEquatable<Cuit>
 
         value = value.Replace("-", "").Trim();
 
-        if (!CuitRegex.IsMatch(value))
-            throw new ArgumentException("Formato de CUIT inválido. Debe tener 11 dígitos.");
+        //if (!CuitRegex.IsMatch(value))
+        //    throw new ArgumentException("Formato de CUIT inválido. Debe tener 11 dígitos.");
 
         // Opcional: Validación del dígito verificador.
-        if (!IsValidCuit(value))
-            throw new ArgumentException("CUIT inválido (dígito verificador incorrecto).");
+        //if (!IsValidCuit(value))
+        //    throw new ArgumentException("CUIT inválido (dígito verificador incorrecto).");
 
         return new Cuit(value);
     }

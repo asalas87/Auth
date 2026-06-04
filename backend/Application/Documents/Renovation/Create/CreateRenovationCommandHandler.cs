@@ -70,6 +70,7 @@ public sealed class CreateRenovationCommandHandler(
 
             var notification = new Notification(
                 recipientEmail: string.Join(",", assignedCompany.Users.Select(x => x.Email.Value)),
+                recipientName: string.Join(",", assignedCompany.Users.Select(x => x.Name)),
                 documentId,
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento de renovación disponible",

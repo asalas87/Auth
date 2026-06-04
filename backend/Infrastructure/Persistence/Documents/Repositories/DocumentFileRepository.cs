@@ -45,9 +45,43 @@ public class DocumentFileRepository(ApplicationDbContext context) : IDocumentFil
         return (files, totalCount);
     }
 
+    public async Task<List<DocumentFile>> GetPendingExpirationNotificationsAsync(int batchDays)
+    {
+        var today = DateTime.UtcNow.Date;
+        var limitDate = today.AddDays(batchDays);
+
+        var notifiedDocumentIds = (await _context.Notifications
+            .Where(n =>
+                n.Type == NotificationType.DocumentExpiring &&
+                n.Status == NotificationStatus.Sent &&
+                n.DocumentId != null)
+            .Select(n => n.DocumentId!.Value)
+            .ToListAsync())
+            .ToHashSet();
+
+        var candidates = await _context.DocumentFiles
+            .Where(d =>
+                d.ExpirationDate != null &&
+                d.ExpirationDate >= today &&
+                d.ExpirationDate < limitDate &&
+                !d.IsRead &&
+                d.AssignedTo != null &&
+                d.AssignedTo.Users.Any())
+            .Include(d => d.AssignedTo!)
+                .ThenInclude(c => c.Users)
+            .OrderBy(d => d.ExpirationDate)
+            .ToListAsync();
+
+        return candidates
+            .Where(d => !notifiedDocumentIds.Contains(d.Id.Value))
+            .ToList();
+    }
+
+    [Obsolete]
     public async Task<List<DocumentFile>> GetExpiringDocumentsNotSendAsync(int batchDays)
     {
-        var limitDate = DateTime.UtcNow.AddDays(batchDays);
+        var today = DateTime.UtcNow.Date;
+        var limitDate = today.AddDays(batchDays);
 
         // 🔥 1. IDs ya notificados
         var notifiedIds = await _context.Notifications

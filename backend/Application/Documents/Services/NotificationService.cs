@@ -1,64 +1,75 @@
 using Application.Common.Interfaces;
-using Application.Documents.Common.DTOs;
 using Application.Documents.Management.GetAll;
+using Application.Interfaces;
 using Application.Notifications.Commands;
 using Application.Notifications.Commands.MarkNotificationFailed;
 using Application.Notifications.Commands.MarkNotificationSent;
 using Application.Notifications.DTOs;
 using Application.Notifications.Querys;
-using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using SharedKernel.Enums;
 
 namespace Application.Documents.Services;
 
 public class NotificationService : INotificationService
 {
-    private readonly IMapper _mapper;
     private readonly ISender _mediator;
     private readonly IEmailService _emailService;
+    private readonly ITemplateRenderer _templateRenderer;
+    private readonly IConfiguration _configuration;
 
-    public NotificationService(IEmailService emailService, IMapper mapper, ISender mediator)
+    public NotificationService(
+        IEmailService emailService,
+        ITemplateRenderer templateRenderer,
+        IConfiguration configuration,
+        ISender mediator)
     {
         _emailService = emailService;
-        _mapper = mapper;
+        _templateRenderer = templateRenderer;
         _mediator = mediator;
+        _configuration = configuration;
+
     }
 
-    public async Task<int> CreateExpiringDocumentNotificationsAsync(CancellationToken cancellationToken = default)
+    public async Task<int> CreateExpiringDocumentNotificationsAsync(
+        CancellationToken cancellationToken = default)
     {
-        int batchDays = 30;
+        var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://app.csingenieria.com.ar";
+        const int batchDays = 30;
+
         int count = 0;
 
-        var query = new GetExpiringDocumentsNotSendQuery(batchDays);
-        var expiringDocs = await _mediator.Send(query);
+        var expiringDocs = await _mediator.Send(new GetExpiringDocumentsNotSendQuery(batchDays),  cancellationToken);
+
         var grouped = expiringDocs.Value.GroupBy(d => d.CompanyId);
 
         foreach (var group in grouped)
         {
-            var emails = group
-                .SelectMany(d => d.AssignedToEmails)
-                .Distinct()
-                .ToList();
+            var originalRecipient = string.Join(",",
+                group.SelectMany(d => d.AssignedToEmails)
+                     .Distinct());
 
-            var recipientEmail = string.Join(",", emails);
-            var documents = group.ToList();
+            var recipientEmail = GetRecipientEmail(originalRecipient);
 
-            foreach (var doc in documents)
+            var recipientName = string.Join(",", group.SelectMany(d => d.AssignedToNames).Distinct());
+
+            foreach (var doc in group)
             {
-                var notification = new CreateNotificationCommand(
-                    DocumentId: doc.DocumentId,
-                    CompanyId: doc.CompanyId,
-                    RecipientEmail: recipientEmail,
-                    Subject: "Documento/s próximo/s a vencer",
-                    Body: BuildGroupedEmailBody([doc]),
-                    Type: NotificationType.DocumentExpiring,
-                    Status: NotificationStatus.Pending,
-                    CreatedAt: DateTime.UtcNow,
-                    ExpirationDate: doc.ExpirationDate
-                );
+                await _mediator.Send(
+                    new CreateNotificationCommand(
+                        DocumentId: doc.DocumentId,
+                        CompanyId: doc.CompanyId,
+                        RecipientEmail: recipientEmail,
+                        RecipientName: recipientName,
+                        Subject: "Documentos próximos a vencer",
+                        Body: doc.Name,
+                        Type: NotificationType.DocumentExpiring,
+                        Status: NotificationStatus.Pending,
+                        CreatedAt: DateTime.UtcNow,
+                        ExpirationDate: doc.ExpirationDate),
+                    cancellationToken);
 
-                await _mediator.Send(notification, cancellationToken);
                 count++;
             }
         }
@@ -66,18 +77,17 @@ public class NotificationService : INotificationService
         return count;
     }
 
-    private string BuildGroupedEmailBody(List<ExpiringDocumentDTO> documents)
+    public async Task<int> SendPendingNotificationsAsync(
+        CancellationToken cancellationToken = default)
     {
-        return string.Join("", documents.Select(d => $@"<tr>
-                    <td>{d.Name}</td>
-                    <td>{d.ExpirationDate:dd/MM/yyyy}</td></tr>"));
-    }
-
-    public async Task<int> SendPendingNotificationsAsync(CancellationToken cancellationToken = default)
-    {
-        var pending = await _mediator.Send(new GetPendingNotificationsQuery(
-            new List<NotificationType> { NotificationType.DocumentExpiring, NotificationType.DocumentUploaded }
-        ), cancellationToken);
+        var pending = await _mediator.Send(
+            new GetPendingNotificationsQuery(
+                new()
+                {
+                    NotificationType.DocumentExpiring,
+                    NotificationType.DocumentUploaded
+                }),
+            cancellationToken);
 
         int count = 0;
 
@@ -86,11 +96,18 @@ public class NotificationService : INotificationService
         foreach (var group in grouped)
         {
             var notifications = group.ToList();
+
             try
             {
-                var ids = notifications.Select(n => n.Id).ToList();
+                var ids = notifications
+                    .Select(n => n.Id)
+                    .ToList();
 
-                var recipientEmail = notifications.First().RecipientEmail;
+                var originalRecipient = notifications
+                    .First()
+                    .RecipientEmail;
+
+                var recipientEmail = GetRecipientEmail(originalRecipient);
 
                 string subject;
                 string body;
@@ -98,30 +115,41 @@ public class NotificationService : INotificationService
                 switch (group.Key.Type)
                 {
                     case NotificationType.DocumentUploaded:
+
                         subject = "Nuevos documentos disponibles";
-                        body = BuildGroupedUploadEmailBody(notifications);
+
+                        body = await RenderDocumentUploadedAsync(
+                            notifications);
+
                         break;
 
                     case NotificationType.DocumentExpiring:
-                        subject = "Documentos por vencer";
-                        body = BuildExpiringEmailBody(notifications);
+
+                        subject = "Documentos próximos a vencer";
+
+                        body = await RenderDocumentExpiringAsync(
+                            notifications);
+
                         break;
 
                     default:
-                        throw new InvalidOperationException("Tipo de notificación no soportado");
+                        throw new InvalidOperationException(
+                            $"Tipo de notificación no soportado: {group.Key.Type}");
                 }
 
-                await _mediator.Send(
-                    new MarkNotificationProcessingCommand(ids),
-                    cancellationToken
-                );
+
+                await _mediator.Send(new MarkNotificationProcessingCommand(ids), cancellationToken);
+
+                var overrideRecipients = _configuration.GetValue<bool>("Notifications:OverrideRecipients");
+
+                if (overrideRecipients)
+                {
+                    subject = $"[TEST] {subject} ({originalRecipient})";
+                }
 
                 await _emailService.SendAsync(recipientEmail, subject, body);
 
-                await _mediator.Send(
-                    new MarkNotificationSentCommand(ids),
-                    cancellationToken
-                );
+                await _mediator.Send(new MarkNotificationSentCommand(ids), cancellationToken);
 
                 count += notifications.Count;
             }
@@ -138,29 +166,81 @@ public class NotificationService : INotificationService
         return count;
     }
 
-    private string BuildGroupedUploadEmailBody(List<NotificationDTO> notifications)
+    private async Task<string> RenderDocumentUploadedAsync(
+        List<NotificationDTO> notifications)
     {
-        var docs = notifications.Select(n => n.Body).ToList();
-        var htmlDocs = string.Join("",docs.Select(d => $"<li>{d}</li>"));
+        var first = notifications.First();
 
-        return $@"<h3> Nuevos documentos disponibles </h3>
-            <ul>
-                { htmlDocs}
-            </ul>";
-
+        return await _templateRenderer.RenderAsync(
+            "NewDocument",
+            new Dictionary<string, string>
+            {
+                ["customerName"] = first.RecipientName,
+                ["documentName"] = string.Join(
+                    ", ",
+                    notifications.Select(n => n.Body)),
+                ["title"] = "Nuevos documentos disponibles",
+                ["portalLink"] = _configuration["Frontend:BaseUrl"] ?? "https://app.csingenieria.com.ar"
+            });
     }
 
-    private string BuildExpiringEmailBody(List<NotificationDTO> notifications)
+    private async Task<string> RenderDocumentExpiringAsync(
+        List<NotificationDTO> notifications)
     {
-        return $@"
-            <h3>Documentos próximos a vencer</h3>
-            <table border='1' cellpadding='5' cellspacing='0'>
+        var first = notifications.First();
+
+        var rows = string.Join("",
+            notifications.Select(n =>
+                $"""
+                <tr>
+                    <td>{n.Body}</td>
+                    <td>{n.ExpirationDate:dd/MM/yyyy}</td>
+                </tr>
+                """));
+
+        var table = $"""
+            <table border="1"
+                   cellpadding="5"
+                   cellspacing="0"
+                   width="100%"
+                   style="border-collapse: collapse;">
                 <tr>
                     <th>Documento</th>
                     <th>Vencimiento</th>
                 </tr>
-                {string.Join("", notifications.Select(n => n.Body))}
+                {rows}
             </table>
-            ";
+            """;
+
+        return await _templateRenderer.RenderAsync(
+            "ExpirationNotification",
+            new Dictionary<string, string>
+            {
+                ["customerName"] = first.RecipientName,
+                ["daysBeforeExpiration"] = "30",
+                ["title"] = "Documentos próximos a vencer",
+                ["documentsTable"] = table
+            });
+    }
+
+    private string GetRecipientEmail(string originalRecipient)
+    {
+        var overrideRecipients =
+            _configuration.GetValue<bool>(
+                "Notifications:OverrideRecipients");
+
+        if (!overrideRecipients)
+        {
+            return originalRecipient;
+        }
+
+        var testRecipient = _configuration["Notifications:TestRecipient"];
+
+        if (string.IsNullOrWhiteSpace(testRecipient))
+        {
+            throw new InvalidOperationException("Notifications:TestRecipient no está configurado.");
+        }
+
+        return testRecipient;
     }
 }
