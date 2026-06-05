@@ -63,7 +63,7 @@ jobs:
                   "EnableSsl": true
               },
               "Frontend": {
-                  "BaseUrl": "localhost:5173"
+                  "BaseUrl": "https://${{ env.APP_HOST }}"
               },
               "Notifications": {
                   "OverrideRecipients": true,
