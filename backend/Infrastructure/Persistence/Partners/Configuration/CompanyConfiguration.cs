@@ -18,7 +18,7 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
             .HasDefaultValueSql("NEWSEQUENTIALID()")
             .ValueGeneratedOnAdd();
         builder.Property(c => c.Name).HasMaxLength(50);
-        builder.Property(c => c.CuitCuil).HasConversion(cuit => cuit.Value, value => Cuit.Create(value)!).HasMaxLength(13);
+        builder.Property(c => c.CuitCuil).HasConversion(cuit => cuit.Value, value => Cuit.Create(value)!).HasMaxLength(13).IsRequired(false);
         builder.HasMany(c => c.Users)
             .WithOne(u => u.Company)
             .HasForeignKey("CompanyId");

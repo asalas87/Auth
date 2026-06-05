@@ -56,7 +56,7 @@ public sealed class CreateCertificateCommandHandler(
                 return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
             }
 
-            relativePath = await _fileStorageService.SaveAsync(request.File, DocumentType.Qualification, fileName,  cancellationToken);
+            relativePath = await _fileStorageService.SaveAsync(request.File, DocumentType.Qualification, fileName, cancellationToken);
 
             var certificate = new Domain.Documents.Entities.Certificate(
                 fileName,
@@ -75,6 +75,7 @@ public sealed class CreateCertificateCommandHandler(
 
             var notification = new Notification(
                 recipientEmail: string.Join(",", assignedCompany.Users.Select(x => x.Email.Value)),
+                recipientName: string.Join(",", assignedCompany.Users.Select(x => x.Name)),
                 documentId,
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento disponible",

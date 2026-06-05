@@ -5,7 +5,7 @@ using Domain.ValueObjects;
 namespace Domain.Partners.Entities;
 public sealed class Company : AggergateRoot<CompanyId>
 {
-    public Company(string name, Cuit cuitCuil)
+    public Company(string name, Cuit? cuitCuil)
     {
         Name = name;
         CuitCuil = cuitCuil;
@@ -13,10 +13,10 @@ public sealed class Company : AggergateRoot<CompanyId>
     }
     public Company() { }
     public string Name { get; private set; } = string.Empty;
-    public Cuit CuitCuil { get; private set; } = default!;
+    public Cuit? CuitCuil { get; private set; } = default!;
     public ICollection<User> Users { get; set; } = [];
     public bool IsActive { get; private set; }
-    public void UpdateCompany(string name, Cuit cuitCuil, bool active)
+    public void UpdateCompany(string name, Cuit? cuitCuil, bool active)
     {
         Name = name;
         CuitCuil = cuitCuil;

@@ -31,7 +31,7 @@ JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 // Servicios
 // -------------------------
 builder.Services
-    .AddPresentation()
+    .AddPresentation(builder.Configuration)
     .AddInfrastructure(builder.Configuration)
     .AddApplication()
     .AddCorsPolicy(builder.Configuration)

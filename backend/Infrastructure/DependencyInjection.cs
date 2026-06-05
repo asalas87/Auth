@@ -58,7 +58,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddSingleton<INotificationTemplateService, NotificationTemplateService>();
+        services.AddSingleton<ITemplateRenderer, TemplateRenderer>();
         services.AddSingleton<IActivationTokenService, ActivationTokenService>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddTransient<IPdfTextExtractor, PdfPigTextExtractor>();
