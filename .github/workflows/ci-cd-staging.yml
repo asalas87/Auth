@@ -69,6 +69,7 @@ jobs:
                   "OverrideRecipients": true,
                   "TestRecipient": "asalas87.ar@gmail.com"
               }
+            }
           EOL
 
       # 📦 Publicar backend
