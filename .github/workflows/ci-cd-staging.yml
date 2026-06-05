@@ -61,8 +61,14 @@ jobs:
                   "From": "notificaciones@csingenieria.com.ar",
                   "Pass": "${{ secrets.SMTP_PASS }}",
                   "EnableSsl": true
+              },
+              "Frontend": {
+                  "BaseUrl": "localhost:5173"
+              },
+              "Notifications": {
+                  "OverrideRecipients": true,
+                  "TestRecipient": "asalas87.ar@gmail.com"
               }
-          }
           EOL
 
       # 📦 Publicar backend
