@@ -44,7 +44,7 @@ public class TemplateRenderer : ITemplateRenderer
 
         layout = layout.Replace("{{title}}", values.GetValueOrDefault("title", "Notificación"));
         layout = layout.Replace("{{content}}", template);
-        layout = layout.Replace("{{logo}}", _configuration["Frontend:BaseUrl"] + "/Assets/logo.png");
+        layout = layout.Replace("{{logo}}", $"{_configuration["Application:BackendUrl"]}/img/logo.jpg");
 
         return layout;
     }

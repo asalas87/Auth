@@ -50,7 +50,6 @@ node_modules/
 .pnpm/
 dist/
 dist-ssr/
-Web.API/wwwroot/
 
 # Entorno
 .env.Production
@@ -84,5 +83,6 @@ dist/
 **/*.js.map
 !src/**/*.ts
 !src/**/*.tsx
-/backend/Web.API/wwwroot/
+/backend/Web.API/wwwroot/renovation/
+/backend/Web.API/wwwroot/qualification/
 /Workers

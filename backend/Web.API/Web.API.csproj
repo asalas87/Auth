@@ -6,14 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="Assets\logo.jpg" />
-    <Content Include="Assets\logo.svg" />
-    <Content Include="Assets\Templates\AccountActivation.html" />
-    <Content Include="Assets\Templates\ExpirationNotification.html" />
-    <Content Include="Assets\Templates\Layout.html" />
-    <Content Include="Assets\Templates\NewDocument.html" />
-  </ItemGroup>
+<ItemGroup>
+    <Content Include="Assets\**\*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.0.1" />

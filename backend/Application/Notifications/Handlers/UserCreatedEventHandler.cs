@@ -31,7 +31,7 @@ public class UserCreatedEventHandler(
     {
         UserActivationToken userActivationToken = UserActivationToken.Create(new UserId(notification.UserId), TimeSpan.FromDays(1));
 
-        var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://app.csingenieria.com.ar";
+        var frontendUrl = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar";
         var activationLink = $"{frontendUrl}/activate?token={userActivationToken.Token}";
         var subject = "Activación de cuenta";
 

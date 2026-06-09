@@ -35,7 +35,7 @@ public class NotificationService : INotificationService
     public async Task<int> CreateExpiringDocumentNotificationsAsync(
         CancellationToken cancellationToken = default)
     {
-        var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://app.csingenieria.com.ar";
+        var frontendUrl = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar";
         const int batchDays = 30;
 
         int count = 0;
@@ -180,7 +180,7 @@ public class NotificationService : INotificationService
                     ", ",
                     notifications.Select(n => n.Body)),
                 ["title"] = "Nuevos documentos disponibles",
-                ["portalLink"] = _configuration["Frontend:BaseUrl"] ?? "https://app.csingenieria.com.ar"
+                ["portalLink"] = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar"
             });
     }
 
