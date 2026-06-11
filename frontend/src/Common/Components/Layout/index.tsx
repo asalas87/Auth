@@ -3,6 +3,7 @@ import { useLoading } from "../../Context/LoadingContext";
 import ProgressBar from "../ProgressBar/index";
 import Sidebar from "../Sidebar/index";
 import Header from "../Header/index";
+import TopBar from "../TopBar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const { loading } = useLoading();
@@ -10,6 +11,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <div className="d-flex flex-column min-vh-100">
+            <TopBar />
             <Header showSidebar={showSidebar} onHamburgerClick={() => setShowSidebar(s => !s)} />
             <div className="d-flex flex-grow-1">
                 <Sidebar show={showSidebar} onHide={() => setShowSidebar(false)} />

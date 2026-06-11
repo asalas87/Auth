@@ -1,95 +1,52 @@
-﻿import { Link, useNavigate } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { useAuthContext } from "../../../Security/Context/AuthContext";
 
-const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
-    const { signOut, user } = useAuthContext();
-    const navigate = useNavigate();
+type UserRole = "User" | "Admin";
+interface MenuItem {
+    path: string;
+    label: string;
+    icon: string;
+}
 
-    const handleLogout = () => {
-        signOut();
-        navigate("/auth");
-    };
+const menuItems: Record<UserRole, MenuItem[]> = {
+    User: [
+        { path: "/document/management", label: "Documentos", icon: "description" },
+    ],
+    Admin: [
+        { path: "/document/registrosDeCalificacion", label: "Calificaciones", icon: "grade" },
+        { path: "/document/renovations", label: "Renovaciones", icon: "autorenew" },
+        { path: "/security/users", label: "Usuarios", icon: "people" },
+    ]
+};
+
+const Sidebar = ({ show, onHide }: { show?: boolean; onHide?: () => void }) => {
+    const { user } = useAuthContext();
+    
+    const role = user?.role as UserRole;
+    const currentMenu = role ? menuItems[role] : [];
+
+    const MenuLinks = () => (
+        <ul className="nav nav-pills flex-column">
+            {currentMenu.map((item) => (
+                <li className="nav-item mb-2" key={item.path}>
+                    <Link to={item.path} className="nav-link d-flex align-items-center gap-2" onClick={onHide}>
+                        <span className="material-icons" style={{fontSize:'1.2rem'}}>{item.icon}</span>
+                        {item.label}
+                    </Link>
+                </li>
+            ))}
+        </ul>
+    );
 
     return (
         <>
             <div className={`offcanvas offcanvas-start${show ? ' show' : ''} d-md-none vh-100`} tabIndex={-1} style={{ visibility: show ? 'visible' : 'hidden', paddingTop: "77px" }}>
                 <nav className="offcanvas-body d-flex flex-column p-3">
-                    <ul className="nav nav-pills flex-column mb-auto">
-                        {/* Siempre visible para User y Admin */}
-                        {user?.role === "User" && (
-                            <li className="nav-item">
-                                <Link to="/document/management" className="nav-link" onClick={onHide}>
-                                    Documentos
-                                </Link>
-                            </li>
-                        )}
-
-                        {/* Solo Admin */}
-                        {user?.role === "Admin" && (
-                            <>
-                                <li>
-                                    <Link to="/document/registrosDeCalificacion" className="nav-link" onClick={onHide}>
-                                        Calificaciones
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link to="/document/renovations" className="nav-link" onClick={onHide}>
-                                        Renovaciones
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link to="/security/users" className="nav-link" onClick={onHide}>
-                                        Usuarios
-                                    </Link>
-                                </li>
-                            </>
-                        )}
-                    </ul>
-                    <div className="mt-auto">
-                        <button className="btn btn-outline-danger w-100" onClick={handleLogout}>
-                            Cerrar Sesión
-                        </button>
-                    </div>
+                    <MenuLinks />
                 </nav>
             </div>
-            {/* Sidebar fijo para desktop */}
             <nav className="d-none d-md-flex flex-column p-3 bg-light border-end sidebar-fixed">
-                <ul className="nav nav-pills flex-column mb-auto">
-                    {/* Siempre visible para User y Admin */}
-                    {user?.role === "User" && (
-                        <li className="nav-item">
-                            <Link to="/document/management" className="nav-link" onClick={onHide}>
-                                Documentos
-                            </Link>
-                        </li>
-                    )}
-
-                    {/* Solo Admin */}
-                    {user?.role === "Admin" && (
-                        <>
-                            <li>
-                                <Link to="/document/registrosDeCalificacion" className="nav-link" onClick={onHide}>
-                                    Calificaciones
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/document/renovations" className="nav-link" onClick={onHide}>
-                                    Renovaciones
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/security/users" className="nav-link" onClick={onHide}>
-                                    Usuarios
-                                </Link>
-                            </li>
-                        </>
-                    )}
-                </ul>
-                <div className="mt-auto">
-                    <button className="btn btn-outline-danger w-100" onClick={handleLogout}>
-                        Cerrar Sesión
-                    </button>
-                </div>
+                <MenuLinks />
             </nav>
         </>
     );

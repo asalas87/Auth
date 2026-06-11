@@ -32,6 +32,7 @@ public class AuthenticationService(
             new("sub", user.Id.Value.ToString()),
             new("name", user.Name!),
             new("email", user.Email.Value),
+            new("company", user.Company.Name.ToString()),
             new("role", user.Role.Name.ToString())
         };
 

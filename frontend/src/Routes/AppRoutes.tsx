@@ -17,7 +17,10 @@ const AppRoutes = (): RouteObject[] => {
                 ? (
                     <ProtectedRoute>
                         <Layout>
-                            <div style={{ padding: 20 }}>Bienvenido {user.name}</div>
+                            <div style={{ padding: 20 }}>
+                                <p>Bienvenido a su biblioteca virtual de documentación de soldadura. </p>
+                                <p>Para acceder a los documentos, por favor, haga clic en el menú de navegación.</p>
+                            </div>
                         </Layout>
                     </ProtectedRoute>
                 ) : <AuthView />,
