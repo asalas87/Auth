@@ -25,6 +25,15 @@ public class EmailService(IConfiguration config) : IEmailService
             EnableSsl = enableSsl
         };
 
+        var recipientEmail = GetRecipientEmail(to);
+
+        var overrideRecipients = _config.GetValue<bool>("Notifications:OverrideRecipients");
+
+        if (overrideRecipients)
+        {
+            subject = $"[TEST] {subject} ({to})";
+        }
+
         var mailMessage = new MailMessage
         {
             From = new MailAddress(from),
@@ -33,8 +42,28 @@ public class EmailService(IConfiguration config) : IEmailService
             IsBodyHtml = true
         };
 
-        mailMessage.To.Add(to);
+        mailMessage.To.Add(recipientEmail);
         await client.SendMailAsync(mailMessage);
+    }
 
+    private string GetRecipientEmail(string originalRecipient)
+    {
+        var overrideRecipients =
+            _config.GetValue<bool>(
+                "Notifications:OverrideRecipients");
+
+        if (!overrideRecipients)
+        {
+            return originalRecipient;
+        }
+
+        var testRecipient = _config["Notifications:TestRecipient"];
+
+        if (string.IsNullOrWhiteSpace(testRecipient))
+        {
+            throw new InvalidOperationException("Notifications:TestRecipient no está configurado.");
+        }
+
+        return testRecipient;
     }
 }

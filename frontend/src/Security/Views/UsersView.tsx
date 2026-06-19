@@ -34,7 +34,8 @@ const UsersView = () => {
         executeWithErrorHandling(
             () => getById(user.id),
             (userEdit) => {
-                setSelected(userEdit)
+                setSelected(userEdit),
+                setMode('edit');
             }
         )
     };

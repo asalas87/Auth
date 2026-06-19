@@ -31,8 +31,8 @@ export const userColumns = (
     flex: 1,
   },
   {
-    field: "role",
-    headerName: "Role",
+    field: "company",
+    headerName: "Empresa",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1

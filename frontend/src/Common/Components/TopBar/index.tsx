@@ -5,9 +5,13 @@ const TopBar = () => (
                 <span className="material-icons" style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}>phone</span> 
                 +54 9 (341) 550-6271
             </a>
-            <a href="mailto:info@csingenieria.com" className="text-dark text-decoration-none">
+            <a href="mailto:info@csingenieria.com" className="text-dark text-decoration-none me-3">
                 <span className="material-icons" style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}>email</span>
                 info@csingenieria.com.ar
+            </a>
+            <a href="https://www.csingenieria.com.ar" target="_blank" className="text-dark text-decoration-none">
+                <span className="material-icons" style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}>web</span>
+                www.csingenieria.com.ar
             </a>
         </div>
     </div>

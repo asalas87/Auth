@@ -31,20 +31,13 @@ public sealed class CreateCertificateCommandHandler(
     public async Task<ErrorOr<Guid>> Handle(CreateCertificateCommand request, CancellationToken cancellationToken)
     {
         var documentId = Guid.NewGuid();
-        //var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var fileName = $"{timestamp}_{request.CertificateNumber}.pdf";
-        //var filePath = Path.Combine(folderPath, fileName);
         string? relativePath = null;
         var uploadDate = DateTime.UtcNow;
 
         try
         {
-
-            // Crear carpeta si no existe
-            //if (!Directory.Exists(folderPath))
-            //    Directory.CreateDirectory(folderPath);
-
 
             if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
             {
@@ -80,6 +73,7 @@ public sealed class CreateCertificateCommandHandler(
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento disponible",
                 body: request.CertificateNumber,
+                expirationDate: request.Validity,
                 type: NotificationType.DocumentUploaded
             );
             await _notificationRepository.AddAsync(notification, cancellationToken);

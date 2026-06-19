@@ -46,11 +46,9 @@ public class NotificationService : INotificationService
 
         foreach (var group in grouped)
         {
-            var originalRecipient = string.Join(",",
+            var recipientEmail = string.Join(",",
                 group.SelectMany(d => d.AssignedToEmails)
                      .Distinct());
-
-            var recipientEmail = GetRecipientEmail(originalRecipient);
 
             var recipientName = string.Join(",", group.SelectMany(d => d.AssignedToNames).Distinct());
 
@@ -103,11 +101,9 @@ public class NotificationService : INotificationService
                     .Select(n => n.Id)
                     .ToList();
 
-                var originalRecipient = notifications
+                var recipientEmail = notifications
                     .First()
                     .RecipientEmail;
-
-                var recipientEmail = GetRecipientEmail(originalRecipient);
 
                 string subject;
                 string body;
@@ -140,13 +136,6 @@ public class NotificationService : INotificationService
 
                 await _mediator.Send(new MarkNotificationProcessingCommand(ids), cancellationToken);
 
-                var overrideRecipients = _configuration.GetValue<bool>("Notifications:OverrideRecipients");
-
-                if (overrideRecipients)
-                {
-                    subject = $"[TEST] {subject} ({originalRecipient})";
-                }
-
                 await _emailService.SendAsync(recipientEmail, subject, body);
 
                 await _mediator.Send(new MarkNotificationSentCommand(ids), cancellationToken);
@@ -171,14 +160,14 @@ public class NotificationService : INotificationService
     {
         var first = notifications.First();
 
+        var table = CreateTable(notifications);
+
         return await _templateRenderer.RenderAsync(
             "NewDocument",
             new Dictionary<string, string>
             {
                 ["customerName"] = first.RecipientName,
-                ["documentName"] = string.Join(
-                    ", ",
-                    notifications.Select(n => n.Body)),
+                ["documentsTable"] = table,
                 ["title"] = "Nuevos documentos disponibles",
                 ["portalLink"] = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar"
             });
@@ -189,6 +178,22 @@ public class NotificationService : INotificationService
     {
         var first = notifications.First();
 
+        var table = CreateTable(notifications);
+
+        return await _templateRenderer.RenderAsync(
+            "ExpirationNotification",
+            new Dictionary<string, string>
+            {
+                ["customerName"] = first.RecipientName,
+                ["daysBeforeExpiration"] = "30",
+                ["title"] = "Documentos próximos a vencer",
+                ["documentsTable"] = table,
+                ["portalLink"] = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar"
+            });
+    }
+
+    protected string CreateTable(List<NotificationDTO> notifications)
+    {
         var rows = string.Join("",
             notifications.Select(n =>
                 $"""
@@ -197,8 +202,7 @@ public class NotificationService : INotificationService
                     <td>{n.ExpirationDate:dd/MM/yyyy}</td>
                 </tr>
                 """));
-
-        var table = $"""
+        return $"""
             <table border="1"
                    cellpadding="5"
                    cellspacing="0"
@@ -211,36 +215,5 @@ public class NotificationService : INotificationService
                 {rows}
             </table>
             """;
-
-        return await _templateRenderer.RenderAsync(
-            "ExpirationNotification",
-            new Dictionary<string, string>
-            {
-                ["customerName"] = first.RecipientName,
-                ["daysBeforeExpiration"] = "30",
-                ["title"] = "Documentos próximos a vencer",
-                ["documentsTable"] = table
-            });
-    }
-
-    private string GetRecipientEmail(string originalRecipient)
-    {
-        var overrideRecipients =
-            _configuration.GetValue<bool>(
-                "Notifications:OverrideRecipients");
-
-        if (!overrideRecipients)
-        {
-            return originalRecipient;
-        }
-
-        var testRecipient = _configuration["Notifications:TestRecipient"];
-
-        if (string.IsNullOrWhiteSpace(testRecipient))
-        {
-            throw new InvalidOperationException("Notifications:TestRecipient no está configurado.");
-        }
-
-        return testRecipient;
     }
 }

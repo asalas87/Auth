@@ -63,12 +63,12 @@ jobs:
                   "EnableSsl": true
               },
               "Application": {
-                  "FronendUrl": "https://${{ env.APP_HOST }}",
+                  "FrontendUrl": "https://${{ env.APP_HOST }}",
                   "BackendUrl": "https://${{ env.API_HOST }}"
               },
               "Notifications": {
                   "OverrideRecipients": true,
-                  "TestRecipient": "asalas87.ar@gmail.com"
+                  "TestRecipient": "ansenra@gmail.com"
               }
             }
           EOL

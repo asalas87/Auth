@@ -8,7 +8,7 @@ namespace Application.Documents.Analysis.Parsers;
 public class RenovationPdfParser : IDocumentParser
 {
     private static readonly Regex CompanyRegex = new(
-        @"Presentado\s+por\s+la\s+empresa:\s*(.+?)(?=Proceso\(s\)\s+de\s+soldadura)",
+        @"Presentado por la empresa:\s*(.+?)(?=Proceso\(s\) de soldadura)",
         RegexOptions.IgnoreCase | RegexOptions.Singleline,
         TimeSpan.FromMilliseconds(200));
 

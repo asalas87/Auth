@@ -74,6 +74,7 @@ public sealed class CreateRenovationCommandHandler(
                 documentId,
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento de renovación disponible",
+                expirationDate: request.Validity,
                 body: request.CertificateNumber,
                 type: NotificationType.DocumentUploaded
             );

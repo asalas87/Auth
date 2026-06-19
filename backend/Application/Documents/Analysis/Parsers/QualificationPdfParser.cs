@@ -8,7 +8,7 @@ namespace Application.Documents.Analysis.Parsers;
 public class QualificationPdfParser : IDocumentParser
 {
     private static readonly Regex CompanyRegex = new(
-        @"Empresa:\s*([A-Z0-9\.\s]+?)(?=En\s*presencia|El\s*d[ií]a|Apellido)",
+        @"Empresa:\s*(.+?)(?=En\s*presencia|El\s*d[ií]a|Apellido)",
         RegexOptions.IgnoreCase,
         TimeSpan.FromMilliseconds(200));
 
