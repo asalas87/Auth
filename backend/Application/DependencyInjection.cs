@@ -22,7 +22,10 @@ namespace Application
             });
 
             services.AddScoped(typeof(IPipelineBehavior<,>) , typeof(ValidationBehavior<,>));
-            services.AddAutoMapper(typeof(ApplicationAssembllyReference).Assembly);
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddMaps(typeof(ApplicationAssembllyReference).Assembly);
+            });
 
             services.AddScoped<IControlService, ControlService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();

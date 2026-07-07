@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Application;
 using Domain.Security.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -11,7 +12,7 @@ using Web.API.Middlewares;
 namespace Web.API;
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
         services.AddHttpsRedirection(options =>
         {
@@ -31,7 +32,10 @@ public static class DependencyInjection
         services.AddTransient<GlobalExceptionHandlingMiddleware>();
         services.AddHttpContextAccessor();
 
-        services.AddAutoMapper(typeof(DependencyInjection));
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddMaps(typeof(DependencyInjection).Assembly);
+        });
 
         return services;
     }
@@ -62,13 +66,11 @@ public static class DependencyInjection
                 };
             });
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("AdminOnly", policy =>
-                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Name.ToString()));
-            options.AddPolicy("UserOnly", policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy("AdminOnly", policy =>
+                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Name.ToString()))
+            .AddPolicy("UserOnly", policy =>
                 policy.RequireClaim(ClaimTypes.Role, Role.User.Name.ToString()));
-        });
 
         return services;
     }

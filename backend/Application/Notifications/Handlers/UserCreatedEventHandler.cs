@@ -59,7 +59,7 @@ public class UserCreatedEventHandler(
 
             notif.MarkSent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             notif.MarkFailed();
         }
