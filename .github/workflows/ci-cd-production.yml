@@ -1,17 +1,17 @@
-name: 🚀 Deploy to Staging
+name: 🚀 Deploy to Production
 
 on:
   push:
     branches:
-      - staging
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: 'staging'
+    environment: 'production'
 
     env:
-      ASPNETCORE_ENVIRONMENT:  'Staging'
+      ASPNETCORE_ENVIRONMENT:  'Production'
       API_HOST: ${{ vars.API_HOST }}
       APP_HOST: ${{ vars.APP_HOST }}
 
