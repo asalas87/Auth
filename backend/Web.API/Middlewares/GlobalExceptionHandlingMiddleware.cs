@@ -1,40 +1,56 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Text.Json;
 
-namespace Web.API.Middlewares
+namespace Web.API.Middlewares;
+
+public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger, IHostEnvironment environment) : IMiddleware
 {
-    public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger) : IMiddleware
+    private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger = logger;
+    private readonly IHostEnvironment _environment = environment;
+
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger = logger;
-
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        try
         {
-            try
+            await next(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                """
+                Unhandled exception.
+                Method: {Method}
+                Path: {Path}
+                TraceId: {TraceId}
+                User: {User}
+                """,
+                context.Request.Method,
+                context.Request.Path,
+                context.TraceIdentifier,
+                context.User.Identity?.Name ?? "Anonymous");
+
+            if (context.Response.HasStarted)
+                throw;
+
+            context.Response.Clear();
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/problem+json";
+
+            ProblemDetails problem = new()
             {
-                await next(context);
-            }
-            catch (Exception e)
+                Status = StatusCodes.Status500InternalServerError,
+                Type = "https://httpstatuses.com/500",
+                Title = "Internal Server Error",
+                Detail = "An unexpected error occurred."
+            };
+
+            if (_environment.IsDevelopment())
             {
-                _logger.LogError(e, "Unhandled exception occurred: {Message}", e.Message);
-
-                if (context.Response.HasStarted)
-                    throw;
-
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-                ProblemDetails problem = new()
-                {
-                    Status = (int)HttpStatusCode.InternalServerError,
-                    Type = "Server Error",
-                    Title = "Server Error",
-                    Detail = e.Message
-                };
-
-                string json = JsonSerializer.Serialize(problem);
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync(json);
+                problem.Extensions["exception"] = ex.Message;
+                problem.Extensions["stackTrace"] = ex.StackTrace;
             }
+
+            await context.Response.WriteAsJsonAsync(problem);
         }
     }
 }

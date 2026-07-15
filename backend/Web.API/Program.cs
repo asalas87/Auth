@@ -2,81 +2,122 @@ using System.IdentityModel.Tokens.Jwt;
 using Application;
 using Infrastructure;
 using Infrastructure.Persistence.Extensions;
+using Serilog;
 using Web.Api.Jobs;
 using Web.API;
 using Web.API.Extensions;
 using Web.API.Middlewares;
 
-var options = new WebApplicationOptions
+try
 {
-    WebRootPath = "wwwroot"
-};
+    Log.Information("Starting application");
 
-var builder = WebApplication.CreateBuilder(options);
+    var options = new WebApplicationOptions
+    {
+        WebRootPath = "wwwroot"
+    };
 
-builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddEnvironmentVariables();
+    var builder = WebApplication.CreateBuilder(options);
 
-// Logging
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+    builder.Configuration
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+        .AddEnvironmentVariables();
 
-// Limpieza de claims
-JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+    // -------------------------
+    // Logging
+    // -------------------------
+    builder.Host.UseSerilog((context, services, configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext();
+    });
 
-// -------------------------
-// Servicios
-// -------------------------
-builder.Services
-    .AddPresentation()
-    .AddInfrastructure(builder.Configuration)
-    .AddApplication()
-    .AddCorsPolicy(builder.Configuration)
-    .AddJwtAuthentication(builder.Configuration)
-    .AddDataProtectionKeys(builder.Configuration)
-    .AddInvalidModelStateMiddlewares();
+    // Limpieza de claims
+    JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-builder.Services.AddHostedService<NotificationsJob>();
+    // -------------------------
+    // Servicios
+    // -------------------------
+    builder.Services
+        .AddPresentation()
+        .AddInfrastructure(builder.Configuration)
+        .AddApplication()
+        .AddCorsPolicy(builder.Configuration)
+        .AddJwtAuthentication(builder.Configuration)
+        .AddDataProtectionKeys(builder.Configuration)
+        .AddInvalidModelStateMiddlewares();
 
-var app = builder.Build();
+    builder.Services.AddHostedService<NotificationsJob>();
 
-// -------------------------
-// Middleware
-// -------------------------
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var app = builder.Build();
+
+    // -------------------------
+    // Logging HTTP
+    // -------------------------
+    app.UseSerilogRequestLogging();
+
+    // -------------------------
+    // Middleware
+    // -------------------------
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    var configuration = app.Services.GetRequiredService<IConfiguration>();
+    bool applyMigrations = configuration.GetValue<bool>("Database:ApplyMigrations");
+
+    if (applyMigrations)
+    {
+        app.ApplyMigrations();
+    }
+
+    app.EnsureSchemas();
+    app.SeedData();
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
+    app.UseRouting();
+
+    app.UseCors("AllowReactApp");
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+    app.MapGet("/health", () => Results.Ok("Healthy"));
+    app.MapGet("/version", () =>
+    {
+        var version = typeof(Program)
+            .Assembly
+            .GetName()
+            .Version?
+            .ToString();
+
+        return Results.Ok(new
+        {
+            version,
+            environment = app.Environment.EnvironmentName
+        });
+    });
+
+    Log.Information("Application started successfully");
+
+    await app.RunAsync();
 }
-
-var configuration = app.Services.GetRequiredService<IConfiguration>();
-bool applyMigrations = configuration.GetValue<bool>("Database:ApplyMigrations");
-
-if (applyMigrations)
+catch (Exception ex)
 {
-    app.ApplyMigrations();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-app.EnsureSchemas();
-app.SeedData();
-
-//app.UseExceptionHandler("/error"); // manejo global
-
-app.UseHttpsRedirection();         // redirección a HTTPS
-app.UseStaticFiles();              // wwwroot
-
-app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
-app.UseRouting();                  // importante antes de CORS
-
-app.UseCors("AllowReactApp");      // cors antes de auth
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-
-app.MapControllers();
-app.MapGet("/health", () => Results.Ok("Healthy"));
-
-await app.RunAsync();
+finally
+{
+    Log.CloseAndFlush();
+}
