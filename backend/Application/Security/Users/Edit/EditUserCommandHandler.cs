@@ -32,7 +32,9 @@ public class EditUserCommandHandler(
         if (emailResult == null)
             return Error.Failure("Email inválido");
 
-        var role = await _roleRepository.GetByIdAsync(command.RoleId);
+        var role = command.RoleId.HasValue
+            ? await _roleRepository.GetByIdAsync(command.RoleId.Value)
+            : await _roleRepository.GetByIdAsync(2);
 
         if (role is null)
             return Error.NotFound("Role.NotFound", "El rol no existe.");

@@ -4,6 +4,7 @@ using Application.Documents.Analysis.Factories;
 using Application.Documents.Analysis.Parsers;
 using Application.Documents.Analysis.Services;
 using Application.Documents.Services;
+using Application.Partners.Services;
 using Application.Security.Services;
 using FluentValidation;
 using Infrastructure.Security;
@@ -35,6 +36,7 @@ namespace Application
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDocumentAnalysisService, DocumentAnalysisService>();
+            services.AddScoped<ICompanyService, CompanyService>();
 
             services.AddTransient<RenovationPdfParser>();
             services.AddTransient<QualificationPdfParser>();

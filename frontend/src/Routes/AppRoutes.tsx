@@ -4,6 +4,7 @@ import AuthView from "../Security/Views/AuthView";
 
 import securityRoutes from "../Security/Routes";
 import documentsRoutes from "../Documents/Routes";
+import partnersRoutes from "../Partners/Routes";
 import Layout from "../Common/Components/Layout";
 import { useAuthContext } from "../Security/Context/AuthContext";
 
@@ -27,6 +28,7 @@ const AppRoutes = (): RouteObject[] => {
         },
         ...securityRoutes,
         ...documentsRoutes,
+        ...partnersRoutes,
     ];
 };
 

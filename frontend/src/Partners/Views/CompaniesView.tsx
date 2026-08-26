@@ -1,39 +1,38 @@
 import { useCallback, useMemo, useState } from 'react';
-import { IUserEditDTO } from '../Interfaces';
-import { getAllPag, remove, update, getById, create } from '@/Security/Services/UserService';
+import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
+import { getPaged, getById, create, remove, update } from '@/Partners/Services/CompanyService';
 import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 import TableGrid from '@/atoms/TableGrid';
-import { UserEditForm } from './Forms/UserEditForm';
-import { userColumns } from './Forms/userColumns';
+import { CompanyEditForm } from './Forms/CompanyEditForm';
+import { companyColumns } from './Forms/companyColumns';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import PageHeader from '@/molecules/PageHeader';
 
-const UsersView = () => {
-    const [selected, setSelected] = useState<IUserEditDTO | null>(null);
+const CompaniesView = () => {
+    const [selected, setSelected] = useState<ICompanyDTO | null>(null);
     const [mode, setMode] = useState<'edit' | 'create'>('edit');
 
-    const memoizedGetAll = useCallback(getAllPag, []);
+    const memoizedGetAll = useCallback(getPaged, []);
 
     const {
-        data: users,
+        data: companies,
         reload
     } = usePaginatedList(memoizedGetAll);
-
 
     const handleEdit = (id: string) => {
         executeWithErrorHandling(
             () => getById(id),
-            (userEdit) => {
-                setSelected(userEdit),
+            (company) => {
+                setSelected(company);
                 setMode('edit');
             }
         )
     };
 
     const handleDelete = async (id: string) => {
-        if (!window.confirm(`¿Eliminar el usuario?`)) return;
+        if (!window.confirm(`¿Eliminar la empresa?`)) return;
 
         executeWithErrorHandling(
             () => remove(id),
@@ -45,45 +44,46 @@ const UsersView = () => {
     };
 
     const handleCreate = () => {
-        const empty = getEmptyItem<IUserEditDTO>([
+        const empty = getEmptyItem<ICompanyDTO>([
             { name: 'name', label: 'Nombre', type: FieldType.Text },
-            { name: 'email', label: 'Email', type: FieldType.Date }
+            { name: 'cuitCuil', label: 'CUIT/CUIL', type: FieldType.Text }
         ]);
         setSelected(empty);
         setMode('create');
     };
-    
+
     const handlers = useMemo(() => ({
         onEdit: (id: string) => handleEdit(id),
         onDelete: (id: string, name: string) => handleDelete(id),
     }), [handleEdit, handleDelete]);
 
     const columns = useMemo(
-        () => userColumns(handlers.onEdit, handlers.onDelete),
+        () => companyColumns(handlers.onEdit, handlers.onDelete),
         [handleEdit, handleDelete]
     );
-    
-    const handleSave = (user: IUserEditDTO) => {
+
+    const handleSave = (company: ICompanyDTO) => {
         executeWithErrorHandling(
-            () => mode === 'create' ? create(user) : update(user.id, user)
-            , () => {
-                reload(); setSelected(null)
+            () => mode === 'create' ? create(company) : update(company.id, company),
+            () => {
+                reload();
+                setSelected(null)
             });
     };
 
     return (
         <div className="container mt-4">
             <PageHeader
-                heading="Gestión de Usuarios"
-                btnLabel="Nuevo Usuario"
+                heading="Gestión de Empresas"
+                btnLabel="Nueva Empresa"
                 btnEvent={handleCreate}
             />
             <TableGrid
-                rows={users}
+                rows={companies}
                 columns={columns}
             />
             {selected && (
-                <UserEditForm
+                <CompanyEditForm
                     item={selected}
                     onSave={handleSave}
                     onClose={() => setSelected(null)}
@@ -94,4 +94,4 @@ const UsersView = () => {
     );
 };
 
-export default UsersView
+export default CompaniesView

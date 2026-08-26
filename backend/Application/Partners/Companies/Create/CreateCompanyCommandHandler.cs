@@ -1,4 +1,3 @@
-using Application.Controls.Interfaces;
 using Domain.Partners.Entities;
 using Domain.Partners.Interfaces;
 using Domain.Primitives;
@@ -7,12 +6,12 @@ using ErrorOr;
 using MediatR;
 
 namespace Application.Partners.Companies.Create;
-public class CreateCompanyHandler : IRequestHandler<CreateCompanyCommand, ErrorOr<Guid>>
+public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand, ErrorOr<Guid>>
 {
     private readonly ICompanyRepository _companyRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateCompanyHandler(ICompanyRepository companyRepository, IUnitOfWork unitOfWork)
+    public CreateCompanyCommandHandler(ICompanyRepository companyRepository, IUnitOfWork unitOfWork)
     {
         _companyRepository = companyRepository;
         _unitOfWork = unitOfWork;
@@ -28,10 +27,10 @@ public class CreateCompanyHandler : IRequestHandler<CreateCompanyCommand, ErrorO
 
         var company = new Company(
             request.Name,
-            Cuit.Create(request.Cuit)!
+            Cuit.Create(request.Cuit.Value)
         );
 
-        await _companyRepository.AddAsync(company);
+        await _companyRepository.AddAsync(company, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return company.Id.Value;

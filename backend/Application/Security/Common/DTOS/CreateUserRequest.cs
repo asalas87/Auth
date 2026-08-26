@@ -11,7 +11,6 @@ public class CreateUserRequest
     [EmailAddress]
     public string Email { get; set; } = default!;
 
-    [Required]
-    public int RoleId { get; set; } = default!;
+    //public int? RoleId { get; set; }
     public Guid? CompanyId { get; set; } = default!;
 }

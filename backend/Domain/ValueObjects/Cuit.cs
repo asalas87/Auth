@@ -1,30 +1,26 @@
 using System.Text.RegularExpressions;
 
 namespace Domain.ValueObjects;
-public sealed class Cuit : IEquatable<Cuit>
-{
-    private static readonly Regex CuitRegex = new(@"^\d{11}$");
 
+public sealed record Cuit
+{
     public string Value { get; }
 
-    private Cuit(string value)
-    {
-        Value = value;
-    }
+    private Cuit(string value) => Value = value;
 
-    public static Cuit Create(string value)
+    /// <summary> Crea un Cuit desde un string. Retorna null si es nulo/vacío. </summary>
+    public static Cuit? Create(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("El CUIT no puede estar vacío.");
+            return null;
 
         value = value.Replace("-", "").Trim();
 
-        //if (!CuitRegex.IsMatch(value))
-        //    throw new ArgumentException("Formato de CUIT inválido. Debe tener 11 dígitos.");
+        // Validación opcional: formato de 11 dígitos
+        // if (!Regex.IsMatch(value, @"^\d{11}$")) return null;
 
-        // Opcional: Validación del dígito verificador.
-        //if (!IsValidCuit(value))
-        //    throw new ArgumentException("CUIT inválido (dígito verificador incorrecto).");
+        // Validación opcional: dígito verificador
+        // if (!IsValidCuit(value)) return null;
 
         return new Cuit(value);
     }
@@ -44,14 +40,5 @@ public sealed class Cuit : IEquatable<Cuit>
 
         return checkDigit == int.Parse(cuit[10].ToString());
     }
-
-    public override bool Equals(object? obj) => Equals(obj as Cuit);
-
-    public bool Equals(Cuit? other) => other is not null && Value == other.Value;
-
-    public override int GetHashCode() => Value.GetHashCode();
-
-    public override string ToString() => Value;
-
-    public static implicit operator string(Cuit cuit) => cuit.Value;
+    public override string ToString() => Value ?? string.Empty;
 }

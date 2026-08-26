@@ -44,18 +44,23 @@ export function FieldRenderer<T>({
     else onChange(name, newValue);
   };
 
+  const inputProps = {
+    name: String(name),
+    value: value ?? '',
+    onChange: handleChange,
+    onInput,
+    onFocus,
+    onBlur,
+    onKeyDown,
+    ...restEvents,
+    className: "form-control",
+  };
+
   switch (type) {
     case FieldType.TextArea:
       return (
         <textarea
-          name={String(name)}
-          value={value ?? ''}
-          onChange={handleChange}
-          onInput={onInput}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          onKeyDown={onKeyDown}
-          {...restEvents}
+          {...inputProps}
           className="form-control"
         />
       );
@@ -86,13 +91,7 @@ export function FieldRenderer<T>({
         <>
           <input
             type="file"
-            name={String(name)}
-            onChange={handleChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            onKeyDown={onKeyDown}
-            {...restEvents}
-            className="form-control"
+            {...inputProps}
           />
           {value && (
             <div className="mt-2 text-muted small">
@@ -107,15 +106,8 @@ export function FieldRenderer<T>({
       return (
         <input
           type="date"
-          name={String(name)}
+          {...inputProps}
           value={dateValue}
-          onChange={handleChange}
-          onInput={onInput}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          onKeyDown={onKeyDown}
-          {...restEvents}
-          className="form-control"
         />
       );
 
@@ -123,15 +115,7 @@ export function FieldRenderer<T>({
       return (
         <input
           type={type}
-          name={String(name)}
-          value={value ?? ''}
-          onChange={handleChange}
-          onInput={onInput}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          onKeyDown={onKeyDown}
-          {...restEvents}
-          className="form-control"
+          {...inputProps}
         />
       );
   }

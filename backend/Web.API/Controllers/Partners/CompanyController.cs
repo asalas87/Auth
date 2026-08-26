@@ -1,33 +1,81 @@
 using Application.Common.Dtos;
+using Application.Partners.Dtos;
 using Application.Partners.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
 
-namespace Web.API.Controllers.Partners
+namespace Web.API.Controllers.Partners;
+
+[Route("partners/company")]
+public class CompanyController(ICompanyService companyService) : ApiController
 {
-    public class CompanyController : ApiController
+    private readonly ICompanyService _companyService = companyService;
+
+    [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetPaged([FromQuery] PaginateDTO filter)
     {
-        private readonly ICompanyService _companyService;
+        var companyFilter = new CompanyFilterDto { Page = filter.Page, PageSize = filter.PageSize, Filter = filter.Filter };
+        var result = await _companyService.GetPagedAsync(companyFilter);
 
-        public CompanyController(ICompanyService companyService)
-        {
-            _companyService = companyService;
-        }
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
 
-        // GET /partners/company/list
-        //[HttpGet("list")]
-        //public async Task<IActionResult> GetAllForCombo()
-        //{
-        //    var result = await _companyService.GetAllForComboAsync();
-        //    return Ok(result);
-        //}
+    [HttpGet("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _companyService.GetByIdAsync(id);
 
-        //// GET /partners/company?page=1&pageSize=10&name=foo
-        //[HttpGet]
-        //public async Task<IActionResult> GetPaged([FromQuery] PaginateDTO filter)
-        //{
-        //    var result = await _companyService.GetPagedAsync(filter);
-        //    return Ok(result);
-        //}
+        return result.Match(
+            value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Create([FromBody] CreateCompanyRequest request)
+    {
+        var result = await _companyService.CreateAsync(request.Name, request.Cuit);
+
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpPut("edit/{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCompanyRequest request)
+    {
+        if (id != request.Id)
+            return BadRequest("Route ID and body ID do not match.");
+
+        var result = await _companyService.UpdateAsync(request.Id, request.Name, request.Cuit);
+
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
+    }
+
+    [HttpDelete("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var result = await _companyService.DeleteAsync(id);
+
+        return result.Match(
+            success => Ok(success),
+            errors => Problem(errors)
+        );
     }
 }
+
+public record CreateCompanyRequest(string Name, string Cuit);
+public record UpdateCompanyRequest(Guid Id, string Name, string Cuit);

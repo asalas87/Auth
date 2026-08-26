@@ -1,7 +1,7 @@
 ﻿import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import { IRoleDTO, IUserEditDTO } from '@/Security/Interfaces';
-import { getCompaniesForCombo, getRolesForCombo } from '@/Controls/ControlService';
+import { IUserEditDTO } from '@/Security/Interfaces';
+import { getCompaniesForCombo } from '@/Controls/ControlService';
 import { useEffect, useState } from 'react';
 import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
 
@@ -17,19 +17,6 @@ export const UserEditForm = ({
     onClose: () => void;
     mode?: 'edit' | 'create';
 }) => {
-    const [roles, setRoles] = useState<IRoleDTO[]>([]);
-    useEffect(() => {
-        const loadRoles = async () => {
-            try {
-                const response = await getRolesForCombo();
-                setRoles(response);
-            } catch (error) {
-                console.error('Error al cargar roles', error);
-            }
-        };
-
-        loadRoles();
-    }, []);
     const [companies, setCompanies] = useState<ICompanyDTO[]>([]);
     useEffect(() => {
         const loadCompanies = async () => {
@@ -37,7 +24,7 @@ export const UserEditForm = ({
                 const response = await getCompaniesForCombo();
                 setCompanies(response);
             } catch (error) {
-                console.error('Error al cargar roles', error);
+                console.error('Error al cargar empresas', error);
             }
         };
 
@@ -53,12 +40,6 @@ export const UserEditForm = ({
             type: FieldType.Select,
             options: companies.map(u => ({ value: u.id, label: u.name })),
         },
-        {
-            name: 'roleId',
-            label: 'Rol',
-            type: FieldType.Select,
-            options: roles.map(u => ({ value: u.id, label: u.roleName })),
-        }
     ];
     return (
         <GenericEditForm<IUserEditDTO>

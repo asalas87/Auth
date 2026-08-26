@@ -15,6 +15,7 @@ const menuItems: Record<UserRole, MenuItem[]> = {
     Admin: [
         { path: "/document/registrosDeCalificacion", label: "Calificaciones", icon: "grade" },
         { path: "/document/renovations", label: "Renovaciones", icon: "autorenew" },
+        { path: "/partners/companies", label: "Empresas", icon: "business" },
         { path: "/security/users", label: "Usuarios", icon: "people" },
     ]
 };

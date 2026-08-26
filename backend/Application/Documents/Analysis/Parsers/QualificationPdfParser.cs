@@ -28,7 +28,7 @@ public class QualificationPdfParser : IDocumentParser
         TimeSpan.FromMilliseconds(200));
 
     private static readonly Regex ValidityRegex = new(
-        @"hasta\s+el\s+.*?(\d{2}/\d{2}/\d{4})",
+        @"hasta\s+el\s+(?:\d{2}/\d{2}/\d{4})(\d{2}/\d{2}/\d{4})",
         RegexOptions.IgnoreCase,
         TimeSpan.FromMilliseconds(200));
 

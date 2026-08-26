@@ -10,11 +10,7 @@ public class CompanyRepository(ApplicationDbContext context) : ICompanyRepositor
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task<Guid> AddAsync(Company company, CancellationToken cancellationToken = default)
-    {
-        var result = await _context.Companies.AddAsync(company, cancellationToken);
-        return result.Entity.Id.Value;
-    }
+    public async Task AddAsync(Company company, CancellationToken cancellationToken = default) => await _context.Companies.AddAsync(company, cancellationToken);
 
     public async Task<List<Company>> GetAllAsync(CancellationToken cancellationToken = default)
     {
@@ -35,4 +31,23 @@ public class CompanyRepository(ApplicationDbContext context) : ICompanyRepositor
         await _context.Companies.SingleOrDefaultAsync(c =>
         c.Name.ToLower().StartsWith(normalizedName),
         cancellationToken);
+
+    public async Task<(List<Company> Companies, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter, CancellationToken cancellationToken = default)
+    {
+        var query = _context.Companies.AsNoTracking().Where(c => c.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            query = query.Where(c => c.Name.Contains(filter) || (c.CuitCuil != null && c.CuitCuil.ToString().Contains(filter)));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var companies = await query.OrderBy(c => c.Name).ToListAsync(cancellationToken);
+
+        return (companies, totalCount);
+    }
+
+    public void Update(Company company) => _context.Companies.Update(company);
+
+    public void Delete(Company company) => _context.Companies.Remove(company);
 }

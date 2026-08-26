@@ -22,15 +22,18 @@ public sealed class CreateUserCommandHandler(IUserRepository userRepository, IRo
         if (existingUser != null)
             return Error.Failure("User.EmailRegistrated", "El email ya está registrado.");
 
-        var existingRole = await _roleRepository.GetByIdAsync(request.RoleId);
-        if (existingRole == null)
+        var role = request.RoleId.HasValue
+            ? await _roleRepository.GetByIdAsync(request.RoleId.Value)
+            : await _roleRepository.GetByIdAsync(2);
+
+        if (role == null)
             return Error.Failure("Role.RoleNoExist", "No existe rol.");
 
         var existingCompany = await _companyRepository.GetByIdAsync(request.CompanyId, cancellationToken);
         if (existingCompany == null)
             return Error.Failure("Company.CompanyNotExist", "No existe la empresa.");
 
-        var user = User.Create(request.Name, request.Email, existingRole, existingCompany);
+        var user = User.Create(request.Name, request.Email, role, existingCompany);
         await _userRepository.AddAsync(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
