@@ -44,6 +44,7 @@ public class Notification
     }
 
     // Métodos de cambio de estado
+    public void UpdateBody(string body) => Body = body;
     public void MarkProcessing() => Status = NotificationStatus.Processing;
     public void MarkSent() =>  Status = NotificationStatus.Sent;
     public void MarkFailed() => Status = NotificationStatus.Failed;

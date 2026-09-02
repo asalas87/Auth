@@ -102,11 +102,12 @@ FluentValidation is integrated through MediatR `ValidationBehavior`, but validat
 
 New commands/requests should use FluentValidation whenever request validation is appropriate.
 
-- Create validators alongside new requests when appropriate.
-- Keep request validation in FluentValidation.
-- Keep domain invariants in entities and value objects.
-- Do not duplicate domain invariants unnecessarily in validators.
-- Do not copy missing validation from legacy code.
+- **Request validation** (null checks, format, length, required fields, etc.) must be implemented using FluentValidation validators associated with the command/query.
+- **Business validation** (existence, state, permissions, token validity, etc.) that requires repository access or domain logic belongs in the handler.
+- **Handlers must not contain request-level validations** if a FluentValidation validator exists; avoid duplication.
+- **Application service layer** (if used) must not contain any validation logic; it only orchestrates the use case.
+- Do not duplicate domain invariants in validators; keep domain rules in entities/value objects.
+- For Value Object comparisons (e.g., `UserId`), use `.Value` or `Equals` to compare underlying values; avoid direct `==` unless overloaded.
 
 ## Error Handling
 
@@ -184,6 +185,24 @@ Cancellation propagation is inconsistent in existing code. New asynchronous code
 ## Mapping, Constructors, and Naming
 
 The project uses both AutoMapper and manual mapping, and both primary and traditional constructors. Naming also varies between DTO, Dto, and Request. Do not introduce a new mapping approach or broad naming normalization. Follow the active local module convention when adding code.
+
+## Code Comments
+
+Production code should be self-explanatory through meaningful names and clear structure.
+
+- Avoid unnecessary comments that merely describe what the code obviously does.
+- Do not add explanatory comments for standard operations (validation, error handling, object creation, etc.).
+- Do not comment obvious intent: `// Validate token`, `// Check user`, `// Hash password`, `// Return error`.
+- Keep comments concise. Do not generate large blocks of explanatory text.
+- Comments should only be used when they provide genuinely useful context that cannot be expressed clearly through code itself.
+- Prefer expressive naming, clear structure, and domain language over explanatory comments.
+- Valid reasons for comments:
+  - Non-obvious business or domain rules.
+  - Architectural decisions or trade-offs.
+  - Security or performance considerations.
+  - References to external specifications or requirements.
+  - Workarounds or gotchas that are not obvious from the code.
+- When modifying existing code, remove unnecessary comments in the touched code where appropriate.
 
 ## Testing
 

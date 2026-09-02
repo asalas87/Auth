@@ -13,13 +13,13 @@ using SharedKernel.Interfaces;
 
 namespace Application.Notifications.Handlers;
 
-public class UserCreatedEventHandler(
+public class PasswordResetRequestedEventHandler(
     INotificationRepository notificationRepository,
     IUserActivationTokenRepository userActivationTokenRepository,
     IUnitOfWork unitOfWork,
     ITemplateRenderer templateRenderer,
     IEmailService emailService,
-    IConfiguration configuration) : INotificationHandler<UserCreatedEvent>
+    IConfiguration configuration) : INotificationHandler<PasswordResetRequestedEvent>
 {
     private readonly INotificationRepository _notificationRepository = notificationRepository;
     private readonly IUserActivationTokenRepository _userActivationTokenRepository = userActivationTokenRepository;
@@ -28,20 +28,19 @@ public class UserCreatedEventHandler(
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
-    public async Task Handle(UserCreatedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(PasswordResetRequestedEvent notification, CancellationToken cancellationToken)
     {
         UserActivationToken userActivationToken = UserActivationToken.Create(
             new UserId(notification.UserId),
             TimeSpan.FromDays(1),
-            TokenPurpose.AccountActivation);
+            TokenPurpose.PasswordReset);
+        await _userActivationTokenRepository.AddAsync(userActivationToken, cancellationToken);
+
+        await _userActivationTokenRepository.InvalidateOtherTokensAsync(new UserId(notification.UserId), userActivationToken.Token, cancellationToken);
 
         var frontendUrl = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar";
-        var activationLink = $"{frontendUrl}/activate?token={userActivationToken.Token}";
-        var subject = "Activación de cuenta";
-
-        var body = await _templateRenderer.RenderAsync("AccountActivation", new Dictionary<string, string> {
-                ["activationLink"] = activationLink
-            });
+        var resetLink = $"{frontendUrl}/reset-password?token={userActivationToken.Token}";
+        var subject = "Reinicio de contraseña";
 
         var notif = new Notification(
             recipientEmail: notification.Email,
@@ -49,26 +48,29 @@ public class UserCreatedEventHandler(
             documentId: null,
             companyId: notification.CompanyId,
             subject: subject,
-            body: body,
-            type: NotificationType.UserCreated,
+            body: string.Empty,
+            type: NotificationType.PasswordReset,
             expirationDate: DateTime.UtcNow.AddDays(1)
         );
 
         try
-        {
-            await _emailService.SendAsync(
-                notification.Email,
-                subject,
-                body);
+            {
+
+            var body = await _templateRenderer.RenderAsync("PasswordReset", new Dictionary<string, string> {
+                    ["resetLink"] = resetLink,
+                    ["userName"] = notification.Name
+                });
+
+            notif.UpdateBody(body);
+            await _emailService.SendAsync(notification.Email, subject, body);
 
             notif.MarkSent();
         }
         catch (Exception)
         {
+            //_logger.LogError(ex, "Error al enviar email de restablecimiento para {Email}", notification.Email);
             notif.MarkFailed();
         }
-
-        await _userActivationTokenRepository.AddAsync(userActivationToken, cancellationToken);
         await _notificationRepository.AddAsync(notif, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

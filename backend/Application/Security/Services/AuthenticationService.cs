@@ -7,8 +7,10 @@ using Application.Security.Users.Activate;
 using Application.Security.Users.Create;
 using Application.Security.Users.GetById;
 using Application.Security.Users.Validate;
+using Application.Security.Users.ResetPassword;
 using AutoMapper;
 using Domain.Security.Entities;
+using Domain.ValueObjects;
 using ErrorOr;
 using MediatR;
 
@@ -179,5 +181,17 @@ public class AuthenticationService(
         );
 
         return response;
+    }
+
+    public async Task<ErrorOr<bool>> RequestPasswordResetAsync(ForgotPasswordDTO dto, CancellationToken cancellationToken = default)
+    {
+        var command = new RequestPasswordResetCommand(dto.Email);
+        return await _mediator.Send(command, cancellationToken);
+    }
+
+    public async Task<ErrorOr<bool>> ResetPasswordAsync(ResetPasswordDTO dto, CancellationToken cancellationToken = default)
+    {
+        var command = new ResetPasswordCommand(dto.Email, dto.Password, dto.ConfirmPassword, dto.Token);
+        return await _mediator.Send(command, cancellationToken);
     }
 }

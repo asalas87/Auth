@@ -57,4 +57,28 @@ public class AccountController(IAuthenticationService service) : ApiController
             errors => Problem(errors)
         );
     }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password", Name = "forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto, CancellationToken cancellationToken)
+    {
+        var result = await _service.RequestPasswordResetAsync(dto, cancellationToken);
+
+        return result.Match(
+            value => Ok(new { message = "Si el email está registrado, recibirás un enlace para reiniciar tu contraseña." }),
+            errors => Problem(errors)
+        );
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password", Name = "reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto, CancellationToken cancellationToken)
+    {
+        var result = await _service.ResetPasswordAsync(dto, cancellationToken);
+
+        return result.Match(
+            value => NoContent(),
+            errors => Problem(errors)
+        );
+    }
 }

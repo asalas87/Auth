@@ -32,6 +32,12 @@ Do not use Sales, Customer, `Notifications.Worker`, or the RabbitMQ notification
 - Return `ErrorOr<T>` for expected application/domain failures.
 - Use centralized `Problem(errors)` mapping in the API.
 - Use the existing SQL-backed `NotificationsJob` architecture; do not introduce RabbitMQ.
+- Ensure request validations (null, format, length) are placed in FluentValidation validators, not in the service or handler.
+- Business validations (e.g., existence, token validity) that require repository access belong in the handler.
+- When creating a new token (password reset, activation), invalidate previous tokens for the same user and purpose.
+- Persist tokens/records **before** sending external notifications to avoid orphaned data if the notification fails.
+- For Value Object comparisons, use `.Value` or `.Equals` to compare underlying IDs.
+- Avoid `try-catch` in service layer; let exceptions propagate to the global middleware.
 
 ## After coding
 
@@ -41,3 +47,6 @@ Do not use Sales, Customer, `Notifications.Worker`, or the RabbitMQ notification
 - Check migrations when persistence changes.
 - Verify authorization requirements.
 - Confirm no legacy patterns were introduced.
+- Verify no duplicate validations exist between layers (validator, handler, service).
+- Confirm token invalidation is performed when a new token is created, not only when used.
+- Review that persistence order is correct (critical data first, side effects later).
