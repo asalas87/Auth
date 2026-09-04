@@ -132,6 +132,8 @@ Expected application/domain failures must use `ErrorOr<T>`. Application code mus
 
 Controllers translate errors through centralized `Problem(errors)` mapping. Do not introduce `BadRequest(result.FirstError)` unless there is a clear, explicitly justified reason. Expected business failures should not use exceptions. Unexpected exceptions continue through the global exception middleware.
 
+Important: Do not wrap MediatR calls or handler logic in try-catch blocks in the service layer to convert exceptions to ErrorOr. Let unexpected exceptions propagate to the global exception middleware. Only catch exceptions when you intend to handle them (e.g., retry logic, fallback) and you have a clear strategy; never catch and return ErrorOr with the exception message.
+
 ## Authentication and Authorization
 
 The API is protected by default.
@@ -151,6 +153,8 @@ The API is protected by default.
 - Generate EF migrations for database changes.
 - Do not silently change database behavior.
 - Follow active read-only query patterns such as `AsNoTracking` where appropriate.
+- - When performing multiple operations (e.g., saving a token and sending an email), persist critical data first, then perform side effects (notifications), and finally commit all changes in a single transaction.
+- Use `IUnitOfWork` to coordinate multiple repository changes in one `SaveChangesAsync`.
 
 ## Notifications
 
@@ -274,3 +278,14 @@ When uncertain between patterns:
 4. State uncertainty before making a significant architectural decision.
 
 The goal is safe, consistent evolution of the existing system, not architectural reinvention.
+
+## Event Handling & Token Lifecycle
+
+When handling domain events that create tokens for password reset, account activation, or similar actions:
+
+- **Create and persist** the token first, before sending any external notification (email, SMS).
+- **Invalidate any previous active tokens** for the same user and purpose immediately after persisting the new token.
+- **Send the notification** (email) after the token is safely stored; if the notification fails, mark the notification as failed but keep the token (it can be retried or the user can request another).
+- **Save changes** (`IUnitOfWork.SaveChangesAsync`) once at the end, after all modifications are completed.
+
+Do not rely solely on token invalidation at the time of token usage (e.g., password reset) to handle multiple requests; invalidate proactively on new token creation.
