@@ -51,6 +51,8 @@ try
         .AddDataProtectionKeys(builder.Configuration)
         .AddInvalidModelStateMiddlewares();
 
+    builder.Services.AddMemoryCache();
+    builder.Services.AddSecurityServices(builder.Configuration);
     builder.Services.AddHostedService<NotificationsJob>();
 
     var app = builder.Build();

@@ -18,4 +18,5 @@ public class ResetPasswordDTO
     [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden")]
     [DataType(DataType.Password)]
     public string ConfirmPassword { get; set; } = string.Empty;
+    public string? CaptchaToken { get; set; }
 }

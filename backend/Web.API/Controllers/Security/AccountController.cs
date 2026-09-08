@@ -3,9 +3,11 @@ using Application.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
+using Web.API.Filters;
 
 namespace Web.API.Controllers.Security;
 [Route("security/[controller]")]
+[ServiceFilter(typeof(SecurityGuardFilter))]
 public class AccountController(IAuthenticationService service) : ApiController
 {
     private readonly IAuthenticationService _service = service ?? throw new ArgumentException(null, nameof(service));
