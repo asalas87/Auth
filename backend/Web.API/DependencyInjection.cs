@@ -1,13 +1,11 @@
 using System.Security.Claims;
 using System.Text;
-using Application;
 using Domain.Security.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using Web.API.Extensions;
 using Web.API.Middlewares;
 
 namespace Web.API;

@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("Infrastructure")));
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+        services.AddMemoryCache();
 
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
@@ -64,6 +65,7 @@ public static class DependencyInjection
         services.AddTransient<IPdfTextExtractor, PdfPigTextExtractor>();
         services.AddTransient<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
         services.AddScoped<IFileStorageService, FileStorageService>();
+        services.AddHttpClient<IErrorReporter, ObservabilityErrorReporter>();
 
         return services;
     }

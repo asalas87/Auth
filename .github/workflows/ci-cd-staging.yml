@@ -11,9 +11,12 @@ jobs:
     environment: 'staging'
 
     env:
-      ASPNETCORE_ENVIRONMENT:  'Staging'
+      ASPNETCORE_ENVIRONMENT: 'Staging'
       API_HOST: ${{ vars.API_HOST }}
       APP_HOST: ${{ vars.APP_HOST }}
+      OBS_URL: ${{ vars.OBS_URL }}
+      OBS_APP_NAME: ${{ vars.OBS_APP_NAME }}
+      OBS_ADMIN_EMAIL: ${{ vars.OBS_ADMIN_EMAIL }}
 
     steps:
       - name: 🧾 Checkout repository
@@ -24,7 +27,83 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      # 🏗️ Crear appsettings dinámico (Staging o Production)
+      # =============================================
+      # 🔗 Integración con Observability Platform
+      # =============================================
+
+      # 1️⃣ Login en Observability
+      - name: 🔐 Login to Observability
+        id: obs_login
+        run: |
+          echo "🔐 Logging in to Observability Platform..."
+          LOGIN_RESPONSE=$(curl -s -X POST ${{ env.OBS_URL }}/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d "{\"email\": \"${{ env.OBS_ADMIN_EMAIL }}\", \"password\": \"${{ secrets.OBS_ADMIN_PASSWORD }}\"}")
+
+          TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.accessToken')
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "❌ Login failed. Response: $LOGIN_RESPONSE"
+            exit 1
+          fi
+          echo "✅ Login successful"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      # 2️⃣ Registrar aplicación si no existe
+      - name: 📝 Register application in Observability
+        id: obs_register
+        run: |
+          TOKEN="${{ steps.obs_login.outputs.token }}"
+
+          echo "🔍 Looking for application '${{ env.OBS_APP_NAME }}'..."
+          APPS_RESPONSE=$(curl -s -X GET ${{ env.OBS_URL }}/api/v1/applications \
+            -H "Authorization: Bearer $TOKEN")
+
+          # Filtro robusto: maneja tanto array directo como {data: [...]}
+          APP_ID=$(echo "$APPS_RESPONSE" | jq -r --arg name "${{ env.OBS_APP_NAME }}" \
+            'if type == "array" then .[] else .data[] end | select(.name==$name) | .id' | head -n 1)
+
+          if [ -z "$APP_ID" ] || [ "$APP_ID" = "null" ]; then
+            echo "📝 Application not found. Creating..."
+            CREATE_RESPONSE=$(curl -s -X POST ${{ env.OBS_URL }}/api/v1/applications \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"name\": \"${{ env.OBS_APP_NAME }}\", \"description\": \"DMS API - Backend .NET\", \"platform\": \"BACKEND\"}")
+
+            APP_ID=$(echo "$CREATE_RESPONSE" | jq -r '.id')
+            if [ -z "$APP_ID" ] || [ "$APP_ID" = "null" ]; then
+              echo "❌ Failed to create application. Response: $CREATE_RESPONSE"
+              exit 1
+            fi
+            echo "✅ Application created: $APP_ID"
+          else
+            echo "✅ Application already exists: $APP_ID"
+          fi
+
+          echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
+
+      # 3️⃣ Generar API key
+      - name: 🔑 Generate API key
+        id: obs_apikey
+        run: |
+          TOKEN="${{ steps.obs_login.outputs.token }}"
+          APP_ID="${{ steps.obs_register.outputs.app_id }}"
+
+          echo "🔑 Generating API key..."
+          API_KEY_RESPONSE=$(curl -s -X POST ${{ env.OBS_URL }}/api/v1/applications/$APP_ID/apikeys \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"permissions": ["READ", "WRITE"], "expiresAt": "2027-12-31T23:59:59Z"}')
+
+          API_KEY=$(echo "$API_KEY_RESPONSE" | jq -r '.key')
+          if [ -z "$API_KEY" ] || [ "$API_KEY" = "null" ]; then
+            echo "❌ Failed to generate API key. Response: $API_KEY_RESPONSE"
+            exit 1
+          fi
+          echo "✅ API Key generated: ${API_KEY:0:20}..."
+
+          echo "api_key=$API_KEY" >> $GITHUB_OUTPUT
+
+      # 4️⃣ Generar appsettings.json (AHORA incluye Observability)
       - name: Generate appsettings.json
         run: |
           cat > ./backend/Web.API/appsettings.${{ env.ASPNETCORE_ENVIRONMENT }}.json <<EOL
@@ -69,6 +148,24 @@ jobs:
               "Notifications": {
                   "OverrideRecipients": ${{ vars.OVERRIDE_RECIPIENTS }},
                   "TestRecipient": "${{ vars.TEST_RECIPIENT }}"
+              },
+              "Observability": {
+                  "BaseUrl": "${{ env.OBS_URL }}",
+                  "ApiId": "${{ steps.obs_register.outputs.app_id }}",
+                  "ApiKey": "${{ steps.obs_apikey.outputs.api_key }}"
+              },
+              "Security": {
+                  "RateLimiting": {
+                      "MaxAttempts": 5,
+                      "TimeWindowMinutes": 15,
+                      "BlockDurationMinutes": 60,
+                      "CaptchaRequiredAttempts": 3
+                  },
+                  "Turnstile": {
+                      "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
+                      "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
+                      "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+                  }
               }
             }
           EOL
@@ -80,19 +177,16 @@ jobs:
       # Crear carpetas necesarias antes del deploy
       - name: Ensure required directories exist
         run: |
-          echo "📁 Creating DataProtectionKeys and wwwroot directories..."
+          echo "📁 Creating directories..."
           mkdir -p ./publish/backend/DataProtectionKeys
           mkdir -p ./publish/backend/wwwroot
           mkdir -p ./publish/backend/Logs
-          
-          echo "🛠 Setting write permissions..."
           chmod -R 777 ./publish/backend/DataProtectionKeys
           chmod -R 777 ./publish/backend/wwwroot
           chmod -R 777 ./publish/backend/Logs
-          
           echo "✅ Directories ready."
 
-      # ⚙️ Build frontend con variable dinámica
+      # ⚙️ Build frontend
       - name: Build frontend
         run: |
           echo "VITE_API_URL=https://${{ env.API_HOST }}/" > ./frontend/.env
@@ -100,13 +194,13 @@ jobs:
           npm install
           npm run build
 
-      # 📦 Crear ZIPs
+      # 📦 Crear ZIPs (opcional, si los usas)
       - name: Create deployment ZIPs
         run: |
           cd publish/backend && zip -r ../backend.zip .
           cd ../../frontend/dist && zip -r ../../publish/frontend.zip .
 
-      # 🚀 Deploy backend (usa variable para ruta)
+      # 🚀 Deploy backend
       - name: Deploy backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -122,7 +216,7 @@ jobs:
           dangerous-clean-slate: false
           retry: 3
 
-      # 🚀 Deploy frontend (usa variable para ruta)
+      # 🚀 Deploy frontend
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -137,3 +231,30 @@ jobs:
           upload-batch-size: 10
           dangerous-clean-slate: false
           retry: 3
+
+      # 5️⃣ Notificar release
+      - name: 🏷️ Notify release to Observability
+        run: |
+          APP_ID="${{ steps.obs_register.outputs.app_id }}"
+          API_KEY="${{ steps.obs_apikey.outputs.api_key }}"
+          VERSION="${{ github.ref_name }}-${{ github.sha }}"
+          VERSION="${VERSION:0:40}"
+
+          echo "📢 Notifying release to Observability Platform..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST ${{ env.OBS_URL }}/api/v1/$APP_ID/releases \
+            -H "X-API-Key: $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"version\": \"$VERSION\",
+              \"commitSha\": \"${{ github.sha }}\",
+              \"releasedAt\": \"${{ github.event.head_commit.timestamp }}\"
+            }")
+
+          if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Release notified successfully"
+          elif [ "$HTTP_CODE" = "404" ]; then
+            echo "⚠️ Release endpoint not yet implemented (404). Skipping."
+          else
+            echo "⚠️ Unexpected response: $HTTP_CODE"
+          fi

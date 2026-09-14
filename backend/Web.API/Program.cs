@@ -45,15 +45,13 @@ try
     builder.Services
         .AddPresentation()
         .AddInfrastructure(builder.Configuration)
+        .AddSecurityServices(builder.Configuration)
         .AddApplication()
         .AddCorsPolicy(builder.Configuration)
         .AddJwtAuthentication(builder.Configuration)
         .AddDataProtectionKeys(builder.Configuration)
-        .AddInvalidModelStateMiddlewares();
-
-    builder.Services.AddMemoryCache();
-    builder.Services.AddSecurityServices(builder.Configuration);
-    builder.Services.AddHostedService<NotificationsJob>();
+        .AddInvalidModelStateMiddlewares()
+        .AddHostedService<NotificationsJob>();
 
     var app = builder.Build();
 
