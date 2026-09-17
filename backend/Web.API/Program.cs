@@ -83,7 +83,7 @@ try
     app.UseHttpsRedirection();
     app.UseStaticFiles();
 
-    app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+    app.UseExceptionHandler();
 
     app.UseRouting();
 

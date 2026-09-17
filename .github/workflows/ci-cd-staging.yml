@@ -190,6 +190,7 @@ jobs:
       - name: Build frontend
         run: |
           echo "VITE_API_URL=https://${{ env.API_HOST }}/" > ./frontend/.env
+          echo "VITE_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}" >> ./frontend/.env
           cd frontend
           npm install
           npm run build

@@ -1,138 +1,125 @@
 using Application.Security.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Web.API.Extensions;
+using Web.API.Security;
 
 namespace Web.API.Filters;
 
 public class SecurityGuardFilter(
     IIpAttemptTrackingService tracking,
     ITurnstileValidator turnstile,
-    IConfiguration configuration,
+    CaptchaRequiredPolicy captchaPolicy,
     ILogger<SecurityGuardFilter> logger) : IAsyncActionFilter
 {
     private readonly IIpAttemptTrackingService _tracking = tracking;
     private readonly ITurnstileValidator _turnstile = turnstile;
-    private readonly IConfiguration _configuration = configuration;
+    private readonly CaptchaRequiredPolicy _captchaPolicy = captchaPolicy;
     private readonly ILogger<SecurityGuardFilter> _logger = logger;
-
-    private int MaxAttempts => _configuration.GetValue<int?>("Security:RateLimiting:MaxAttempts") ?? 5;
-    private int CaptchaRequiredAttempts => _configuration.GetValue<int?>("Security:RateLimiting:CaptchaRequiredAttempts") ?? 3;
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var ip = GetClientIp(context.HttpContext);
-        var actionName = GetActionName(context);
-
-        if (!IsProtectedAction(actionName))
+        var actionName = ProtectedActionResolver.Resolve(context);
+        if (!ProtectedActionResolver.IsProtected(actionName))
         {
             await next();
             return;
         }
 
+        var ip = ClientIpResolver.Resolve(context.HttpContext);
         var entry = await _tracking.GetOrCreateEntryAsync(ip, actionName, context.HttpContext.RequestAborted);
 
-        if (entry.BlockedUntil.HasValue && entry.BlockedUntil.Value > DateTime.UtcNow)
-        {
-            _logger.LogWarning("Blocked IP {Ip} attempted to access {Action}", ip, actionName);
-            context.Result = new StatusCodeResult(StatusCodes.Status429TooManyRequests);
-            return;
-        }
+        if (!CheckBlocked(context, ip, actionName, entry)) return;
+        if (!await CheckCaptchaAsync(context, ip, actionName, entry)) return;
 
-        bool captchaRequired = IsCaptchaRequired(actionName, entry);
+        var executedContext = await next();
+        await UpdateTrackingAsync(executedContext, ip, actionName);
+    }
+
+    private bool CheckBlocked(ActionExecutingContext context, string ip, string actionName, FailureTrackingEntry entry)
+    {
+        if (!entry.BlockedUntil.HasValue || entry.BlockedUntil.Value <= DateTime.UtcNow)
+            return true;
+
+        _logger.LogWarning("Blocked IP {Ip} attempted to access {Action}", ip, actionName);
+
+        // RFC 9110: Retry-After en segundos restantes
+        var retryAfterSeconds = Math.Max(1, (int)(entry.BlockedUntil.Value - DateTime.UtcNow).TotalSeconds);
+        context.HttpContext.Response.Headers.RetryAfter = retryAfterSeconds.ToString();
+
+        context.Result = ProblemResult(
+            ApiProblemDetailsFactory.TooManyRequests(entry.BlockedUntil.Value),
+            StatusCodes.Status429TooManyRequests);
+        return false;
+    }
+
+    private async Task<bool> CheckCaptchaAsync(ActionExecutingContext context, string ip, string actionName, FailureTrackingEntry entry)
+    {
+        bool captchaRequired = _captchaPolicy.IsRequired(actionName, entry);
         string? captchaToken = ExtractCaptchaToken(context);
 
         if (captchaRequired && string.IsNullOrWhiteSpace(captchaToken))
         {
-            context.Result = new JsonResult(new { requiresCaptcha = true }) { StatusCode = StatusCodes.Status428PreconditionRequired };
-            return;
+            await _tracking.IncrementFailuresAsync(ip, actionName, context.HttpContext.RequestAborted);
+
+            if (entry.BlockedUntil.HasValue && entry.BlockedUntil.Value > DateTime.UtcNow)
+            {
+                return CheckBlocked(context, ip, actionName, entry);
+            }
+
+            context.Result = ProblemResult(
+                ApiProblemDetailsFactory.CaptchaRequired(),
+                StatusCodes.Status428PreconditionRequired);
+            return false;
         }
 
-        if (!string.IsNullOrWhiteSpace(captchaToken))
+        if (string.IsNullOrWhiteSpace(captchaToken))
+            return true;
+
+        try
         {
-            try
+            bool isValid = await _turnstile.ValidateTokenAsync(captchaToken, context.HttpContext.RequestAborted);
+            if (!isValid)
             {
-                bool isValid = await _turnstile.ValidateTokenAsync(captchaToken, context.HttpContext.RequestAborted);
-                if (!isValid)
-                {
-                    _logger.LogWarning("Invalid Turnstile token from IP {Ip} for action {Action}", ip, actionName);
-                    context.Result = new BadRequestObjectResult(new { errors = new[] { "Captcha inválido." } });
-                    return;
-                }
+                _logger.LogWarning("Invalid Turnstile token from IP {Ip} for action {Action}", ip, actionName);
+                context.Result = ProblemResult(
+                    ApiProblemDetailsFactory.InvalidCaptcha(),
+                    StatusCodes.Status400BadRequest);
+                return false;
             }
-            catch (TurnstileUnavailableException)
-            {
-                _logger.LogWarning("Turnstile service unavailable for IP {Ip} action {Action}", ip, actionName);
-                context.Result = new StatusCodeResult(StatusCodes.Status503ServiceUnavailable);
-                return;
-            }
+        }
+        catch (TurnstileUnavailableException)
+        {
+            _logger.LogWarning("Turnstile service unavailable for IP {Ip} action {Action}", ip, actionName);
+            context.Result = ProblemResult(
+                ApiProblemDetailsFactory.ServiceUnavailable(),
+                StatusCodes.Status503ServiceUnavailable);
+            return false;
         }
 
-        var executedContext = await next();
-
-        if (executedContext.Result is StatusCodeResult statusCodeResult && statusCodeResult.StatusCode is int statusCode)
-        {
-            if (statusCode >= 200 && statusCode < 300)
-            {
-                await _tracking.ResetAsync(ip, actionName, context.HttpContext.RequestAborted);
-            }
-            else if (statusCode >= 400)
-            {
-                await _tracking.IncrementFailuresAsync(ip, actionName, context.HttpContext.RequestAborted);
-            }
-        }
-        else if (executedContext.Result is ObjectResult objectResult && objectResult.StatusCode is int objectStatusCode)
-        {
-            if (objectStatusCode >= 200 && objectStatusCode < 300)
-            {
-                await _tracking.ResetAsync(ip, actionName, context.HttpContext.RequestAborted);
-            }
-            else if (objectStatusCode >= 400)
-            {
-                await _tracking.IncrementFailuresAsync(ip, actionName, context.HttpContext.RequestAborted);
-            }
-        }
+        return true;
     }
 
-    private static string GetClientIp(HttpContext httpContext)
+    private async Task UpdateTrackingAsync(ActionExecutedContext executedContext, string ip, string actionName)
     {
-        if (httpContext.Request.Headers.TryGetValue("CF-Connecting-IP", out var cfIp))
+        var statusCode = executedContext.Result switch
         {
-            return cfIp.ToString();
-        }
-
-        return httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-    }
-
-    private static string GetActionName(ActionExecutingContext context)
-    {
-        var action = context.ActionDescriptor.RouteValues["action"];
-        return action?.ToLowerInvariant() switch
-        {
-            "register" => "register",
-            "login" => "login",
-            "forgotpassword" => "forgot-password",
-            "resetpassword" => "reset-password",
-            _ => action?.ToLowerInvariant() ?? "unknown"
+            StatusCodeResult s => s.StatusCode,
+            ObjectResult o => o.StatusCode,
+            _ => (int?)null
         };
+
+        if (statusCode is null) return;
+
+        if (statusCode is >= 200 and < 300)
+            await _tracking.ResetAsync(ip, actionName, executedContext.HttpContext.RequestAborted);
+        else if (statusCode >= 400)
+            await _tracking.IncrementFailuresAsync(ip, actionName, executedContext.HttpContext.RequestAborted);
     }
 
-    private static bool IsProtectedAction(string actionName)
-    {
-        return actionName is "register" or "login" or "forgot-password" or "reset-password";
-    }
-
-    private static bool IsCaptchaRequired(string actionName, FailureTrackingEntry entry)
-    {
-        if (actionName is "forgot-password" or "reset-password" or "register")
-            return true;
-
-        if (actionName == "login" && entry.Attempts >= 3)
-            return true;
-
-        return false;
-    }
+    private static ObjectResult ProblemResult(ProblemDetails problem, int statusCode)
+        => new(problem) { StatusCode = statusCode };
 
     private static string? ExtractCaptchaToken(ActionExecutingContext context)
     {
@@ -142,10 +129,7 @@ public class SecurityGuardFilter(
 
             var prop = arg.GetType().GetProperty("CaptchaToken");
             if (prop != null)
-            {
-                var value = prop.GetValue(arg) as string;
-                return value;
-            }
+                return prop.GetValue(arg) as string;
         }
 
         return null;

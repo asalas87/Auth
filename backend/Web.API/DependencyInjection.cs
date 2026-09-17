@@ -28,7 +28,7 @@ public static class DependencyInjection
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        services.AddTransient<GlobalExceptionHandlingMiddleware>();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddHttpContextAccessor();
 
         services.AddAutoMapper(cfg =>
@@ -36,6 +36,7 @@ public static class DependencyInjection
             cfg.AddMaps(typeof(DependencyInjection).Assembly);
         });
 
+        services.AddProblemDetails();
         return services;
     }
 

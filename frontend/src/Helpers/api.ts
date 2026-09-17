@@ -47,14 +47,13 @@ const handleErrorResponse = async (error: AxiosError) => {
         error.response.status === 401 &&
         !originalRequest._retry &&
         getRefreshToken() &&
-        !originalRequest.url?.includes('/security/account/refresh') // 🔐 clave para evitar loop
+        !originalRequest.url?.includes('/security/account/refresh')
     ) {
         originalRequest._retry = true;
 
         try {
             const newAccessToken = await handleTokenRefresh();
 
-            // Reintentar request original con nuevo token
             originalRequest.headers = {
                 ...originalRequest.headers,
                 Authorization: `Bearer ${newAccessToken}`,
@@ -69,18 +68,41 @@ const handleErrorResponse = async (error: AxiosError) => {
         }
     }
 
+    // 429 Too Many Requests → IP bloqueada
+    if (error.response.status === 429) {
+        const data: any = error.response.data;
+        const blockedUntil = data?.blockedUntil;
+
+        if (blockedUntil) {
+            // Parsear la fecha ISO 8601 con zona horaria
+            const blockedDate = new Date(blockedUntil);
+            const localTime = blockedDate.toLocaleTimeString('es-AR', {
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+            toast.error(`Demasiados intentos. Tu IP está bloqueada hasta las ${localTime}.`);
+        } else {
+            toast.error('Demasiados intentos. Intentá más tarde.');
+        }
+
+        return Promise.reject(error);
+    }
+
+    // 428 Precondition Required → requiere CAPTCHA. No mostrar toast, el componente lo maneja.
+    if (error.response.status === 428) {
+        return Promise.reject(error);
+    }
+
     // Otros errores (400, 403, etc.)
     const data: any = error.response.data;
 
     if (data?.message === "Validation failed" && Array.isArray(data.details)) {
-        // Mostrar todos los errores de validación
         data.details.forEach((fieldError: any) => {
-        fieldError.errors.forEach((msg: string) => {
-            toast.error(`${fieldError.field}: ${msg}`);
-        });
+            fieldError.errors.forEach((msg: string) => {
+                toast.error(`${fieldError.field}: ${msg}`);
+            });
         });
     } else {
-        // Otros mensajes de error genéricos
         const message = data?.detail || data?.title || data?.message || 'Ocurrió un error inesperado.';
         toast.error(message);
     }
@@ -88,27 +110,26 @@ const handleErrorResponse = async (error: AxiosError) => {
     return Promise.reject(error);
 };
 
-// Interceptor global
 api.interceptors.request.use(config => {
     setLoading(true);
     return config;
 });
 
 api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    setLoading(false);
+    (response: AxiosResponse) => {
+        setLoading(false);
 
-    const data = response.data;
-    if (typeof data === 'object' && data?.message) {
-      toast.success(data.message);
+        const data = response.data;
+        if (typeof data === 'object' && data?.message) {
+            toast.success(data.message);
+        }
+
+        return response;
+    },
+    async error => {
+        setLoading(false);
+        return handleErrorResponse(error);
     }
-
-    return response;
-  },
-  async error => {
-    setLoading(false);
-    return handleErrorResponse(error);
-  }
 );
 
 export default api;

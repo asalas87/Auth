@@ -33,7 +33,7 @@ Web.API
 
 Responsibilities and boundaries:
 
-- `Web.API` owns controllers, HTTP concerns, middleware, authentication/authorization, and hosted jobs.
+- `Web.API` owns controllers, HTTP concerns, middleware, authentication/authorization, security filters, and hosted jobs.
 - `Application` owns use cases, application services, commands, queries, handlers, validators, DTOs, and application abstractions.
 - `Domain` owns entities, aggregate roots, value objects, domain events, and repository abstractions.
 - `Infrastructure` owns EF Core, repository implementations, EF configurations, migrations, and external integrations.
@@ -111,28 +111,83 @@ New commands/requests should use FluentValidation whenever request validation is
 
 ## Error Handling
 
-The target pattern is:
+The API uses a **standardized error contract** based on **ProblemDetails (RFC 9457)**. All error responses (4xx and 5xx) must follow this format.
 
-Application layer:
+### Layer responsibilities
 
-```csharp
-ErrorOr<T>
-```
+| Layer | Mechanism |
+| :--- | :--- |
+| **Application** | Return `ErrorOr<T>` for expected business failures. Never return HTTP results. |
+| **Web.API (Controllers)** | Translate `ErrorOr<T>` to `IActionResult` via `ErrorOrAspNetCoreExtensions`. |
+| **Web.API (Filters/Middleware)** | Use `ApiProblemDetailsFactory` to build `ProblemDetails` for cross-cutting concerns. |
+| **Global Exceptions** | Handled by `GlobalExceptionHandler` (`IExceptionHandler`). |
 
-API layer:
-
-```csharp
-return result.Match(
-    value => Ok(value),
-    errors => Problem(errors)
-);
-```
+### Application layer: `ErrorOr<T>`
 
 Expected application/domain failures must use `ErrorOr<T>`. Application code must never return `Ok()`, `BadRequest()`, `NotFound()`, `Unauthorized()`, or other HTTP results.
 
-Controllers translate errors through centralized `Problem(errors)` mapping. Do not introduce `BadRequest(result.FirstError)` unless there is a clear, explicitly justified reason. Expected business failures should not use exceptions. Unexpected exceptions continue through the global exception middleware.
+```csharp
+Task<ErrorOr<Guid>> DeleteCertificateAsync(Guid id);
+```
 
-Important: Do not wrap MediatR calls or handler logic in try-catch blocks in the service layer to convert exceptions to ErrorOr. Let unexpected exceptions propagate to the global exception middleware. Only catch exceptions when you intend to handle them (e.g., retry logic, fallback) and you have a clear strategy; never catch and return ErrorOr with the exception message.
+### API layer: `ErrorOrAspNetCoreExtensions`
+
+Controllers translate `ErrorOr<T>` results through extension methods. Avoid `Match(..., errors => Problem(errors))` manual mapping unless the extension does not fit.
+
+```csharp
+[HttpDelete("{id}")]
+[Authorize(Policy = "AdminOnly")]
+public async Task<IActionResult> Delete(Guid id)
+{
+    var result = await _service.DeleteCertificateAsync(id);
+    return result.ToOkWithoutBody();
+}
+```
+
+Default mapping (from `ErrorOrAspNetCoreExtensions`):
+
+| `ErrorType` | HTTP Status |
+| :--- | :--- |
+| `Validation` | 400 Bad Request |
+| `Unauthorized` | 401 Unauthorized |
+| `Forbidden` | 403 Forbidden |
+| `NotFound` | 404 Not Found |
+| `Conflict` | 409 Conflict |
+| `Unexpected` / others | 500 Internal Server Error |
+
+### Cross-cutting concerns: `ApiProblemDetailsFactory`
+
+For filters, middleware, or any location that does not consume `ErrorOr<T>`, use `ApiProblemDetailsFactory` to construct consistent `ProblemDetails` responses.
+
+```csharp
+context.Result = new ObjectResult(
+    ApiProblemDetailsFactory.TooManyRequests(entry.BlockedUntil.Value))
+{
+    StatusCode = StatusCodes.Status429TooManyRequests
+};
+```
+
+Do not construct `ProblemDetails` manually. The factory ensures:
+
+- Consistent `type` URIs (`https://tools.ietf.org/html/rfc9110#section-...`).
+- Consistent `title`, `detail`, and extension fields.
+- Easy evolution of the error contract.
+
+### Global exception handling: `IExceptionHandler`
+
+Unexpected exceptions are caught by `GlobalExceptionHandler`, which:
+
+- Logs the exception with Serilog (`traceId`, method, path).
+- Reports the incident to Observability (`IErrorReporter`, fire-and-forget).
+- Returns a 500 `ProblemDetails` response with `traceId`.
+
+Do not use `try-catch` for expected business failures in the Application layer. Only catch exceptions when there is a clear handling strategy (retry, fallback).
+
+Do not wrap MediatR calls or handler logic in `try-catch` blocks in the service layer to convert exceptions to `ErrorOr`. Let unexpected exceptions propagate to the global handler.
+
+### `ProblemDetails` configuration
+
+`AddProblemDetails()` is registered in `AddPresentation()`. `UseExceptionHandler()` is registered in `Program.cs` before `UseRouting()`. Do not duplicate `traceId` — .NET already adds it by default.
 
 ## Authentication and Authorization
 
@@ -144,6 +199,75 @@ The API is protected by default.
 - Do not duplicate JWT validation logic.
 - Do not implement inconsistent role checks inside controllers.
 
+## Security: Rate Limiting & CAPTCHA
+
+Protected endpoints (`login`, `register`, `forgot-password`, `reset-password`) are guarded by `SecurityGuardFilter`, which enforces IP-based rate limiting and CAPTCHA (Cloudflare Turnstile).
+
+### Architecture
+
+| Component | Responsibility | Location |
+| :--- | :--- | :--- |
+| `SecurityGuardFilter` | Orchestrates the flow | `Web.API/Filters` |
+| `ClientIpResolver` | Extracts client IP (respects `CF-Connecting-IP`) | `Web.API/Security` |
+| `ProtectedActionResolver` | Normalizes action name and checks if protected | `Web.API/Security` |
+| `CaptchaRequiredPolicy` | Decides when CAPTCHA is required | `Web.API/Security` |
+| `IIpAttemptTrackingService` | Tracks failures and blocking per IP/action | `Application` + `Infrastructure` |
+| `ITurnstileValidator` | Validates Turnstile tokens against Cloudflare | `Application` + `Infrastructure` |
+
+### Failure tracking rules
+
+- **Counter** is per `{IP}_{action}` (e.g., `throttle_1.2.3.4_login`).
+- **Increment** on: 401 (invalid credentials), 400 (invalid CAPTCHA), 428 (CAPTCHA required, no token).
+- **Do NOT increment** on: 200-2xx (success), 429 (already blocked).
+- **Reset** only on: 200 (successful authentication).
+- **CAPTCHA valid does NOT reset the counter.** Only a successful login resets it.
+
+### Thresholds (configurable in `appsettings.json`)
+
+```json
+"Security": {
+  "RateLimiting": {
+    "MaxAttempts": 6,
+    "TimeWindowMinutes": 15,
+    "BlockDurationMinutes": 15,
+    "CaptchaRequiredAttempts": 3
+  }
+}
+```
+
+- **`CaptchaRequiredAttempts`**: after N failures, CAPTCHA is required.
+- **`MaxAttempts`**: after N failures, IP is blocked (429) for `BlockDurationMinutes`.
+- **`TimeWindowMinutes`**: window for counting failures (sliding expiration).
+
+### Response contract
+
+| Status | When | ProblemDetails extensions |
+| :--- | :--- | :--- |
+| **428 Precondition Required** | CAPTCHA required, no token provided | `requiresCaptcha: true` |
+| **429 Too Many Requests** | IP blocked | `blockedUntil` (ISO 8601) + `Retry-After` header |
+| **400 Bad Request** | Invalid CAPTCHA token | (standard ProblemDetails) |
+| **503 Service Unavailable** | Turnstile service unreachable | (standard ProblemDetails) |
+
+### Blocking behavior
+
+The counter is checked **immediately after incrementing**. If the increment triggers the block, return 429 in the same response — do not wait for the next request. This avoids the "misleading 428" UX issue where the user thinks they have another chance but is already blocked.
+
+### Integration with frontend
+
+- The frontend renders the Turnstile widget on `428` and submits the `captchaToken` in the request body.
+- On `429`, the frontend must enter a blocked state with a countdown (using `blockedUntil`), disable inputs, and hide the CAPTCHA widget.
+- The Turnstile widget uses `data-permanent` and exposes a `reset()` method via `forwardRef` + `useImperativeHandle` to avoid re-mounting on every render.
+- Tokens are single-use. After a failed attempt, reset the widget to obtain a fresh token.
+- Reference implementation: `frontend/src/Security/Hooks/useLoginFlow.ts` and `frontend/src/Security/Components/TurnstileWidget.tsx`.
+
+### IP resolution
+
+Use `CF-Connecting-IP` header first (Cloudflare proxied traffic), fall back to `RemoteIpAddress`. Implemented in `ClientIpResolver`.
+
+### Known pending work
+
+- Separate request counter per IP to block "infinite 428" attacks (DoS to the CAPTCHA service). To be implemented as a complement to the failure counter.
+
 ## Persistence
 
 - Repository abstractions belong in Domain.
@@ -153,7 +277,7 @@ The API is protected by default.
 - Generate EF migrations for database changes.
 - Do not silently change database behavior.
 - Follow active read-only query patterns such as `AsNoTracking` where appropriate.
-- - When performing multiple operations (e.g., saving a token and sending an email), persist critical data first, then perform side effects (notifications), and finally commit all changes in a single transaction.
+- When performing multiple operations (e.g., saving a token and sending an email), persist critical data first, then perform side effects (notifications), and finally commit all changes in a single transaction.
 - Use `IUnitOfWork` to coordinate multiple repository changes in one `SaveChangesAsync`.
 
 ## Notifications
@@ -171,6 +295,48 @@ Main API
 The daily hosted `NotificationsJob` is the current notification mechanism. Do not introduce RabbitMQ or use the separate `Notifications.Worker` for new functionality.
 
 `UserCreatedEventHandler` is currently relevant and handles the user-creation notification email. Before modifying it, trace the entity/domain-event creation, event publication, handler, persistence, and email flow. Do not assume the domain-event lifecycle is complete without verifying it in code.
+
+## Observability Integration
+
+The API reports unhandled exceptions to an external Observability Platform (ObsPlatform) via HTTP.
+
+### Architecture
+
+```text
+GlobalExceptionHandler
+-> IErrorReporter.ReportAsync (fire-and-forget)
+-> ObservabilityErrorReporter
+-> HTTP POST /api/v1/{appId}/incidents (X-API-Key)
+-> ObsPlatform
+```
+
+### Configuration
+
+The `Observability` section in `appsettings.{Environment}.json`:
+
+```json
+"Observability": {
+  "BaseUrl": "https://obs.csingenieria.com.ar",
+  "ApiId": "{appId}",
+  "ApiKey": "obs_live_..."
+}
+```
+
+The API key is generated automatically by the CI/CD pipeline on each deploy (see the `Deploy to Staging` workflow).
+
+### Rules
+
+- Reports are **fire-and-forget**. Never block the HTTP response on the reporting call.
+- If configuration is missing, log a warning and skip (do not throw).
+- If the report endpoint returns 404 (not implemented), log at debug level and skip.
+- If the request fails (network error), log the failure but do not propagate.
+- The payload includes `message`, `exceptionType`, `source`, `stackTrace`, `level`, `environment`, and `context` (method, path, traceId, user).
+
+### Do NOT
+
+- Do not throw from `IErrorReporter`.
+- Do not block on the report call.
+- Do not include sensitive data (passwords, tokens) in the payload.
 
 ## Pagination
 
@@ -241,7 +407,7 @@ If an active and legacy implementation both exist, always prefer the active one.
 Known technical debt includes:
 
 - Incomplete FluentValidation coverage.
-- Inconsistent error mapping in older endpoints.
+- Controllers still use `Match(..., errors => Problem(errors))` instead of `ErrorOrAspNetCoreExtensions`.
 - Incomplete Customer repositories.
 - Partial pagination.
 - Domain-event lifecycle requiring verification.
@@ -249,6 +415,8 @@ Known technical debt includes:
 - Mixed AutoMapper/manual mapping.
 - Inconsistent CancellationToken propagation.
 - Mixed older/newer application patterns.
+- No request-level counter to mitigate "infinite 428" attacks.
+- No `/releases` endpoint in ObsPlatform.
 
 Do not fix these automatically during unrelated work. Address them only when explicitly requested or directly required by the feature.
 
@@ -260,7 +428,13 @@ Do not fix these automatically during unrelated work. Address them only when exp
 - [ ] Architectural boundaries preserved.
 - [ ] FluentValidation added when appropriate.
 - [ ] `ErrorOr<T>` used for expected failures.
-- [ ] Centralized `Problem(errors)` mapping used.
+- [ ] Controllers use `ErrorOrAspNetCoreExtensions` where applicable.
+- [ ] Cross-cutting errors use `ApiProblemDetailsFactory`.
+- [ ] No manual `ProblemDetails` construction outside the factory.
+- [ ] Protected endpoints (`login`, `register`, `forgot-password`, `reset-password`) keep the `SecurityGuardFilter` behavior.
+- [ ] Rate limiting counter is not reset by valid CAPTCHA (only by successful login).
+- [ ] Global exceptions are handled by `GlobalExceptionHandler` (not by custom middleware).
+- [ ] Observability reports are fire-and-forget.
 - [ ] `CancellationToken` propagated in new async code.
 - [ ] Authorization requirements verified.
 - [ ] Database changes include an appropriate migration.
