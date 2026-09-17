@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadScript } from '@/Helpers/loadScript';
+import { TurnstileOptions } from '../../types/turnstile';
 
 const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
 
@@ -55,7 +56,7 @@ export const useTurnstile = ({
             'error-callback': () => onErrorRef.current?.(),
             'expired-callback': reset,
             theme: 'light',
-        });
+        } satisfies TurnstileOptions);
 
         return () => {
             if (widgetIdRef.current && window.turnstile) {

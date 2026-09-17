@@ -77,12 +77,15 @@ pnpm-debug.log*
 
 # Archivos generados por TypeScript/Vite
 dist/
-*.js
-*.d.ts
+*.js.map
 **/*.js
 **/*.js.map
+
+# NO ignorar archivos fuente
 !src/**/*.ts
 !src/**/*.tsx
+!src/**/*.d.ts
+
 /backend/Web.API/wwwroot/renovation/
 /backend/Web.API/wwwroot/qualification/
 /backend/Web.API/Logs/*
