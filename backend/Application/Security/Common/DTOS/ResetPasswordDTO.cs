@@ -4,9 +4,9 @@ namespace Application.Security.Common.DTOS;
 
 public class ResetPasswordDTO
 {
-    [Required(ErrorMessage = "El email es obligatorio.")]
-    [EmailAddress(ErrorMessage = "El email no es válido.")]
-    public string Email { get; set; } = string.Empty;
+    //[Required(ErrorMessage = "El email es obligatorio.")]
+    //[EmailAddress(ErrorMessage = "El email no es válido.")]
+    //public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El token es obligatorio.")]
     public string Token { get; set; } = string.Empty;

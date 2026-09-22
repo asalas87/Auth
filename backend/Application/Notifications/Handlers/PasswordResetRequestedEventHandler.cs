@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using SharedKernel.Entities;
 using SharedKernel.Enums;
 using SharedKernel.Interfaces;
+using static Domain.DomainErrors.Errors;
 
 namespace Application.Notifications.Handlers;
 
@@ -39,7 +40,8 @@ public class PasswordResetRequestedEventHandler(
         await _userActivationTokenRepository.InvalidateOtherTokensAsync(new UserId(notification.UserId), userActivationToken.Token, cancellationToken);
 
         var frontendUrl = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar";
-        var resetLink = $"{frontendUrl}/reset-password?token={userActivationToken.Token}";
+        var encodedEmail = Uri.EscapeDataString(notification.Email);
+        var resetLink = $"{frontendUrl}/reset-password?token={userActivationToken.Token}&email={encodedEmail}\"";
         var subject = "Reinicio de contraseña";
 
         var notif = new Notification(

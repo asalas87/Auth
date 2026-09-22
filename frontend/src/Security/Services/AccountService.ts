@@ -2,6 +2,7 @@ import api from '../../Helpers/api';
 import { setAccessToken, setRefreshToken, deleteTokens } from '../../Helpers/auth-helpers';
 import { IRegisterDTO, ILoginDTO } from '../Interfaces';
 import { IActivateAccountDTO } from '../Interfaces/Dtos/IActivateAccountDTO';
+import { IForgotPasswordDTO, IResetPasswordDTO } from '../Interfaces/Dtos/IPasswordDtos';
 
 export const login = async (userData: ILoginDTO) => {
     const response = await api.post('/security/account/login', userData);
@@ -33,4 +34,14 @@ export const activateAccount = async (data: IActivateAccountDTO) => {
 export const logout = () => {
     deleteTokens();
     api.defaults.headers.common['Authorization'] = '';
+};
+
+export const forgotPassword = async (data: IForgotPasswordDTO) => {
+    const response = await api.post('/security/account/forgot-password', data);
+    return response.data;
+};
+
+export const resetPassword = async (data: IResetPasswordDTO) => {
+    const response = await api.post('/security/account/reset-password', data);
+    return response.data;
 };

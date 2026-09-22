@@ -191,7 +191,7 @@ public class AuthenticationService(
 
     public async Task<ErrorOr<bool>> ResetPasswordAsync(ResetPasswordDTO dto, CancellationToken cancellationToken = default)
     {
-        var command = new ResetPasswordCommand(dto.Email, dto.Password, dto.ConfirmPassword, dto.Token);
+        var command = new ResetPasswordCommand(dto.Password, dto.ConfirmPassword, dto.Token);
         return await _mediator.Send(command, cancellationToken);
     }
 }

@@ -11,7 +11,7 @@ namespace Application.Security.Users.GetById
 
         public async Task<ErrorOr<User>> Handle(GetUserByIdQuery query, CancellationToken cancellationToken)
         {
-            if (await _userRepository.GetByIdAsync(new UserId(query.Id)) is not User user)
+            if (await _userRepository.GetByIdAsync(new UserId(query.Id), cancellationToken) is not User user)
             {
                 return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
             }

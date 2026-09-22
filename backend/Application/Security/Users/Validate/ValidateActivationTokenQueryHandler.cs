@@ -24,7 +24,7 @@ public sealed class ValidateActivationTokenQueryHandler(
         if (!token.IsValid())
             return Error.Validation("ActivationToken.Invalid", "El token de activación ha expirado o ya fue usado.");
 
-        var user = await _userRepository.GetByIdAsync(token.UserId);
+        var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
 
         if (user is null)
             return Error.NotFound("User.NotFound", "No se encontró el usuario asociado al token.");

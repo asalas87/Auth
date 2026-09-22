@@ -23,15 +23,12 @@ public sealed class ResetPasswordCommandHandler(
 
     public async Task<ErrorOr<bool>> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
-        var emailResult = Email.Create(request.Email);
-        if (emailResult is null)
-            return Error.Validation("Email.Invalid", "El email no es válido.");
 
         var token = await _tokenRepository.GetByTokenAsync(request.Token, cancellationToken);
         if (token is null || !token.IsValid() || token.Purpose != TokenPurpose.PasswordReset)
             return Error.Validation("PasswordReset.Token.Invalid", "El token no es válido o ha expirado.");
 
-        var user = await _userRepository.GetByEmailAsync(emailResult, cancellationToken);
+        var user = await _userRepository.GetByIdAsync(token.UserId, cancellationToken);
         if (user is null)
             return Error.NotFound("User.NotFound", "Usuario no encontrado.");
 

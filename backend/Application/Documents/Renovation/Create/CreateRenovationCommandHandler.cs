@@ -40,7 +40,7 @@ public sealed class CreateRenovationCommandHandler(
         string? relativePath = null;
         try
         {
-            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
+            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById), cancellationToken) is not User uploadedUser)
             {
                 return Error.NotFound("User.NotFound", "The user with the provided Id was not found.");
             }

@@ -39,7 +39,7 @@ public sealed class CreateCertificateCommandHandler(
         try
         {
 
-            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
+            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById), cancellationToken) is not User uploadedUser)
             {
                 return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
             }

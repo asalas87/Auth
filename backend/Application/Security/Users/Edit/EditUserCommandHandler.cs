@@ -23,7 +23,7 @@ public class EditUserCommandHandler(
     public async Task<ErrorOr<UserId>> Handle(EditUserCommand command, CancellationToken cancellationToken)
     {
         var userId = new UserId(command.Id);
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
             return Error.NotFound("User.NotFound", "El usuario no existe.");

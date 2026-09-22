@@ -13,10 +13,6 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
             .NotEmpty().WithMessage("La confirmación es requerida.")
             .Equal(x => x.Password).WithMessage("Las contraseñas no coinciden.");
 
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("El email es requerido.")
-            .EmailAddress().WithMessage("El email no es válido.");
-
         RuleFor(x => x.Token)
             .NotEmpty().WithMessage("El token es requerido.");
     }

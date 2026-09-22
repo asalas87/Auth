@@ -32,7 +32,7 @@ public sealed class ActivateUserCommandHandler(
         if (token.Purpose != TokenPurpose.AccountActivation)
             return Error.Validation("ActivationToken.Invalid", "El token no es válido para esta operación.");
 
-        var user = await _userRepository.GetByIdAsync(new UserId(request.UserId));
+        var user = await _userRepository.GetByIdAsync(new UserId(request.UserId), cancellationToken);
         if (user is null)
             return Error.NotFound("User.NotFound", "Usuario no encontrado.");
 

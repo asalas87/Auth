@@ -1,7 +1,5 @@
-﻿import { RouteObject } from "react-router-dom";
+﻿import { Navigate, RouteObject } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import AuthView from "../Security/Views/AuthView";
-
 import securityRoutes from "../Security/Routes";
 import documentsRoutes from "../Documents/Routes";
 import partnersRoutes from "../Partners/Routes";
@@ -24,7 +22,9 @@ const AppRoutes = (): RouteObject[] => {
                             </div>
                         </Layout>
                     </ProtectedRoute>
-                ) : <AuthView />,
+                ) : (
+                <Navigate to="/auth" replace />
+            ),
         },
         ...securityRoutes,
         ...documentsRoutes,

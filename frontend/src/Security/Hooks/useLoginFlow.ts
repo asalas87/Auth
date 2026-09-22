@@ -41,6 +41,7 @@ export const useLoginFlow = (): UseLoginFlowReturn => {
             setRemainingTime(null);
             return;
         }
+
         const tick = () => {
             const diff = blockedUntil.getTime() - Date.now();
             if (diff <= 0) {
@@ -51,6 +52,7 @@ export const useLoginFlow = (): UseLoginFlowReturn => {
             }
             setRemainingTime(formatRemaining(diff));
         };
+
         tick();
         const interval = setInterval(tick, 1000);
         return () => clearInterval(interval);
@@ -63,10 +65,12 @@ export const useLoginFlow = (): UseLoginFlowReturn => {
 
     const submit = async (email: string, password: string) => {
         if (isSubmitting || isBlocked) return;
+
         if (requiresCaptcha && !captchaToken) {
             toast.error('Por favor, completá el CAPTCHA.');
             return;
         }
+
         setIsSubmitting(true);
         try {
             await signIn({
@@ -77,11 +81,13 @@ export const useLoginFlow = (): UseLoginFlowReturn => {
             navigate('/', { replace: true });
         } catch (error: any) {
             const status = error?.response?.status;
+
             if (status === 428) {
                 setRequiresCaptcha(true);
                 if (captchaToken) resetCaptcha();
                 return;
             }
+
             if (status === 429) {
                 const data = error?.response?.data;
                 const until = data?.blockedUntil ? new Date(data.blockedUntil) : null;
@@ -90,6 +96,7 @@ export const useLoginFlow = (): UseLoginFlowReturn => {
                 setCaptchaToken(null);
                 return;
             }
+
             if (requiresCaptcha) resetCaptcha();
         } finally {
             setIsSubmitting(false);
