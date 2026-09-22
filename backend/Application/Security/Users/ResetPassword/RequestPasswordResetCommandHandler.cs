@@ -21,7 +21,7 @@ public sealed class RequestPasswordResetCommandHandler(
         if (emailResult is null)
             return Error.Validation("Email.Invalid", "El email no es válido.");
 
-        var user = await _userRepository.GetByEmailAsync(emailResult);
+        var user = await _userRepository.GetByEmailAsync(emailResult, cancellationToken);
 
         if (user is null)
             return true;

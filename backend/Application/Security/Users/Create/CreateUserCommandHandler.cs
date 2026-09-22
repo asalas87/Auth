@@ -18,7 +18,7 @@ public sealed class CreateUserCommandHandler(IUserRepository userRepository, IRo
 
     public async Task<ErrorOr<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+        var existingUser = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existingUser != null)
             return Error.Failure("User.EmailRegistrated", "El email ya está registrado.");
 

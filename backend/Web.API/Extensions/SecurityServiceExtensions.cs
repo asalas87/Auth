@@ -22,14 +22,4 @@ public static class SecurityServiceExtensions
 
         return services;
     }
-
-    public static IMvcBuilder AddSecurityGuardFilter(this IMvcBuilder builder)
-    {
-        builder.AddMvcOptions(options =>
-        {
-            options.Filters.Add<SecurityGuardFilter>();
-        });
-
-        return builder;
-    }
 }

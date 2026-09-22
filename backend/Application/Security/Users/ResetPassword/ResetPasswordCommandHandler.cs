@@ -31,7 +31,7 @@ public sealed class ResetPasswordCommandHandler(
         if (token is null || !token.IsValid() || token.Purpose != TokenPurpose.PasswordReset)
             return Error.Validation("PasswordReset.Token.Invalid", "El token no es válido o ha expirado.");
 
-        var user = await _userRepository.GetByEmailAsync(emailResult);
+        var user = await _userRepository.GetByEmailAsync(emailResult, cancellationToken);
         if (user is null)
             return Error.NotFound("User.NotFound", "Usuario no encontrado.");
 

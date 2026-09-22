@@ -11,72 +11,118 @@ public class IpAttemptTrackingService(
     private readonly IMemoryCache _cache = cache;
     private readonly IConfiguration _configuration = configuration;
 
-    private int MaxAttempts => _configuration.GetValue<int?>("Security:RateLimiting:MaxAttempts") ?? 5;
-    private int TimeWindowMinutes => _configuration.GetValue<int?>("Security:RateLimiting:TimeWindowMinutes") ?? 15;
-    private int BlockDurationMinutes => _configuration.GetValue<int?>("Security:RateLimiting:BlockDurationMinutes") ?? 60;
+    private int MaxAttempts =>
+        _configuration.GetValue<int?>("Security:RateLimiting:MaxAttempts") ?? 5;
 
-    private string CacheKey(string ip, string actionName) => $"throttle_{ip}_{actionName}";
+    private int TimeWindowMinutes =>
+        _configuration.GetValue<int?>("Security:RateLimiting:TimeWindowMinutes") ?? 15;
 
-    public Task<FailureTrackingEntry> GetOrCreateEntryAsync(string ip, string actionName, CancellationToken cancellationToken = default)
+    private int BlockDurationMinutes =>
+        _configuration.GetValue<int?>("Security:RateLimiting:BlockDurationMinutes") ?? 60;
+
+    private string CacheKey(string ip, string actionName) =>
+        $"throttle_{ip}_{actionName}";
+
+    public Task<FailureTrackingEntry> GetOrCreateEntryAsync(
+        string ip,
+        string actionName,
+        CancellationToken cancellationToken = default)
     {
         var key = CacheKey(ip, actionName);
+
         if (!_cache.TryGetValue(key, out FailureTrackingEntry? entry))
         {
             entry = new FailureTrackingEntry();
-            var options = new MemoryCacheEntryOptions();
-            options.SetSlidingExpiration(TimeSpan.FromMinutes(TimeWindowMinutes));
+
+            var options = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(TimeWindowMinutes));
+
             _cache.Set(key, entry, options);
         }
 
         return Task.FromResult(entry!);
     }
 
-    public async Task IncrementFailuresAsync(string ip, string actionName, CancellationToken cancellationToken = default)
+    public async Task<FailureTrackingEntry> RegisterFailureAsync(
+        string ip,
+        string actionName,
+        CancellationToken cancellationToken = default)
     {
-        var entry = await GetOrCreateEntryAsync(ip, actionName, cancellationToken);
+        var entry = await GetOrCreateEntryAsync(
+            ip,
+            actionName,
+            cancellationToken);
 
-        if (entry.BlockedUntil.HasValue && entry.BlockedUntil.Value > DateTime.UtcNow)
+        lock (entry)
         {
-            return;
-        }
+            var now = DateTime.UtcNow;
 
-        if (entry.LastAttempt.HasValue && DateTime.UtcNow - entry.LastAttempt.Value > TimeSpan.FromMinutes(TimeWindowMinutes))
-        {
-            entry.Attempts = 0;
-            entry.BlockedUntil = null;
-        }
+            if (entry.BlockedUntil.HasValue &&
+                entry.BlockedUntil.Value > now)
+            {
+                return entry;
+            }
 
-        entry.Attempts++;
-        entry.LastAttempt = DateTime.UtcNow;
+            if (entry.LastAttempt.HasValue &&
+                now - entry.LastAttempt.Value >
+                TimeSpan.FromMinutes(TimeWindowMinutes))
+            {
+                entry.Attempts = 0;
+                entry.BlockedUntil = null;
+            }
 
-        if (entry.Attempts >= MaxAttempts)
-        {
-            entry.BlockedUntil = DateTime.UtcNow.AddMinutes(BlockDurationMinutes);
+            entry.Attempts++;
+            entry.LastAttempt = now;
+
+            if (entry.Attempts >= MaxAttempts)
+            {
+                entry.BlockedUntil = now.AddMinutes(BlockDurationMinutes);
+            }
+
+            return entry;
         }
     }
 
-    public Task ResetAsync(string ip, string actionName, CancellationToken cancellationToken = default)
+    public Task ResetAsync(
+        string ip,
+        string actionName,
+        CancellationToken cancellationToken = default)
     {
         var key = CacheKey(ip, actionName);
         _cache.Remove(key);
+
         return Task.CompletedTask;
     }
 
-    public async Task<bool> IsBlockedAsync(string ip, string actionName, CancellationToken cancellationToken = default)
+    public async Task<bool> IsBlockedAsync(
+        string ip,
+        string actionName,
+        CancellationToken cancellationToken = default)
     {
-        var entry = await GetOrCreateEntryAsync(ip, actionName, cancellationToken);
+        var entry = await GetOrCreateEntryAsync(
+            ip,
+            actionName,
+            cancellationToken);
 
-        if (entry.BlockedUntil.HasValue && entry.BlockedUntil.Value > DateTime.UtcNow)
+        lock (entry)
         {
-            return true;
-        }
+            var now = DateTime.UtcNow;
 
-        if (entry.LastAttempt.HasValue && DateTime.UtcNow - entry.LastAttempt.Value > TimeSpan.FromMinutes(TimeWindowMinutes))
-        {
-            entry.Attempts = 0;
-            entry.BlockedUntil = null;
-        }
+            if (entry.BlockedUntil.HasValue &&
+                entry.BlockedUntil.Value > now)
+            {
+                return true;
+            }
 
-        return false;
+            if (entry.LastAttempt.HasValue &&
+                now - entry.LastAttempt.Value >
+                TimeSpan.FromMinutes(TimeWindowMinutes))
+            {
+                entry.Attempts = 0;
+                entry.BlockedUntil = null;
+            }
+
+            return false;
+        }
     }
 }

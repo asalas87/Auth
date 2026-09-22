@@ -57,7 +57,6 @@ public class RegistroDeCalificacionController(IDocumentService service) : ApiCon
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Put(Guid id, [FromBody] CertificateEditDTO dto)
     {
-        throw new NotImplementedException("PUT method error test");
         var result = await _service.UpdateCertificateAsync(dto);
         return result.Match(
             success => Ok(success),
