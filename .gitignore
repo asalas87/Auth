@@ -89,4 +89,5 @@ dist/
 /backend/Web.API/wwwroot/renovation/
 /backend/Web.API/wwwroot/qualification/
 /backend/Web.API/Logs/*
+/scripts
 /Workers

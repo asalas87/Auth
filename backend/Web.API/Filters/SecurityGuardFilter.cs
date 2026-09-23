@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Application.Security.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,11 +11,13 @@ public class SecurityGuardFilter(
     IIpAttemptTrackingService tracking,
     ITurnstileValidator turnstile,
     CaptchaRequiredPolicy captchaPolicy,
+    IErrorReporter errorReporter,
     ILogger<SecurityGuardFilter> logger) : IAsyncActionFilter
 {
     private readonly IIpAttemptTrackingService _tracking = tracking;
     private readonly ITurnstileValidator _turnstile = turnstile;
     private readonly CaptchaRequiredPolicy _captchaPolicy = captchaPolicy;
+    private readonly IErrorReporter _errorReporter = errorReporter;
     private readonly ILogger<SecurityGuardFilter> _logger = logger;
 
     public async Task OnActionExecutionAsync(
@@ -72,6 +75,22 @@ public class SecurityGuardFilter(
             "Blocked IP {Ip} attempted to access {Action}",
             ip,
             actionName);
+
+
+        _ = _errorReporter.ReportSecurityEventAsync(
+            eventType: "SecurityEvent.IpBlocked",
+            message: $"IP {ip} blocked on '{actionName}' after {entry.Attempts} failed attempts.",
+            level: "WARN",
+            context: new
+            {
+                eventType = "IP_BLOCKED",
+                ip,
+                action = actionName,
+                attempts = entry.Attempts,
+                blockedUntil = entry.BlockedUntil.Value.ToString("o"),
+                traceId = context.HttpContext.TraceIdentifier
+            },
+            cancellationToken: context.HttpContext.RequestAborted);
 
         var retryAfterSeconds = Math.Max(
             1,

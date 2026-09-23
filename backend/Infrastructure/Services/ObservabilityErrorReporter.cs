@@ -86,4 +86,63 @@ public class ObservabilityErrorReporter : IErrorReporter
             _logger.LogError(ex, "Error sending incident to observability platform");
         }
     }
+
+    public async Task ReportSecurityEventAsync(
+        string eventType,
+        string message,
+        string level,
+        object context,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var apiKey = _configuration["Observability:ApiKey"];
+            var apiId = _configuration["Observability:ApiId"];
+            var baseUrl = _configuration["Observability:BaseUrl"];
+
+            if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiId) || string.IsNullOrEmpty(baseUrl))
+            {
+                _logger.LogWarning("Observability configuration missing. Skipping security event report.");
+                return;
+            }
+
+            var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                $"{baseUrl.TrimEnd('/')}/api/v1/{apiId}/incidents");
+
+            request.Headers.Add("X-API-Key", apiKey);
+
+            var payload = new
+            {
+                message,
+                exceptionType = eventType,
+                source = "SecurityGuardFilter",
+                level,
+                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown",
+                context
+            };
+
+            request.Content = JsonContent.Create(payload);
+
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    _logger.LogDebug("Observability incidents endpoint not implemented (404).");
+                    return;
+                }
+
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogWarning(
+                    "Failed to report security event. Status: {Status}, Body: {Body}",
+                    response.StatusCode,
+                    body);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending security event to observability platform");
+        }
+    }
 }
