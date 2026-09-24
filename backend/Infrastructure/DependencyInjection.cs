@@ -56,6 +56,14 @@ public static class DependencyInjection
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
+        services.ConfigureHttpClientDefaults(http =>
+        {
+            http.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "Auth-API/1.0");
+            });
+        });
+
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
         services.AddScoped<IEmailService, EmailService>();
