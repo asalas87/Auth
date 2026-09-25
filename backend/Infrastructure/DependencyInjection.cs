@@ -16,6 +16,7 @@ using Infrastructure.Persistence.Sales.Repositories;
 using Infrastructure.Persistence.Security.Repositories;
 using Infrastructure.Security;
 using Infrastructure.Services;
+using Infrastructure.Services.Observability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,18 +52,14 @@ public static class DependencyInjection
         services.AddScoped<IRenovationRepository, RenovationRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
 
+        services.Configure<ObservabilityOptions>(
+            configuration.GetSection(ObservabilityOptions.SectionName));
+
         return services;
     }
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.ConfigureHttpClientDefaults(http =>
-        {
-            http.ConfigureHttpClient(client =>
-            {
-                client.DefaultRequestHeaders.Add("User-Agent", "Auth-API/1.0");
-            });
-        });
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
@@ -73,8 +70,16 @@ public static class DependencyInjection
         services.AddTransient<IPdfTextExtractor, PdfPigTextExtractor>();
         services.AddTransient<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
         services.AddScoped<IFileStorageService, FileStorageService>();
-        services.AddHttpClient<IErrorReporter, ObservabilityErrorReporter>();
 
+        services.ConfigureHttpClientDefaults(http =>
+        {
+            http.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "Auth-API/1.0");
+            });
+        });
+        services.AddHttpClient<IObservabilityClient, ObservabilityClient>();
+        services.AddScoped<IErrorReporter, ObservabilityErrorReporter>();
         return services;
     }
 }

@@ -1,90 +1,43 @@
-using System.Net;
-using System.Net.Http.Json;
 using Application.Interfaces;
+using Infrastructure.Services.Observability;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
 
 namespace Infrastructure.Services;
 
 public class ObservabilityErrorReporter : IErrorReporter
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
+    private readonly IObservabilityClient _client;
     private readonly ILogger<ObservabilityErrorReporter> _logger;
 
     public ObservabilityErrorReporter(
-        HttpClient httpClient,
-        IConfiguration configuration,
+        IObservabilityClient client,
         ILogger<ObservabilityErrorReporter> logger)
     {
-        _httpClient = httpClient;
-        _configuration = configuration;
+        _client = client;
         _logger = logger;
     }
 
     public async Task ReportAsync(Exception exception, HttpContext context)
     {
-        try
+        var payload = new IncidentPayload
         {
-            var apiKey = _configuration["Observability:ApiKey"];
-            var apiId = _configuration["Observability:ApiId"];
-            var baseUrl = _configuration["Observability:BaseUrl"];
-            if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiId) || string.IsNullOrEmpty(baseUrl))
+            Message = exception.Message,
+            Level = "ERROR",
+            Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown",
+            StackTrace = exception.StackTrace,
+            ExceptionType = exception.GetType().Name,
+            Source = "GlobalExceptionHandler",
+            Context = new
             {
-                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-                {
-                    _logger.LogError("🔴 Observability configuration missing in Development! Check appsettings.");
-                }
-                else
-                {
-                    _logger.LogWarning("Observability configuration missing. Skipping error report.");
-                }
-                return;
+                method = context.Request.Method,
+                path = context.Request.Path.ToString(),
+                traceId = context.TraceIdentifier,
+                user = context.User?.FindFirst("sub")?.Value ?? "Anonymous"
             }
+        };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/api/v1/{apiId}/incidents");
-            request.Headers.Add("X-API-Key", apiKey);
-
-            var payload = new
-            {
-                message = exception.Message,
-                stackTrace = exception.StackTrace,
-                level = "ERROR",
-                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown",
-                context = new
-                {
-                    method = context.Request.Method,
-                    path = context.Request.Path.ToString(),
-                    traceId = context.TraceIdentifier,
-                    user = context.User?.FindFirst("sub")?.Value ?? "Anonymous"
-                }
-            };
-
-            request.Content = JsonContent.Create(payload);
-
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-            {
-                var body = await response.Content.ReadAsStringAsync();
-
-                // Si es 404, es porque el endpoint no está implementado (temporal)
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    _logger.LogDebug("Observability incidents endpoint not implemented yet (404).");
-                    return;
-                }
-
-                _logger.LogWarning("Failed to report error to observability. Status: {Status}, Body: {Body}",
-                    response.StatusCode, body);
-            }
-        }
-        catch (Exception ex)
-        {
-            // No queremos que un fallo en el envío rompa la aplicación principal
-            _logger.LogError(ex, "Error sending incident to observability platform");
-        }
+        await _client.SendIncidentAsync(payload, context.RequestAborted);
     }
 
     public async Task ReportSecurityEventAsync(
@@ -94,55 +47,16 @@ public class ObservabilityErrorReporter : IErrorReporter
         object context,
         CancellationToken cancellationToken = default)
     {
-        try
+        var payload = new IncidentPayload
         {
-            var apiKey = _configuration["Observability:ApiKey"];
-            var apiId = _configuration["Observability:ApiId"];
-            var baseUrl = _configuration["Observability:BaseUrl"];
+            Message = message,
+            Level = level,
+            Environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown",
+            ExceptionType = eventType,
+            Source = "SecurityGuardFilter",
+            Context = context
+        };
 
-            if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiId) || string.IsNullOrEmpty(baseUrl))
-            {
-                _logger.LogWarning("Observability configuration missing. Skipping security event report.");
-                return;
-            }
-
-            var request = new HttpRequestMessage(
-                HttpMethod.Post,
-                $"{baseUrl.TrimEnd('/')}/api/v1/{apiId}/incidents");
-
-            request.Headers.Add("X-API-Key", apiKey);
-
-            var payload = new
-            {
-                message,
-                exceptionType = eventType,
-                source = "SecurityGuardFilter",
-                level,
-                environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown",
-                context
-            };
-
-            request.Content = JsonContent.Create(payload);
-
-            var response = await _httpClient.SendAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    _logger.LogDebug("Observability incidents endpoint not implemented (404).");
-                    return;
-                }
-
-                var body = await response.Content.ReadAsStringAsync(cancellationToken);
-                _logger.LogWarning(
-                    "Failed to report security event. Status: {Status}, Body: {Body}",
-                    response.StatusCode,
-                    body);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error sending security event to observability platform");
-        }
+        await _client.SendIncidentAsync(payload, cancellationToken);
     }
 }
