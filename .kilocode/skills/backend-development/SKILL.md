@@ -107,7 +107,7 @@ New commands/requests should use FluentValidation whenever request validation is
 - **Handlers must not contain request-level validations** if a FluentValidation validator exists; avoid duplication.
 - **Application service layer** (if used) must not contain any validation logic; it only orchestrates the use case.
 - Do not duplicate domain invariants in validators; keep domain rules in entities/value objects.
-- For Value Object comparisons (e.g., `UserId`), use `.Value` or `Equals` to compare underlying values; avoid direct `==` unless overloaded.
+- For Value Object comparisons (e.g., `UserId`), see "Value Object Equality in EF Queries" under Persistence.
 
 ## Error Handling
 
@@ -279,6 +279,28 @@ Use `CF-Connecting-IP` header first (Cloudflare proxied traffic), fall back to `
 - Follow active read-only query patterns such as `AsNoTracking` where appropriate.
 - When performing multiple operations (e.g., saving a token and sending an email), persist critical data first, then perform side effects (notifications), and finally commit all changes in a single transaction.
 - Use `IUnitOfWork` to coordinate multiple repository changes in one `SaveChangesAsync`.
+
+## Delete Operations and FK Behavior
+
+Deletes do NOT validate FK dependencies in the handler, EXCEPT when explicitly noted. EF Core configurations define the `OnDelete` behavior:
+
+| FK | Behavior | Effect |
+| :--- | :--- | :--- |
+| `User.CompanyId` | `SetNull` | User stays, `CompanyId = null` |
+| `DocumentFile.AssignedToId` | `SetNull` | Document stays, `AssignedToId = null` |
+| `RefreshToken.UserId` | `Cascade` | Tokens deleted with user |
+| `UserActivationToken.UserId` | `Cascade` | Tokens deleted with user |
+| `DocumentFile.UploadedById` | `Restrict` | Cannot delete a user that has uploaded documents |
+
+For `Restrict` FKs, the handler MUST validate and return `Error.Conflict` with a clear message before attempting the delete.
+
+Reference: `DeleteUserCommandHandler` validates `HasUploadedDocumentsAsync` before deleting.
+
+### Value Object Equality in EF Queries
+
+Use `.Equals(...)` when comparing Value Objects (`UserId`, `CompanyId`, `DocumentFileId`) in EF queries. The `==` operator resolves to reference equality (not translatable to SQL) unless the Value Object overloads `operator ==`.
+
+**Known technical debt**: `GetByIdAsync`, `ExistsAsync`, `GetByEmailAsync` in several repositories use `==` and may fail at runtime. To be addressed in a separate iteration.
 
 ## Notifications
 
