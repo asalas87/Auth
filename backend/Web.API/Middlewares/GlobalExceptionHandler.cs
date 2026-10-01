@@ -6,8 +6,7 @@ namespace Web.API.Middlewares;
 
 public class GlobalExceptionHandler(
     ILogger<GlobalExceptionHandler> logger,
-    IHostEnvironment environment,
-    IErrorReporter errorReporter) : IExceptionHandler
+    IHostEnvironment environment) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -25,17 +24,27 @@ public class GlobalExceptionHandler(
             path,
             traceId);
 
-        _ = errorReporter.ReportAsync(exception, httpContext);
+        var errorReporter = httpContext.RequestServices
+            .GetRequiredService<IErrorReporter>();
+
+        await errorReporter.ReportAsync(exception, httpContext);
 
         var problemDetails = BuildProblemDetails(exception, method, path, traceId);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+
+        await httpContext.Response.WriteAsJsonAsync(
+            problemDetails,
+            cancellationToken);
 
         return true;
     }
 
-    private ProblemDetails BuildProblemDetails(Exception exception, string method, string path, string traceId)
+    private ProblemDetails BuildProblemDetails(
+        Exception exception,
+        string method,
+        string path,
+        string traceId)
     {
         var problem = new ProblemDetails
         {

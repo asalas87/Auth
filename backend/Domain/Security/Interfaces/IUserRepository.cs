@@ -13,4 +13,5 @@ public interface IUserRepository
     void Update(User user);
     void Delete(User user);
     Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter);
+    Task<bool> HasUploadedDocumentsAsync(UserId userId, CancellationToken cancellationToken = default);
 }

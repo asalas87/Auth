@@ -27,7 +27,8 @@ namespace Infrastructure.Persistence.Security.Configuration
             builder.HasOne(u => u.Company)
                 .WithMany(c => c.Users)
                 .HasForeignKey("CompanyId")
-                .OnDelete(DeleteBehavior.Restrict);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Property(c => c.Active).HasDefaultValue(true);
         }
