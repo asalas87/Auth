@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import { activateAccount, login, logout, register } from "../Services/AccountService";
-import { decodeUserFromToken, getAccessToken, setAccessToken } from "@/Helpers/auth-helpers";
-import { ILoginDTO } from "../Interfaces/Dtos/ILoginDTO";
+import { decodeUserFromToken, getAccessToken, setAccessToken } from "@/Helpers/authHelpers";
+import { ILoginDTO } from "../Interfaces/DTOs/ILoginDTO";
 import { ILoginResponseDTO, IRegisterDTO, IUserDTO } from "../Interfaces";
-import { IActivateAccountDTO } from "../Interfaces/Dtos/IActivateAccountDTO";
+import { IActivateAccountDTO } from "../Interfaces/DTOs/IActivateAccountDTO";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUserDTO | null>(null);

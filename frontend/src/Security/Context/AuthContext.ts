@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
 import { IUserDTO } from "../Interfaces";
-import { ILoginDTO } from "../Interfaces/Dtos/ILoginDTO";
-import { IRegisterDTO } from "../Interfaces/Dtos/IRegisterDTO";
-import { IActivateAccountDTO } from "../Interfaces/Dtos/IActivateAccountDTO";
+import { ILoginDTO } from "../Interfaces/DTOs/ILoginDTO";
+import { IRegisterDTO } from "../Interfaces/DTOs/IRegisterDTO";
+import { IActivateAccountDTO } from "../Interfaces/DTOs/IActivateAccountDTO";
 
 export interface AuthContextType {
   user: IUserDTO | null;

@@ -3,7 +3,7 @@ import { getAll, download, multipleDownload } from '../Services/DocumentService'
 import { IDocumentResponseDTO } from '../Interfaces';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 import TableGrid from '@/Common/Components/DataGrid';
-import { userDocumentsColumns } from './Forms/userDocumentColumns';
+import { userDocumentsColumns } from './Forms/UserDocumentColumns';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
 import Button from '@/Common/Components/Button';
 import { parseDates } from '@/Helpers/parseDates';

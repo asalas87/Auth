@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from "./Security/Context/AuthProvider";
 import App from './App'
 import './index.css'
-import { initAxiosInterceptors } from './Helpers/auth-helpers';
+import { initAxiosInterceptors } from './Helpers/authHelpers';
 import { LoadingProvider, useLoading } from './Common/Context/LoadingContext';
 import { initApiLoading } from './Helpers/api';
 

@@ -1,9 +1,9 @@
-// Dtos
-export * from './Dtos/ILoginDTO';
-export * from './Dtos/IRegisterDTO';
-export * from './Dtos/IUserDTO';
-export * from './Dtos/IRoleDTO';
-export * from './Dtos/IUserEditDTO';
+// DTOs
+export * from './DTOs/ILoginDTO';
+export * from './DTOs/IRegisterDTO';
+export * from './DTOs/IUserDTO';
+export * from './DTOs/IRoleDTO';
+export * from './DTOs/IUserEditDTO';
 
 // Models
 export * from './Models/IBaseUser';

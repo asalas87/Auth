@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from 'react-toastify';
-import { getRefreshToken, setAccessToken, setRefreshToken } from './auth-helpers';
+import { getRefreshToken, setAccessToken, setRefreshToken } from './authHelpers';
 import { appsettings } from '../settings/appsettings';
 import { logout } from '@/Security/Services/AccountService';
 

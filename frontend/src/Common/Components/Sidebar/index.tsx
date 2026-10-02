@@ -10,11 +10,11 @@ interface MenuItem {
 
 const menuItems: Record<UserRole, MenuItem[]> = {
     User: [
-        { path: "/document/management", label: "Documentos", icon: "description" },
+        { path: "/documents/management", label: "Documentos", icon: "description" },
     ],
     Admin: [
-        { path: "/document/registrosDeCalificacion", label: "Calificaciones", icon: "grade" },
-        { path: "/document/renovations", label: "Renovaciones", icon: "autorenew" },
+        { path: "/documents/certificates", label: "Calificaciones", icon: "grade" },
+        { path: "/documents/renovations", label: "Renovaciones", icon: "autorenew" },
         { path: "/partners/companies", label: "Empresas", icon: "business" },
         { path: "/security/users", label: "Usuarios", icon: "people" },
     ]

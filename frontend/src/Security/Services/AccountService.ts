@@ -1,8 +1,8 @@
 import api from '../../Helpers/api';
-import { setAccessToken, setRefreshToken, deleteTokens } from '../../Helpers/auth-helpers';
+import { setAccessToken, setRefreshToken, deleteTokens } from '../../Helpers/authHelpers';
 import { IRegisterDTO, ILoginDTO } from '../Interfaces';
-import { IActivateAccountDTO } from '../Interfaces/Dtos/IActivateAccountDTO';
-import { IForgotPasswordDTO, IResetPasswordDTO } from '../Interfaces/Dtos/IPasswordDtos';
+import { IActivateAccountDTO } from '../Interfaces/DTOs/IActivateAccountDTO';
+import { IForgotPasswordDTO, IResetPasswordDTO } from '../Interfaces/DTOs/IPasswordDtos';
 
 export const login = async (userData: ILoginDTO) => {
     const response = await api.post('/security/account/login', userData);

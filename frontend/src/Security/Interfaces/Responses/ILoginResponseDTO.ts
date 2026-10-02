@@ -1,4 +1,4 @@
-import { IUserDTO } from '../Dtos/IUserDTO';
+import { IUserDTO } from '../DTOs/IUserDTO';
 
 export interface ILoginResponseDTO extends IUserDTO {
     token: string;

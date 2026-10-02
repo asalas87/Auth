@@ -5,7 +5,7 @@ import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
 import TableGrid from '@/Common/Components/DataGrid';
 import { CompanyEditForm } from './Forms/CompanyEditForm';
-import { companyColumns } from './Forms/companyColumns';
+import { companyColumns } from './Forms/CompanyColumns';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import PageHeader from '@/Common/Components/PageHeader';

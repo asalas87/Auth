@@ -7,7 +7,7 @@ import { executeWithErrorHandling } from "@/Helpers/executeWithErrorHandling";
 import { RegistrosDeCalificacionEditForm } from "./Forms/RegistrosDeCalificacionEditForm";
 import { parseDates } from "@/Helpers/parseDates";
 import TableGrid from "@/Common/Components/DataGrid";
-import { certificateColumns } from "./Forms/certificateColumns";
+import { certificateColumns } from "./Forms/CertificateColumns";
 import PageHeader from "@/Common/Components/PageHeader";
 
 export const CertificatesView = () => {
