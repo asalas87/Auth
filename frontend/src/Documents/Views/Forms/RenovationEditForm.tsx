@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FieldConfig, FieldType, GenericEditForm } from '@/Common/Components/EditForm';
 import { IRenovationDTO } from '../../Interfaces/IRenovationDTO';
-import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
-import { getCompaniesForCombo } from '@/Controls/ControlService';
+import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
+import { getCompaniesForCombo } from '@/Partners/Services/CompanyService';
 import { analyzeDocument } from '@/Documents/Services/DocumentAnalysisService';
 
 export const RenovationEditForm = ({

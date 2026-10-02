@@ -1,6 +1,5 @@
 import api from "@/Helpers/api";
-import { ICompanyDTO } from "./Company/ICompanyDTO";
-import { IRoleDTO } from "@/Security/Interfaces";
+import { ICompanyDTO } from "../Partners/Interfaces/ICompanyDTO";
 
 export async function getEmpresaByCuit(cuit: string): Promise<ICompanyDTO | null> {
   try {
@@ -24,9 +23,4 @@ export async function crearOActualizarEmpresa(id: string | null, name: string, c
 export async function getCompaniesForCombo(): Promise<ICompanyDTO[]>  {
   const response = await api.get('/controls/company/list');
   return response.data;
-};
-
-export const getRolesForCombo = async () : Promise<IRoleDTO[]> => {
-    const response = await api.get('/controls/role/list');
-    return response.data;
 };

@@ -1,10 +1,15 @@
 import api from '@/Helpers/api';
-import { ICompanyDTO } from '../../Controls/Company/ICompanyDTO';
+import { ICompanyDTO } from '../Interfaces/ICompanyDTO';
 
 export interface PagedResult<T> {
     items: T[];
     totalCount: number;
 }
+
+export const getCompaniesForCombo = async (): Promise<ICompanyDTO[]> => {
+    const response = await api.get('/controls/company/list');
+    return response.data;
+};
 
 export const getPaged = async (page: number, pageSize: number, filter: string = '') : Promise<PagedResult<ICompanyDTO>> => {
     const response = await api.get('/partners/company', {

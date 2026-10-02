@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
+import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
 import { getPaged, getById, create, remove, update } from '@/Partners/Services/CompanyService';
 import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';

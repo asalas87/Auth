@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IDocumentDTO } from '../../Interfaces/IDocumentDTO';
-import { getCompaniesForCombo } from '@/Controls/ControlService'; 
-import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
+import { getCompaniesForCombo } from '@/Partners/Services/CompanyService'; 
+import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
 
 export const DocumentEditForm = ({
     item,

@@ -1,6 +1,6 @@
 import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
+import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
 
 export const CompanyEditForm = ({
     item,

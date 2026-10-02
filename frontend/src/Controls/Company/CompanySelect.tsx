@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { crearOActualizarEmpresa, getEmpresaByCuit } from '../ControlService'; 
-import { ICompanyDTO } from './ICompanyDTO';
+import { ICompanyDTO } from '../../Partners/Interfaces/ICompanyDTO';
 
 interface CompanySelectProps {
   empresas: ICompanyDTO[];

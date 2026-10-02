@@ -1,9 +1,9 @@
 ﻿import { FieldConfig, GenericEditForm } from '@/Common/Components/EditForm';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
 import { IUserEditDTO } from '@/Security/Interfaces';
-import { getCompaniesForCombo } from '@/Controls/ControlService';
+import { getCompaniesForCombo } from '@/Partners/Services/CompanyService';
 import { useEffect, useState } from 'react';
-import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
+import { ICompanyDTO } from '@/Partners/Interfaces/ICompanyDTO';
 
 
 export const UserEditForm = ({

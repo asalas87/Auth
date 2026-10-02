@@ -1,6 +1,6 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Actions from "@/Common/Components/RowActions";
-import { ICompanyDTO } from "@/Controls/Company/ICompanyDTO";
+import { ICompanyDTO } from "@/Partners/Interfaces/ICompanyDTO";
 
 export const companyColumns = (
     onEdit: (id: string) => void,
