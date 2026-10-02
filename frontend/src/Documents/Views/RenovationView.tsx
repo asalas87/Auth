@@ -6,8 +6,8 @@ import { getAll, create, update, remove, getById } from "../Services/RenovationS
 import { executeWithErrorHandling } from "@/Helpers/executeWithErrorHandling";
 import { RenovationEditForm } from "./Forms/RenovationEditForm";
 import { parseDates } from "@/Helpers/parseDates";
-import TableGrid from "@/atoms/TableGrid";
-import PageHeader from "@/molecules/PageHeader";
+import TableGrid from "@/Common/Components/DataGrid";
+import PageHeader from "@/Common/Components/PageHeader";
 import { renovationColumns } from "./Forms/renovationColumns";
 
 export const RenovationView = () => {

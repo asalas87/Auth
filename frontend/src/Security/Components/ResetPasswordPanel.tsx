@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import TurnstileWidget from './TurnstileWidget';
 import { useResetPasswordFlow } from '../Hooks/useResetPasswordFlow';
 import { appsettings } from '@/settings/appsettings';
-import { PasswordField } from '@/Common/forms/PasswordField';
-import Button from '@/Common/buttons/Button';
+import { PasswordField } from '@/Common/Components/Fields/PasswordField';
+import Button from '@/Common/Components/Button';
 
 const ResetPasswordPanel = () => {
     const navigate = useNavigate();

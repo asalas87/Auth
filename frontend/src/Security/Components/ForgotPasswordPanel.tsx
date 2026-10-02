@@ -3,8 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import TurnstileWidget from './TurnstileWidget';
 import { useForgotPasswordFlow } from '../Hooks/useForgotPasswordFlow';
 import { appsettings } from '@/settings/appsettings';
-import { EmailField } from '@/Common/forms/EmailField';
-import Button from '@/Common/buttons/Button';
+import { EmailField } from '@/Common/Components/Fields/EmailField';
+import Button from '@/Common/Components/Button';
 
 const ForgotPasswordPanel = () => {
     const navigate = useNavigate();

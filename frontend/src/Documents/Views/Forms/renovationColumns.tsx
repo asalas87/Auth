@@ -1,5 +1,5 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Actions from "../../../molecules/Actions";
+import Actions from "@/Common/Components/RowActions";
 import { IRenovationDTO } from "@/Documents/Interfaces";
 import { formatDate } from "date-fns";
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../Context/AuthContext';
 import { IRegisterDTO } from '../Interfaces/Dtos/IRegisterDTO';
-import Button from '@/Common/buttons/Button';
+import Button from '@/Common/Components/Button';
 
 const RegisterPanel = () => {
     const { signUp } = useAuthContext();

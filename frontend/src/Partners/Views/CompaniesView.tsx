@@ -3,12 +3,12 @@ import { ICompanyDTO } from '@/Controls/Company/ICompanyDTO';
 import { getPaged, getById, create, remove, update } from '@/Partners/Services/CompanyService';
 import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
-import TableGrid from '@/atoms/TableGrid';
+import TableGrid from '@/Common/Components/DataGrid';
 import { CompanyEditForm } from './Forms/CompanyEditForm';
 import { companyColumns } from './Forms/companyColumns';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import PageHeader from '@/molecules/PageHeader';
+import PageHeader from '@/Common/Components/PageHeader';
 
 const CompaniesView = () => {
     const [selected, setSelected] = useState<ICompanyDTO | null>(null);

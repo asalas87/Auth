@@ -3,12 +3,12 @@ import { IUserEditDTO } from '../Interfaces';
 import { getAllPag, remove, update, getById, create } from '@/Security/Services/UserService';
 import { usePaginatedList } from '@/Common/Components/CrudTable';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
-import TableGrid from '@/atoms/TableGrid';
+import TableGrid from '@/Common/Components/DataGrid';
 import { UserEditForm } from './Forms/UserEditForm';
 import { userColumns } from './Forms/userColumns';
 import { getEmptyItem } from '@/Common/Components/EditForm/getEmptyItem';
 import { FieldType } from '@/Common/Components/EditForm/FieldType';
-import PageHeader from '@/molecules/PageHeader';
+import PageHeader from '@/Common/Components/PageHeader';
 
 const UsersView = () => {
     const [selected, setSelected] = useState<IUserEditDTO | null>(null);

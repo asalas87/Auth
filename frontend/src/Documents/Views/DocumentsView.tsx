@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { getAll, download, multipleDownload } from '../Services/DocumentService';
 import { IDocumentResponseDTO } from '../Interfaces';
 import { executeWithErrorHandling } from '@/Helpers/executeWithErrorHandling';
-import TableGrid from '@/atoms/TableGrid';
+import TableGrid from '@/Common/Components/DataGrid';
 import { userDocumentsColumns } from './Forms/userDocumentColumns';
 import { GridRowSelectionModel } from '@mui/x-data-grid';
-import Button from '@/atoms/Button';
+import Button from '@/Common/Components/Button';
 import { parseDates } from '@/Helpers/parseDates';
 
 export const DocumentsView = () => {

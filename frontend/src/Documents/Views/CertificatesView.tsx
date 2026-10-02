@@ -6,9 +6,9 @@ import { getAll, create, update, remove, getById } from "../Services/RegistroDeC
 import { executeWithErrorHandling } from "@/Helpers/executeWithErrorHandling";
 import { RegistrosDeCalificacionEditForm } from "./Forms/RegistrosDeCalificacionEditForm";
 import { parseDates } from "@/Helpers/parseDates";
-import TableGrid from "@/atoms/TableGrid";
+import TableGrid from "@/Common/Components/DataGrid";
 import { certificateColumns } from "./Forms/certificateColumns";
-import PageHeader from "@/molecules/PageHeader";
+import PageHeader from "@/Common/Components/PageHeader";
 
 export const CertificatesView = () => {
     const [selected, setSelected] = useState<ICertificateDTO | null>(null);

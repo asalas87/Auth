@@ -2,9 +2,9 @@
 import TurnstileWidget from './TurnstileWidget';
 import { useLoginFlow } from '../Hooks/useLoginFlow';
 import { appsettings } from '../../settings/appsettings';
-import { PasswordField } from '@/Common/forms/PasswordField';
-import { EmailField } from '@/Common/forms/EmailField';
-import Button from '@/Common/buttons/Button';
+import { PasswordField } from '@/Common/Components/Fields/PasswordField';
+import { EmailField } from '@/Common/Components/Fields/EmailField';
+import Button from '@/Common/Components/Button';
 import { Link } from 'react-router-dom';
 
 const LoginPanel = () => {
