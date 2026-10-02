@@ -5,5 +5,4 @@ export enum FieldType {
     Date = 'date',
     File = 'file',
     Select = 'select',
-    Company = 'company',
 }

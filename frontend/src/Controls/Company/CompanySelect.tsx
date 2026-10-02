@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { crearOActualizarEmpresa, getEmpresaByCuit } from '../ControlService'; 
 import { ICompanyDTO } from './ICompanyDTO';
-import InputMask from 'react-input-mask';
 
 interface CompanySelectProps {
   empresas: ICompanyDTO[];
@@ -90,21 +89,13 @@ export const CompanySelect: React.FC<CompanySelectProps> = ({
           <div className="mb-2">Empresa <strong>{empresaNoEncontrada}</strong> no encontrada.</div>
 
           <label className="form-label">CUIT</label>
-          <InputMask
-            mask="99-99999999-9"
-            maskPlaceholder={null}
+          <input
+            type="text"
+            className="form-control mb-2"
             value={cuit}
-            onChange={(e) => setCuit(e.target.value)}
-          >
-            {(inputProps: any) => (
-              <input
-                {...inputProps}
-                type="text"
-                className="form-control mb-2"
-                placeholder="Ingresar CUIT"
-              />
-            )}
-          </InputMask>
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCuit(e.target.value)}
+            placeholder="Ingresar CUIT"
+          />
 
           <button className="btn btn-sm btn-primary" onClick={handleCrearEmpresa}>
             Crear empresa

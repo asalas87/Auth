@@ -4,32 +4,28 @@ import securityRoutes from "../Security/Routes";
 import documentsRoutes from "../Documents/Routes";
 import partnersRoutes from "../Partners/Routes";
 import Layout from "../Common/Components/Layout";
-import { useAuthContext } from "../Security/Context/AuthContext";
 
-const AppRoutes = (): RouteObject[] => {
-    const { user } = useAuthContext();
-
-    return [
-        {
-            path: "/",
-            element: user
-                ? (
-                    <ProtectedRoute>
-                        <Layout>
-                            <div style={{ padding: 20 }}>
-                                <p>Bienvenido a su biblioteca virtual de documentación de soldadura. </p>
-                                <p>Para acceder a los documentos, por favor, haga clic en el menú de navegación.</p>
-                            </div>
-                        </Layout>
-                    </ProtectedRoute>
-                ) : (
-                <Navigate to="/auth" replace />
-            ),
-        },
-        ...securityRoutes,
-        ...documentsRoutes,
-        ...partnersRoutes,
-    ];
-};
+const AppRoutes = (): RouteObject[] => [
+    {
+        path: "/",
+        element: (
+            <ProtectedRoute>
+                <Layout>
+                    <div style={{ padding: 20 }}>
+                        <p>Bienvenido a su biblioteca virtual de documentación de soldadura. </p>
+                        <p>Para acceder a los documentos, por favor, haga clic en el menú de navegación.</p>
+                    </div>
+                </Layout>
+            </ProtectedRoute>
+        ),
+    },
+    ...securityRoutes,
+    ...documentsRoutes,
+    ...partnersRoutes,
+    {
+        path: "*",
+        element: <Navigate to="/" replace />,
+    },
+];
 
 export default AppRoutes;

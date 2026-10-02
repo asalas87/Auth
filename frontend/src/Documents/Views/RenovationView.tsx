@@ -8,7 +8,7 @@ import { RenovationEditForm } from "./Forms/RenovationEditForm";
 import { parseDates } from "@/Helpers/parseDates";
 import TableGrid from "@/atoms/TableGrid";
 import PageHeader from "@/molecules/PageHeader";
-import { renovationColumns } from "./Forms/reonvationColumns";
+import { renovationColumns } from "./Forms/renovationColumns";
 
 export const RenovationView = () => {
     const [selected, setSelected] = useState<IRenovationDTO | null>(null);

@@ -42,16 +42,12 @@ export function GenericEditForm<T extends { id?: string }>({
               {fields.map(field => (
                 <div className="mb-3" key={String(field.name)}>
                   <label className="form-label">{field.label}</label>
-                  {field.customControl ? (
-                    field.customControl
-                  ) : (
-                    <FieldRenderer
-                      field={field}
-                      value={form[field.name]}
-                      onChange={onChange}
-                      eventOverrides={field.events}
-                    />
-                  )}
+                  <FieldRenderer
+                    field={field}
+                    value={form[field.name]}
+                    onChange={onChange}
+                    eventOverrides={field.events}
+                  />
                 </div>
               ))}
             </div>
