@@ -50,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<IControlCompanyRepository, CompanyRepository>();
         services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
         services.AddScoped<IRenovationRepository, RenovationRepository>();
+        services.AddScoped<IProcedureSpecificationRepository, ProcedureSpecificationRepository>();
+        services.AddScoped<IProcedureSpecificationRecordRepository, ProcedureSpecificationRecordRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
 
         services.Configure<ObservabilityOptions>(
