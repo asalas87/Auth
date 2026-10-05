@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ICompanyDTO } from '@/features/partners/Interfaces/ICompanyDTO';
 import { getPaged, getById, create, remove, update } from '@/features/partners/Services/CompanyService';
-import { usePaginatedList } from '@/components/CrudTable';
+import { usePaginatedList } from '@/hooks/usePaginatedList';
 import { executeWithErrorHandling } from '@/lib/errorHandling';
 import TableGrid from '@/components/DataGrid';
 import { CompanyEditForm } from './Forms/CompanyEditForm';

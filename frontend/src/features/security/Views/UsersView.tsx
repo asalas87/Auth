@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { IUserEditDTO } from '../Interfaces';
 import { getAllPag, remove, update, getById, create } from '@/features/security/Services/UserService';
-import { usePaginatedList } from '@/components/CrudTable';
+import { usePaginatedList } from '@/hooks/usePaginatedList';
 import { executeWithErrorHandling } from '@/lib/errorHandling';
 import TableGrid from '@/components/DataGrid';
 import { UserEditForm } from './Forms/UserEditForm';

@@ -1,189 +1,192 @@
-# Frontend Development Skill
-
-## Scope and Source of Truth
-
-The React frontend under `frontend/` is the source of truth. The backend API contract lives under `backend/`. Do not invent endpoints or DTOs — verify against backend controllers.
+Frontend Development Skill
+Scope and Source of Truth
+The React frontend under frontend/ is the source of truth. The backend API contract lives under backend/. Do not invent endpoints or DTOs — verify against backend controllers.
 
 Active modules:
-- Security (auth flows, users)
-- Documents (documents, certificates, renovations, WPS/PQR)
-- Partners (companies, lookups)
 
-Legacy / to be removed:
-- `atoms/` and `molecules/` (Atomic Design remnants)
-- Tailwind classes (never installed)
-- `RegistrosDeCalificacion*` naming (superseded by `Certificate*`)
-- `Controls/` (consolidating into `Partners`)
-- `CompanySelect` (unused)
+Security (auth flows, users)
 
-## Architecture
+Documents (documents, certificates, renovations, WPS/PQR)
+
+Partners (companies, lookups)
+
+Architecture
+
 src/
-├── app/ app shell, providers, routing
-├── components/ shared presentational components (Bootstrap)
-├── features/ domain modules (feature-based)
-│ ├── security/
-│ ├── documents/
-│ └── partners/
-├── hooks/ cross-feature hooks
-├── lib/ API client, auth helpers, utilities
-├── types/ global type declarations
-└── settings/ runtime configuration
+├── app/                    app shell, providers, routing
+├── components/             shared presentational components (Bootstrap)
+├── features/               domain modules (feature-based)
+│   ├── documents/
+│   ├── partners/
+│   └── security/
+├── hooks/                  cross-feature hooks
+├── lib/                    API client, auth helpers, utilities
+├── settings/               runtime configuration
+└── types/                  global type declarations
+Boundaries
 
+features/<name>/ owns everything domain-specific.
 
-**Boundaries**
+components/ owns generic, feature-agnostic UI.
 
-- `features/<name>/` owns everything domain-specific.
-- `components/` owns generic, feature-agnostic UI.
-- `hooks/` owns cross-feature hooks (used by 2+ features).
-- `lib/` owns infrastructure utilities.
-- `app/` owns composition.
+hooks/ owns cross-feature hooks (used by 2+ features).
 
-## Feature Module Structure
+lib/ owns infrastructure utilities.
 
-Every feature follows the **Partners shape**:
+app/ owns composition.
+
+Feature Module Structure
+Every feature follows the Partners shape (folders in PascalCase):
+
 features/<name>/
-├── routes.tsx
-├── interfaces/
-│ └── dtos/ IXxxDTO, IXxxEditDTO, IXxxResponseDTO
-├── services/ *Service.ts
-├── hooks/ optional
-├── context/ optional
-└── views/
-├── XxxView.tsx
-└── forms/
-├── XxxEditForm.tsx
-└── xxxColumns.tsx
+├── Routes.tsx
+├── Interfaces/
+│   └── Dtos/               IXxxDTO, IXxxEditDTO, IXxxResponseDTO
+├── Services/               *Service.ts
+├── Context/                optional
+├── Hooks/                  optional
+└── Views/
+    ├── XxxView.tsx
+    └── Forms/
+        ├── XxxEditForm.tsx
+        └── XxxColumns.tsx
+Naming Conventions
+Element	Convention	Example
+Folders	PascalCase inside features; lowercase at src/ root	Views/, Services/, components/, lib/
+Components	PascalCase.tsx	LoginPanel.tsx, CertificateEditForm.tsx
+Hooks	camelCase.ts with use prefix	useLoginFlow.ts
+Services	camelCase.ts with Service suffix	certificateService.ts
+DTOs	PascalCase.ts with I prefix	ICertificateDTO.ts
+Helpers (in lib/)	camelCase.ts	api.ts, auth.ts, dates.ts, errorHandling.ts, loadScript.ts
+Routes	Routes.tsx	features/documents/Routes.tsx
+Language: identifiers in English, UI strings in Spanish.
 
+Anti-patterns: mixed casing in one folder, typos (reonvationColumns), RegistrosDeCalificacion*, Tailwind classes.
 
-## Naming Conventions
+DTOs
+Each entity has three DTOs in Interfaces/Dtos/:
 
-| Element | Convention | Example |
-|---|---|---|
-| Folders | `kebab-case` or `lowercase` | `common/`, `components/`, `hooks/` |
-| Components | `PascalCase.tsx` | `LoginPanel.tsx` |
-| Hooks | `camelCase.ts` with `use` prefix | `useLoginFlow.ts` |
-| Services | `camelCase.ts` with `Service` suffix | `certificateService.ts` |
-| DTOs | `PascalCase.ts` with `I` prefix | `ICertificateDTO.ts` |
-| Helpers | `camelCase.ts` | `api.ts`, `authHelpers.ts` |
-| Routes | `routes.tsx` | `features/documents/routes.tsx` |
+IXxxDTO — Create (POST)
 
-**Language**: identifiers in **English**, UI strings in **Spanish**.
+IXxxEditDTO — Update (PUT)
 
-**Anti-patterns**: mixed casing in one folder, typos (`reonvationColumns`), `RegistrosDeCalificacion*`.
+IXxxResponseDTO — Response (GET)
 
-## DTOs
+Shared types (PagedResult<T>) live in src/types/. Never duplicate.
 
-Each entity has three DTOs in `interfaces/dtos/`:
-- `IXxxDTO` — Create (POST)
-- `IXxxEditDTO` — Update (PUT)
-- `IXxxResponseDTO` — Response (GET)
+State Management
+Context — global shared state. Use only for auth, loading, theme.
 
-Shared types (`PagedResult<T>`) live in `src/types/`. Never duplicate.
+Rules:
 
-## State Management
+Typed with undefined default.
 
-**Context** — global shared state. Use only for auth, loading, theme.
+Consumed through a throwing hook (useAuthContext throws if outside provider).
 
-**Rules**:
-- Typed with `undefined` default.
-- Consumed through a throwing hook (`useAuthContext` throws if outside provider).
-- Never default to `{}` or no-op functions.
+Never default to {} or no-op functions.
 
-**Hooks** — reusable stateful logic. Extract on the 3rd repetition.
+Hooks — reusable stateful logic. Extract on the 3rd repetition.
 
-**Reference**: `Security/Context/AuthContext.ts` + `AuthProvider.tsx` + `useAuthContext`.
+Shared hooks (in src/hooks/):
 
-## Services and API Layer
+usePaginatedList — paginated data fetching for CRUD views.
 
-- All services use the shared `api` axios instance from `lib/api.ts`. No raw `axios`.
-- No `throw new Error` for validation — validation belongs in forms.
-- Import paths must use the `@/` alias.
-- No circular imports between `lib/api.ts` and feature services.
+Reference: features/security/Context/AuthContext.ts + AuthProvider.tsx + useAuthContext.
 
-## Forms
+Services and API Layer
+All services use the shared api axios instance from lib/api.ts. No raw axios.
 
-Use `GenericEditForm` from `components/EditForm/` with a declarative `FieldConfig<T>[]`.
+No throw new Error for validation — validation belongs in forms.
 
-**Field patterns**:
-- MUI `TextField` wrappers (`EmailField`, `PasswordField`) — auth screens.
-- `GenericEditForm` + `FieldConfig` — CRUD screens.
+Import paths must use the @/ alias.
 
-**Not allowed**: raw `<input className="form-control">`.
+No circular imports between lib/api.ts and feature services.
 
-## Routing
+Forms
+Use GenericEditForm from components/EditForm/ with a declarative FieldConfig<T>[].
 
-- Each feature exports a `routes.tsx` (default export: `RouteObject[]`).
-- `app/routes.tsx` composes them.
-- `app/ProtectedRoute.tsx` guards protected routes.
-- No hardcoded paths in components.
-- All routes have a catch-all 404.
-- Lazy load feature routes.
+Field patterns:
 
-## Styling
+MUI TextField wrappers (EmailField, PasswordField) — auth screens.
 
-**Single system: Bootstrap.**
+GenericEditForm + FieldConfig — CRUD screens.
 
-- Classes from `bootstrap` package (npm, not CDN).
-- Inline styles only for dynamic values.
-- MUI allowed ONLY for: `DataGrid`, `TextField`, `Dialog`, `IconButton`, `Snackbar`.
-- No Tailwind. No CSS modules. No styled-components.
+Not allowed: raw <input className="form-control">.
 
-## Common Components
+Routing
+Each feature exports a Routes.tsx (default export: RouteObject[]).
 
-| Component | Purpose |
-|---|---|
-| `DataGrid` (MUI) | Paginated tables with actions |
-| `EditForm` | Generic declarative form engine |
-| `EmailField`, `PasswordField` | MUI-based auth inputs |
-| `Layout`, `Header`, `Sidebar`, `TopBar`, `ProgressBar` | App shell |
-| `ErrorBoundary` | React error boundary |
-| `Button` | Single Bootstrap button |
-| `Heading` | Single heading |
+app/routes.tsx composes them.
 
-**One component per concept.** No duplicates.
+app/ProtectedRoute.tsx guards protected routes.
 
-## Do NOT
+No hardcoded paths in components.
 
-- Do not create files under `atoms/` or `molecules/` (being deleted).
-- Do not use Tailwind classes.
-- Do not import `@mui/material` outside the allowed list.
-- Do not create a `PagedResult<T>` — use the shared one.
-- Do not duplicate `useBlockCountdown` logic — import the hook.
-- Do not use `RegistroDeCalificacion*` naming. Use `Certificate*`.
-- Do not add `try-catch` for API errors — the interceptor handles them.
-- Do not use raw `axios` — use `api`.
-- Do not use relative import paths — use `@/`.
+All routes have a catch-all 404.
 
-## Completion Checklist
+Lazy load feature routes.
 
-- [ ] Feature follows `Partners` shape.
-- [ ] Services use the shared `api` instance.
-- [ ] DTOs split into `DTO` / `EditDTO` / `ResponseDTO`.
-- [ ] Forms use `GenericEditForm` (or MUI auth pattern).
-- [ ] Route file exports `RouteObject[]`.
-- [ ] No hardcoded paths in components.
-- [ ] No Tailwind, no `atoms/`, no `molecules/`.
-- [ ] No duplicated `PagedResult<T>`.
-- [ ] No circular imports.
-- [ ] `npm run build` passes.
-- [ ] `npm run lint` passes.
+Styling
+Single system: Bootstrap.
 
-## Pending Decisions
+Classes from the bootstrap npm package (not CDN).
 
-- **`expirationDate` vs `validity`** — reconcile with backend in a future iteration.
-- **`isAuthenticated` / `isAdmin`** — removed from `AuthContext` (only `user` + `user.role`).
-- **`/activate`** — stays public (no `ProtectedRoute`).
+Inline styles only for dynamic values.
 
-## Migration Sequence (reference)
+MUI allowed ONLY for: DataGrid, TextField, Dialog, IconButton, Snackbar.
 
-See `FRONTEND-ANALYSIS.md` §13 and §14 for the full migration plan. Phases:
+No Tailwind. No CSS modules. No styled-components.
 
-1. Quick wins (delete orphans, fix phantom deps, add eslint).
-2. Fix Tailwind breakage.
-3. Rename sweep.
-4. Consolidate `Common/`.
-5. Move `Controls` into `Partners`.
-6. Restructure to `features/`.
-7. Extract shared hooks.
+Common Components
+Located under src/components/, all PascalCase folders:
 
-Each phase = one commit. No mixing rename with behavioral changes.
+Component	Purpose
+DataGrid (MUI)	Paginated tables with actions
+EditForm	Generic declarative form engine
+Fields	MUI-based auth inputs (EmailField, PasswordField)
+Button	Single Bootstrap button
+Heading	Single heading
+PageHeader, RowActions	Shared layout primitives
+Layout, Header, Sidebar, TopBar, ProgressBar	App shell
+ErrorBoundary	React error boundary
+CsIngenieriaLogo	Brand logo
+One component per concept. No duplicates.
+
+Do NOT
+Do not create files under atoms/ or molecules/.
+
+Do not use Tailwind classes.
+
+Do not import @mui/material outside the allowed list.
+
+Do not create a PagedResult<T> — use the shared one from types/.
+
+Do not duplicate useBlockCountdown logic — import the hook.
+
+Do not use RegistroDeCalificacion* naming. Use Certificate*.
+
+Do not add try-catch for API errors — the interceptor handles them.
+
+Do not use raw axios — use api from lib/api.ts.
+
+Do not use relative import paths — use @/.
+
+Completion Checklist
+□ Feature follows the Partners shape (PascalCase folders).
+□ Services use the shared api instance.
+□ DTOs split into DTO / EditDTO / ResponseDTO.
+□ Forms use GenericEditForm (or MUI auth pattern).
+□ Route file exports RouteObject[].
+□ No hardcoded paths in components.
+□ No Tailwind, no atoms/, no molecules/.
+□ No duplicated PagedResult<T>.
+□ No circular imports.
+□ npm run build passes.
+□ npm run lint passes with 0 warnings.
+Known Technical Debt
+expirationDate vs validity — two names for the same concept in IDocumentDTO, ICertificateDTO, IRenovationDTO. Reconcile with the backend in a future iteration.
+
+PagedResult<T> — declared once in types/, but legacy services may still declare their own. Migrate when touched.
+
+Migration Reference
+See FRONTEND-ANALYSIS.md at the repo root for the full analysis that drove the refactor.

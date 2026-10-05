@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { ICertificateDTO, ICertificateEditDTO } from "../Interfaces";
-import { usePaginatedList } from "@/components/CrudTable";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
 import { FieldType, getEmptyItem } from "@/components/EditForm";
 import { getAll, create, update, remove, getById } from "../Services/RegistroDeCalificacionService";
 import { executeWithErrorHandling } from "@/lib/errorHandling";
