@@ -82,7 +82,7 @@ export function CrudTable<T extends { id: string }>({
             </div>
             <table className="table table-bordered table-hover">
                 <colgroup>
-                    {columns.map((col, idx) => <col key={col.key as string} />)}
+                    {columns.map(col => <col key={col.key as string} />)}
                     {showActions && <col style={{ width: '1%' }} />}
                 </colgroup>
                 <thead>

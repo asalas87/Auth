@@ -2,7 +2,7 @@ interface ProgressBarProps {
     visible: boolean;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ visible }) => {
+const ProgressBar = ({ visible }: ProgressBarProps) => {
     if (!visible) return null;
 
     return (

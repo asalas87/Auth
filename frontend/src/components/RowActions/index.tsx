@@ -10,7 +10,7 @@ interface RowActionsProps {
     onView?: () => void;
 }
 
-const RowActions = ({ params, onEdit, onDelete, onDownload, onView }: RowActionsProps) => {
+const RowActions = ({ onEdit, onDelete, onDownload, onView }: RowActionsProps) => {
     return (
         <div className="d-flex align-items-center gap-3" role="button">
             {onView && (

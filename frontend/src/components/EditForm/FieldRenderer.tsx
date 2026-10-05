@@ -15,7 +15,6 @@ export function FieldRenderer<T>({
 }) {
   const {
     name,
-    label,
     type,
     options,
   } = field;
@@ -102,7 +101,7 @@ export function FieldRenderer<T>({
         </>
       );
 
-    case FieldType.Date:
+    case FieldType.Date: {
       const dateValue = value ? value.toISOString().slice(0, 10) : '';
       return (
         <input
@@ -118,6 +117,7 @@ export function FieldRenderer<T>({
           className="form-control"
         />
       );
+    }
 
     default:
       return (

@@ -54,7 +54,7 @@ const CompaniesView = () => {
 
     const handlers = useMemo(() => ({
         onEdit: (id: string) => handleEdit(id),
-        onDelete: (id: string, name: string) => handleDelete(id),
+        onDelete: (id: string, _name: string) => handleDelete(id),
     }), [handleEdit, handleDelete]);
 
     const columns = useMemo(

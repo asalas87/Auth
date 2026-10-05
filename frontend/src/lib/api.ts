@@ -28,7 +28,7 @@ const handleTokenRefresh = async () => {
         setRefreshToken(newRefreshToken);
 
         return token;
-    } catch (error) {
+    } catch {
         throw new Error('Falló el refresh token');
     }
 };

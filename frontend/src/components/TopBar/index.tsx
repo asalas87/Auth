@@ -9,7 +9,7 @@ const TopBar = () => (
                 <span className="material-icons" style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}>email</span>
                 info@csingenieria.com.ar
             </a>
-            <a href="https://www.csingenieria.com.ar" target="_blank" className="text-dark text-decoration-none">
+            <a href="https://www.csingenieria.com.ar" target="_blank" rel="noreferrer" className="text-dark text-decoration-none">
                 <span className="material-icons" style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}>web</span>
                 www.csingenieria.com.ar
             </a>

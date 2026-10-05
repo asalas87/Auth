@@ -20,9 +20,7 @@ export const RegistrosDeCalificacionView = () => {
         totalCount,
         currentPage,
         setCurrentPage,
-        filter,
         setFilter,
-        pageSize,
         reload
     } = usePaginatedList(memoizedGetAll);
 

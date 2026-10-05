@@ -10,7 +10,7 @@ const RegisterPanel = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [name, setName] = useState('');
+    const [name] = useState('');
 
     const navigate = useNavigate();
 

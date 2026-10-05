@@ -26,7 +26,7 @@ const UsersView = () => {
         executeWithErrorHandling(
             () => getById(id),
             (userEdit: IUserEditDTO) => {
-                setSelected(userEdit),
+                setSelected(userEdit);
                 setMode('edit');
             }
         )
@@ -55,7 +55,7 @@ const UsersView = () => {
     
     const handlers = useMemo(() => ({
         onEdit: (id: string) => handleEdit(id),
-        onDelete: (id: string, name: string) => handleDelete(id),
+        onDelete: (id: string, _name: string) => handleDelete(id),
     }), [handleEdit, handleDelete]);
 
     const columns = useMemo(

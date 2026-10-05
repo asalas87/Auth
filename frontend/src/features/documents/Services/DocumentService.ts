@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import { IDocumentDTO, IDocumentResponseDTO } from '../Interfaces';
+import { IDocumentResponseDTO } from '../Interfaces';
 
 const endpoint = '/documents';
 

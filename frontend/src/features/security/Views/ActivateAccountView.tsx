@@ -11,7 +11,6 @@ const ActivateAccountView = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [token, setToken] = useState<string | null>(null);
-    const [validToken, setValidToken] = useState<boolean | null>(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);

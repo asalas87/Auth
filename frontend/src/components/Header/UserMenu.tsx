@@ -10,7 +10,7 @@ const UserMenu = ({ email, onLogout }: UserMenuProps) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
 
-    const handleNavigation = (path: string) => {
+    const _handleNavigation = (path: string) => {
         navigate(path);
         setShowDropdown(false);
     };

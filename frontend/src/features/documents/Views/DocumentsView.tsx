@@ -35,7 +35,7 @@ export const DocumentsView = () => {
     };
 
     function handleMultipleDownload(): void {
-        let ids: string[] = [];
+        const ids: string[] = [];
         selectionModel?.ids.forEach(x => ids.push(x.toString()))
         if (ids.length)
             executeWithErrorHandling(() => multipleDownload(ids), (blob: Blob) => {
