@@ -21,7 +21,7 @@ export const CertificatesView = () => {
         reload
     } = usePaginatedList(memoizedGetAll);
 
-    const handleEdit = async (id: string) => {
+    const handleEdit = useCallback(async (id: string) => {
         await executeWithErrorHandling(
             () => getById(id),
             (documentEdit: ICertificateDTO) => {
@@ -30,7 +30,7 @@ export const CertificatesView = () => {
                 setMode('edit');
             }
         )
-    };
+    }, []);
 
     const handleCreate = () => {
         const empty = getEmptyItem<ICertificateDTO>([
@@ -54,7 +54,7 @@ export const CertificatesView = () => {
                 });
     };
 
-    function handleDelete(id: string): void {
+    const handleDelete = useCallback((id: string): void => {
             if (!window.confirm(`¿Eliminar el documento?`)) return;
             executeWithErrorHandling(
                 () => remove(id),
@@ -62,7 +62,7 @@ export const CertificatesView = () => {
                     setSelected(null);
                     reload();
                 })
-    };
+    }, [reload]);
 
     const fields = useMemo(
         () => certificateColumns(handleEdit, handleDelete),

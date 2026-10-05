@@ -6,7 +6,7 @@ const LoadingInitializer = () => {
     const { setLoading } = useLoading();
     useEffect(() => {
         initApiLoading(setLoading);
-    }, []);
+    }, [setLoading]);
     return null;
 };
 

@@ -22,7 +22,7 @@ const UsersView = () => {
     } = usePaginatedList(memoizedGetAll);
 
 
-    const handleEdit = (id: string) => {
+    const handleEdit = useCallback((id: string) => {
         executeWithErrorHandling(
             () => getById(id),
             (userEdit: IUserEditDTO) => {
@@ -30,9 +30,9 @@ const UsersView = () => {
                 setMode('edit');
             }
         )
-    };
+    }, []);
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = useCallback(async (id: string) => {
         if (!window.confirm(`¿Eliminar el usuario?`)) return;
 
         executeWithErrorHandling(
@@ -42,7 +42,7 @@ const UsersView = () => {
                 setSelected(null)
             }
         )
-    };
+    }, [reload]);
 
     const handleCreate = () => {
         const empty = getEmptyItem<IUserEditDTO>([
@@ -60,7 +60,7 @@ const UsersView = () => {
 
     const columns = useMemo(
         () => userColumns(handlers.onEdit, handlers.onDelete),
-        [handleEdit, handleDelete]
+        [handlers]
     );
     
     const handleSave = (user: IUserEditDTO) => {

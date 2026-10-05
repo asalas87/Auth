@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getAll, download, multipleDownload } from '../Services/DocumentService';
 import { IDocumentResponseDTO } from '../Interfaces';
 import { executeWithErrorHandling } from '@/lib/errorHandling';
@@ -25,14 +25,26 @@ export const DocumentsView = () => {
 
     const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>();
 
-    const handleView = (row: IDocumentResponseDTO) => {
+    const markAsRead = useCallback((ids: string[]) => {
+        const idsSet = new Set(ids);
+
+        setDocuments(prev =>
+            prev.map(doc =>
+                idsSet.has(doc.id)
+                    ? { ...doc, isRead: true }
+                    : doc
+            )
+        );
+    }, []);
+
+    const handleView = useCallback((row: IDocumentResponseDTO) => {
         executeWithErrorHandling(() => download(row.id), (blob: Blob) => {
             const url = window.URL.createObjectURL(blob);
             setPreviewUrl(url);
             setShowPreview(true);
             markAsRead([row.id]);
         });
-    };
+    }, [markAsRead]);
 
     function handleMultipleDownload(): void {
         const ids: string[] = [];
@@ -51,7 +63,7 @@ export const DocumentsView = () => {
             });
     }
 
-    const handleDownload = async (row: IDocumentResponseDTO) => {
+    const handleDownload = useCallback(async (row: IDocumentResponseDTO) => {
         executeWithErrorHandling(() => download(row.id), (blob: Blob) => {
             const link = document.createElement("a");
             const url = window.URL.createObjectURL(blob);
@@ -63,19 +75,7 @@ export const DocumentsView = () => {
             window.URL.revokeObjectURL(url);
             markAsRead([row.id]);
         });
-    };
-
-    const markAsRead = (ids: string[]) => {
-        const idsSet = new Set(ids);
-
-        setDocuments(prev =>
-            prev.map(doc =>
-                idsSet.has(doc.id)
-                    ? { ...doc, isRead: true }
-                    : doc
-            )
-        );
-    };
+    }, [markAsRead]);
 
     const fields = useMemo(
         () => userDocumentsColumns(handleView, handleDownload),

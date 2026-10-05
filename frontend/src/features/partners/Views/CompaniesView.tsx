@@ -21,7 +21,7 @@ const CompaniesView = () => {
         reload
     } = usePaginatedList(memoizedGetAll);
 
-    const handleEdit = (id: string) => {
+    const handleEdit = useCallback((id: string) => {
         executeWithErrorHandling(
             () => getById(id),
             (company: ICompanyDTO) => {
@@ -29,9 +29,9 @@ const CompaniesView = () => {
                 setMode('edit');
             }
         )
-    };
+    }, []);
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = useCallback(async (id: string) => {
         if (!window.confirm(`¿Eliminar la empresa?`)) return;
 
         executeWithErrorHandling(
@@ -41,7 +41,7 @@ const CompaniesView = () => {
                 setSelected(null)
             }
         )
-    };
+    }, [reload]);
 
     const handleCreate = () => {
         const empty = getEmptyItem<ICompanyDTO>([
@@ -59,7 +59,7 @@ const CompaniesView = () => {
 
     const columns = useMemo(
         () => companyColumns(handlers.onEdit, handlers.onDelete),
-        [handleEdit, handleDelete]
+        [handlers]
     );
 
     const handleSave = (company: ICompanyDTO) => {

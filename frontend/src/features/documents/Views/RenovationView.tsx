@@ -21,7 +21,7 @@ export const RenovationView = () => {
         reload
     } = usePaginatedList(memoizedGetAll);
 
-    const handleEdit = (id: string) => {
+    const handleEdit = useCallback((id: string) => {
         executeWithErrorHandling(
             () => getById(id),
             (documentEdit: IRenovationDTO) => {
@@ -30,9 +30,9 @@ export const RenovationView = () => {
                 setMode('edit');
             }
         )
-    };
+    }, []);
 
-    function handleDelete(id: string): void {
+    const handleDelete = useCallback((id: string): void => {
         if (!window.confirm(`¿Eliminar el documento?`)) return;
         executeWithErrorHandling(
             () => remove(id),
@@ -40,7 +40,7 @@ export const RenovationView = () => {
                 setSelected(null);
                 reload();
             })
-    };
+    }, [reload]);
 
     const fields = useMemo(
         () => renovationColumns(handleEdit, handleDelete),
