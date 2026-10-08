@@ -1,49 +1,42 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Actions from "@/components/RowActions";
-import { IDocumentResponseDTO } from "@/features/documents/Interfaces";
+import { IProcedureSpecificationRecordDTO } from "@/features/documents/Interfaces";
 import { formatDate } from "date-fns";
 
-export const userDocumentsColumns = (
-  onView: (id: IDocumentResponseDTO) => void,
-  onDownload: (id: IDocumentResponseDTO) => void
-): GridColDef<IDocumentResponseDTO>[] => [
+export const procedureSpecificationRecordColumns = (
+  onEdit: (id: string) => void,
+  onDelete: (id: string, name: string) => void
+): GridColDef<IProcedureSpecificationRecordDTO>[] => [
   {
     field: "id",
     headerName: "ID",
     headerClassName: "super-app-theme--header",
-    type: "string",
+    type: "number",
+    width: 90,
     sortable: false,
     editable: false,
     filterable: false,
   },
   {
-    field: "documentNumber",
-    headerName: "Número",
+    field: "procedureNumber",
+    headerName: "N° Procedimiento",
     headerClassName: "super-app-theme--header",
     type: "string",
     flex: 1,
   },
   {
     field: "standardCode",
-    headerName: "Norma",
+    headerName: "Norma o Código",
     headerClassName: "super-app-theme--header",
     type: "string",
-    flex: 1,
+    flex: 1
   },
   {
-    field: "type",
-    headerName: "Tipo",
+    field: "assignedTo",
+    headerName: "Empresa",
     headerClassName: "super-app-theme--header",
     type: "string",
-    flex: 1,
-  },
-  {
-    field: "validity",
-    headerName: "Vigencia",
-    headerClassName: "super-app-theme--header",
-    type: "date",
-    renderCell: (params) => formatDate(params.value, "dd/MM/yyyy"),
-    flex: 1,
+    flex: 1
   },
   {
     field: "action",
@@ -52,11 +45,11 @@ export const userDocumentsColumns = (
     width: 90,
     sortable: false,
     filterable: false,
-    renderCell: (params: GridRenderCellParams<IDocumentResponseDTO>) => (
+    renderCell: (params: GridRenderCellParams<IProcedureSpecificationRecordDTO>) => (
       <Actions
         params={params}
-        onView={() => onView(params.row)}
-        onDownload={() => onDownload(params.row)}
+        onEdit={() => onEdit(params.row.id)}
+        onDelete={() => onDelete(params.row.id, params.row.name)}
       />
     ),
   },

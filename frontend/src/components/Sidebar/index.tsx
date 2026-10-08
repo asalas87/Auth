@@ -12,11 +12,13 @@ const menuItems: Record<UserRole, MenuItem[]> = {
     User: [
         { path: "/documents/management", label: "Documentos", icon: "description" },
     ],
-    Admin: [
+Admin: [
         { path: "/documents/certificates", label: "Calificaciones", icon: "grade" },
+        { path: "/documents/procedure-specifications", label: "Especificaciones", icon: "description" },
+        { path: "/documents/procedure-specification-records", label: "Registros de Especificación", icon: "list" },
         { path: "/documents/renovations", label: "Renovaciones", icon: "autorenew" },
         { path: "/partners/companies", label: "Empresas", icon: "business" },
-        { path: "/security/users", label: "Usuarios", icon: "people" },
+        { path: "/security/users", label: " Usuarios", icon: "people" },
     ]
 };
 

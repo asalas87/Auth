@@ -51,11 +51,11 @@ public sealed class CreateProcedureSpecificationCommandHandler(
 
             var document = new Domain.Documents.Entities.ProcedureSpecification(
                 new DocumentFileId(documentId),
-                request.Name,
+                request.File.FileName,
                 relativePath,
                 DateTime.UtcNow,
-                request.ExpirationDate,
-                request.Description ?? string.Empty,
+                null,
+                string.Empty,
                 uploadedUser,
                 assignedCompany,
                 request.ProcedureNumber,
@@ -70,7 +70,6 @@ public sealed class CreateProcedureSpecificationCommandHandler(
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento disponible",
                 body: request.ProcedureNumber,
-                expirationDate: request.ExpirationDate,
                 type: NotificationType.DocumentUploaded);
 
             await notificationRepository.AddAsync(notification, cancellationToken);

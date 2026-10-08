@@ -43,6 +43,6 @@ public class ProcedureSpecificationRecordRepository(ApplicationDbContext context
         return await _context.ProcedureSpecificationRecords
             .Include(document => document.UploadedBy)
             .Include(document => document.AssignedTo)
-            .FirstOrDefaultAsync(document => document.Id.Value == id.Value && document.DocumentType == DocumentType.ProcedureSpecificationRecord);
+            .FirstOrDefaultAsync(document => document.Id == id);
     }
 }

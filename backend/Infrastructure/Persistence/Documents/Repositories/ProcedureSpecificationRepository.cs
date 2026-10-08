@@ -43,6 +43,6 @@ public class ProcedureSpecificationRepository(ApplicationDbContext context) : IP
         return await _context.ProcedureSpecifications
             .Include(document => document.UploadedBy)
             .Include(document => document.AssignedTo)
-            .FirstOrDefaultAsync(document => document.Id.Value == id.Value && document.DocumentType == DocumentType.WeldingProcedure);
+            .FirstOrDefaultAsync(document => document.Id == id);
     }
 }

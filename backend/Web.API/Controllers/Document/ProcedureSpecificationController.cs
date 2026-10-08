@@ -45,7 +45,6 @@ public class ProcedureSpecificationController(IDocumentService service) : ApiCon
     }
 
     [HttpPut("{id:guid}")]
-    [Consumes("multipart/form-data")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Put(Guid id, [FromForm] ProcedureSpecificationEditDTO dto)
     {

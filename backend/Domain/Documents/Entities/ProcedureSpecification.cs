@@ -29,16 +29,10 @@ public class ProcedureSpecification : DocumentFile
     public string StandardCode { get; protected set; } = string.Empty;
 
     public void Update(
-        string name,
-        string description,
-        DateTime? expirationDate,
         Company? assignedTo,
         string procedureNumber,
         string standardCode)
     {
-        Name = name;
-        Description = description;
-        ExpirationDate = expirationDate;
         AssignedTo = assignedTo;
         ProcedureNumber = procedureNumber;
         StandardCode = standardCode;

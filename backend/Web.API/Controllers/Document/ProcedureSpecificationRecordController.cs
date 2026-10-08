@@ -45,7 +45,6 @@ public class ProcedureSpecificationRecordController(IDocumentService service) : 
     }
 
     [HttpPut("{id:guid}")]
-    [Consumes("multipart/form-data")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> Put(Guid id, [FromForm] ProcedureSpecificationRecordEditDTO dto)
     {
