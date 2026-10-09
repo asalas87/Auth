@@ -191,7 +191,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<Guid>("CompanyId")
+                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -245,6 +245,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserActivationToken", "SEC");
                 });
@@ -342,6 +344,23 @@ namespace Infrastructure.Migrations
                     b.ToTable("GeneralDocuments", "DOC");
                 });
 
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecification", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
+
+                    b.Property<string>("ProcedureNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("StandardCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.ToTable("ProcedureSpecifications", "DOC");
+                });
+
             modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
                 {
                     b.HasBaseType("Domain.Documents.Entities.Certificate");
@@ -353,12 +372,19 @@ namespace Infrastructure.Migrations
                     b.ToTable("Renovations", "DOC");
                 });
 
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecificationRecord", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.ProcedureSpecification");
+
+                    b.ToTable("ProcedureSpecificationRecords", "DOC");
+                });
+
             modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
                     b.HasOne("Domain.Partners.Entities.Company", "AssignedTo")
                         .WithMany()
                         .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Domain.Security.Entities.User", "UploadedBy")
                         .WithMany()
@@ -434,8 +460,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Partners.Entities.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Domain.Security.Entities.Role", "Role")
                         .WithMany()
@@ -446,6 +471,15 @@ namespace Infrastructure.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Domain.Security.Entities.UserActivationToken", b =>
+                {
+                    b.HasOne("Domain.Security.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
@@ -466,11 +500,29 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecification", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.ProcedureSpecification", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
                 {
                     b.HasOne("Domain.Documents.Entities.Certificate", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.Renovation", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecificationRecord", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.ProcedureSpecification", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.ProcedureSpecificationRecord", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

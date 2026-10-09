@@ -27,6 +27,12 @@ public class UserActivationTokenConfiguration : IEntityTypeConfiguration<UserAct
         builder.Property(r => r.Purpose)
                 .HasConversion<int>()
                 .IsRequired();
+
+        builder.HasOne<User>()
+               .WithMany()
+               .HasForeignKey(r => r.UserId)
+               .IsRequired()
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

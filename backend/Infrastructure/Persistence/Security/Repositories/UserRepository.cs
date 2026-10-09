@@ -38,4 +38,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
         return (users, totalCount);
     }
+
+    public async Task<bool> HasUploadedDocumentsAsync(UserId userId, CancellationToken cancellationToken = default)
+        => await _context.DocumentFiles.AnyAsync(d => EF.Property<UserId>(d, "UploadedById").Equals(userId), cancellationToken);
 }

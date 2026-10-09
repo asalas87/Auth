@@ -1,20 +1,12 @@
-﻿import { StrictMode, useEffect } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, HashRouter } from 'react-router-dom';
-import { AuthProvider } from "./Security/Context/AuthProvider";
-import App from './App'
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from "@/features/security/Context/AuthProvider";
+import App from './app/App'
 import './index.css'
-import { initAxiosInterceptors } from './Helpers/auth-helpers';
-import { LoadingProvider, useLoading } from './Common/Context/LoadingContext';
-import { initApiLoading } from './Helpers/api';
-
-const LoadingInitializer = () => {
-    const { setLoading } = useLoading();
-    useEffect(() => {
-        initApiLoading(setLoading);
-    }, []);
-    return null;
-};
+import { initAxiosInterceptors } from '@/lib/auth';
+import { LoadingProvider } from '@/app/providers';
+import LoadingInitializer from '@/app/LoadingInitializer';
 
 initAxiosInterceptors();
 createRoot(document.getElementById('root')!).render(

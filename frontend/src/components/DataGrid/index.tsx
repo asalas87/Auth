@@ -1,0 +1,35 @@
+import { DataGrid, DataGridProps } from '@mui/x-data-grid';
+import { esES } from '@mui/x-data-grid/locales';
+
+type TableGridProps = DataGridProps;
+
+const DataGridWrapper = ({ rows, columns, initialState, ...rest }: TableGridProps) => {
+    return (
+        <DataGrid
+            rows={rows}
+            columns={columns}
+            autoHeight
+            pageSizeOptions={[5, 10, 15, 20]}
+            initialState={{
+                columns: {
+                    columnVisibilityModel: { id: false },
+                },
+                pagination: {
+                    paginationModel: { page: 0, pageSize: 10 },
+                },
+                ...initialState,
+            }}
+            showToolbar
+            localeText={esES.components.MuiDataGrid.defaultProps.localeText}
+            {...rest}
+            sx={{
+                '& .MuiTablePagination-root p': {
+                    margin: 0,
+                },
+                ...rest.sx,
+            }}
+        />
+    );
+};
+
+export default DataGridWrapper;

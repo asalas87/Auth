@@ -86,8 +86,7 @@ dist/
 !src/**/*.tsx
 !src/**/*.d.ts
 
-/backend/Web.API/wwwroot/renovation/
-/backend/Web.API/wwwroot/qualification/
+/backend/Web.API/wwwroot/*
 /backend/Web.API/Logs/*
 /scripts
 /Workers

@@ -1,7 +1,7 @@
 using Application.Documents.Common.DTOs;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Domain.Documents.Interfaces;
+using Domain.Enums;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +19,51 @@ public class GetUserDocumentsQueryHandler : IRequestHandler<GetUserDocumentsQuer
         _mapper = mapper ?? throw new ArgumentNullException(nameof(_mapper));
     }
 
-    public async Task<ErrorOr<List<DocumentGridResponseDTO>>> Handle(GetUserDocumentsQuery query, CancellationToken cancellationToken)
+    public async Task<ErrorOr<List<DocumentGridResponseDTO>>> Handle(
+    GetUserDocumentsQuery query,
+    CancellationToken cancellationToken)
     {
-        return await _documentFileRepository
+        var documents = await _documentFileRepository
             .GetUserDocuments(query.UserId)
-            .OrderByDescending(x => x is Domain.Documents.Entities.Certificate
-                ? ((Domain.Documents.Entities.Certificate)x).ExpirationDate
-                : DateTime.MinValue)
-            .ProjectTo<DocumentGridResponseDTO>(_mapper.ConfigurationProvider)
-            .ToListAsync();
+            .OrderByDescending(x => x.ExpirationDate ?? DateTime.MinValue)
+            .ToListAsync(cancellationToken);
+
+        var result = documents.Select(d => new DocumentGridResponseDTO
+        {
+            Id = d.Id.Value,
+            Name = d.Name,
+            IsRead = d.IsRead,
+            Validity = d switch
+            {
+                Domain.Documents.Entities.Certificate c => c.Validity,
+                Domain.Documents.Entities.ProcedureSpecificationRecord pr => pr.UploadDate,
+                Domain.Documents.Entities.ProcedureSpecification p => p.UploadDate,
+                _ => null
+            },
+            DocumentNumber = d switch
+            {
+                Domain.Documents.Entities.Certificate c => c.CertificateNumber,
+                Domain.Documents.Entities.ProcedureSpecificationRecord pr => pr.ProcedureNumber,
+                Domain.Documents.Entities.ProcedureSpecification p => p.ProcedureNumber,
+                _ => string.Empty
+            },
+            StandardCode = d switch
+            {
+                Domain.Documents.Entities.Certificate c => c.StandardCode,
+                Domain.Documents.Entities.ProcedureSpecificationRecord pr => pr.StandardCode,
+                Domain.Documents.Entities.ProcedureSpecification p => p.StandardCode,
+                _ => string.Empty
+            },
+            Type = d.DocumentType switch
+            {
+                DocumentType.Renovation => "Renovación",
+                DocumentType.Qualification => "Certificado",
+                DocumentType.ProcedureSpecificationRecord => "Registro de Especificación de Procedimiento",
+                DocumentType.WeldingProcedure => "Especificación de Procedimiento",
+                _ => "Documento"
+            }
+        }).ToList();
+
+        return result;
     }
 }
