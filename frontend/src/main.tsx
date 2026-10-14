@@ -7,17 +7,22 @@ import './index.css'
 import { initAxiosInterceptors } from '@/lib/auth';
 import { LoadingProvider } from '@/app/providers';
 import LoadingInitializer from '@/app/LoadingInitializer';
+import { ErrorReportProvider } from '@/features/user-reports/Context/ErrorReportProvider';
+import ErrorReportInitializer from '@/features/user-reports/Initializer';
 
 initAxiosInterceptors();
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <BrowserRouter>
-            <LoadingProvider>
-                <AuthProvider>
-                    <LoadingInitializer />
-                    <App />
-                </AuthProvider>
-            </LoadingProvider>
+            <ErrorReportProvider>
+                <LoadingProvider>
+                    <AuthProvider>
+                        <LoadingInitializer />
+                        <ErrorReportInitializer />
+                        <App />
+                    </AuthProvider>
+                </LoadingProvider>
+            </ErrorReportProvider>
         </BrowserRouter>
     </StrictMode>,
 )

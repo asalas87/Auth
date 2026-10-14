@@ -14,6 +14,12 @@ export const initApiLoading = (setter: typeof setLoading) => {
     setLoading = setter;
 };
 
+let reportErrorCallback: ((error: { traceId: string; url: string }) => void) | null = null;
+
+export const initApiErrorReporter = (cb: typeof reportErrorCallback) => {
+    reportErrorCallback = cb;
+};
+
 const handleTokenRefresh = async () => {
     try {
         const refreshToken = getRefreshToken();
@@ -38,6 +44,7 @@ const handleErrorResponse = async (error: AxiosError) => {
 
     // Sin respuesta del servidor
     if (!error.response) {
+        reportErrorCallback?.({ traceId: crypto.randomUUID(), url: window.location.pathname });
         toast.error('Error de conexión con el servidor.');
         return Promise.reject(error);
     }
@@ -90,6 +97,15 @@ const handleErrorResponse = async (error: AxiosError) => {
 
     // 428 Precondition Required → requiere CAPTCHA. No mostrar toast, el componente lo maneja.
     if (error.response.status === 428) {
+        return Promise.reject(error);
+    }
+
+    if (error.response.status === 500) {
+        const data: any = error.response.data;
+        reportErrorCallback?.({
+            traceId: data?.traceId ?? crypto.randomUUID(),
+            url: originalRequest.url ?? window.location.pathname,
+        });
         return Promise.reject(error);
     }
 

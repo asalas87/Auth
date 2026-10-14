@@ -2,6 +2,7 @@
 import "react-toastify/dist/ReactToastify.css";
 import { useRoutes } from "react-router-dom";
 import AppRoutes from "./routes";
+import ErrorReportBanner from "@/features/user-reports/Components/ErrorReportBanner";
 
 function App() {
     const routes = AppRoutes();
@@ -10,6 +11,7 @@ function App() {
     return (
         <>
             <ToastContainer position="top-right" autoClose={3000} />
+            <ErrorReportBanner />
             {content}
         </>
     );
