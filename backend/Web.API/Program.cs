@@ -3,66 +3,72 @@ using Application;
 using Infrastructure;
 using Infrastructure.Persistence.Extensions;
 using Serilog;
+using Serilog.Debugging;
 using Web.Api.Jobs;
 using Web.API;
 using Web.API.Extensions;
 using Web.API.Middlewares;
 
+var logDirectory = Path.Combine(AppContext.BaseDirectory, "Logs");
+Directory.CreateDirectory(logDirectory);
+
+SelfLog.Enable(msg => Console.Error.WriteLine($"[SERILOG] {msg}"));
+
+Log.Logger = new LoggerConfiguration()
+.MinimumLevel.Information()
+.Enrich.FromLogContext()
+.WriteTo.Console()
+.WriteTo.File(
+Path.Combine(logDirectory, "bootstrap-.log"),
+rollingInterval: RollingInterval.Day,
+retainedFileCountLimit: 7,
+shared: true)
+.CreateBootstrapLogger();
+
 try
 {
     Log.Information("Starting application");
 
-    var options = new WebApplicationOptions
-    {
-        WebRootPath = "wwwroot"
-    };
-
+    var options = new WebApplicationOptions { WebRootPath = "wwwroot" };
     var builder = WebApplication.CreateBuilder(options);
 
     builder.Configuration
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: true)
-        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-        .AddEnvironmentVariables();
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
 
-    // -------------------------
-    // Logging
-    // -------------------------
     builder.Host.UseSerilog((context, services, configuration) =>
     {
         configuration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services)
-            .Enrich.FromLogContext();
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+    Path.Combine(logDirectory, "log-.log"),
+    rollingInterval: RollingInterval.Day,
+    retainedFileCountLimit: 30,
+    shared: true);
     });
 
-    // Limpieza de claims
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-    // -------------------------
-    // Servicios
-    // -------------------------
     builder.Services
-        .AddPresentation()
-        .AddInfrastructure(builder.Configuration)
-        .AddSecurityServices(builder.Configuration)
-        .AddApplication()
-        .AddCorsPolicy(builder.Configuration)
-        .AddJwtAuthentication(builder.Configuration)
-        .AddDataProtectionKeys(builder.Configuration)
-        .AddInvalidModelStateMiddlewares()
-        .AddHostedService<NotificationsJob>();
+    .AddPresentation()
+    .AddInfrastructure(builder.Configuration)
+    .AddSecurityServices(builder.Configuration)
+    .AddApplication()
+    .AddCorsPolicy(builder.Configuration)
+    .AddJwtAuthentication(builder.Configuration)
+    .AddDataProtectionKeys(builder.Configuration)
+    .AddInvalidModelStateMiddlewares()
+    .AddHostedService<NotificationsJob>();
 
     var app = builder.Build();
 
-    // -------------------------
-    // Logging HTTP
-    // -------------------------
     app.UseSerilogRequestLogging();
 
-    // -------------------------
-    // Middleware
-    // -------------------------
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -82,13 +88,9 @@ try
 
     app.UseHttpsRedirection();
     app.UseStaticFiles();
-
     app.UseExceptionHandler();
-
     app.UseRouting();
-
     app.UseCors("AllowReactApp");
-
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -96,17 +98,8 @@ try
     app.MapGet("/health", () => Results.Ok("Healthy"));
     app.MapGet("/version", () =>
     {
-        var version = typeof(Program)
-            .Assembly
-            .GetName()
-            .Version?
-            .ToString();
-
-        return Results.Ok(new
-        {
-            version,
-            environment = app.Environment.EnvironmentName
-        });
+        var version = typeof(Program).Assembly.GetName().Version?.ToString();
+        return Results.Ok(new { version, environment = app.Environment.EnvironmentName });
     });
 
     Log.Information("Application started successfully");
@@ -119,5 +112,5 @@ catch (Exception ex)
 }
 finally
 {
-    Log.CloseAndFlush();
+    await Log.CloseAndFlushAsync();
 }
