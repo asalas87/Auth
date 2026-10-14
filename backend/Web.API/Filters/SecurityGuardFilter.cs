@@ -10,23 +10,24 @@ namespace Web.API.Filters;
 public class SecurityGuardFilter(
     IIpAttemptTrackingService tracking,
     ITurnstileValidator turnstile,
-    CaptchaRequiredPolicy captchaPolicy,
     IErrorReporter errorReporter,
-    ILogger<SecurityGuardFilter> logger) : IAsyncActionFilter
+    ILogger<SecurityGuardFilter> logger,
+    ProtectedActionResolver resolver) : IAsyncActionFilter
 {
     private readonly IIpAttemptTrackingService _tracking = tracking;
     private readonly ITurnstileValidator _turnstile = turnstile;
-    private readonly CaptchaRequiredPolicy _captchaPolicy = captchaPolicy;
     private readonly IErrorReporter _errorReporter = errorReporter;
     private readonly ILogger<SecurityGuardFilter> _logger = logger;
+    private readonly ProtectedActionResolver _resolver = resolver;
 
     public async Task OnActionExecutionAsync(
         ActionExecutingContext context,
         ActionExecutionDelegate next)
     {
-        var actionName = ProtectedActionResolver.Resolve(context);
+        var actionName = _resolver.Resolve(context);
+        var options = _resolver.GetOptions(actionName);
 
-        if (!ProtectedActionResolver.IsProtected(actionName))
+        if (!_resolver.IsProtected(actionName) || options == null)
         {
             await next();
             return;
@@ -42,21 +43,102 @@ public class SecurityGuardFilter(
         if (!CheckBlocked(context, ip, actionName, entry))
             return;
 
-        if (!await CheckCaptchaAsync(
-                context,
-                ip,
-                actionName,
-                entry))
+        if (options.Mode == "RateLimit")
+        {
+            var executed = await HandleRateLimitAsync(context, next, ip, actionName, entry, options);
+            return;
+        }
+
+        if (!await CheckCaptchaAsync(context, ip, actionName, entry, options))
         {
             return;
         }
 
         var executedContext = await next();
 
-        await UpdateTrackingAsync(
-            executedContext,
+        await HandleFailureTrackingResultAsync(executedContext, ip, actionName, options);
+    }
+
+    private async Task<ActionExecutedContext> HandleRateLimitAsync(
+        ActionExecutingContext context,
+        ActionExecutionDelegate next,
+        string ip,
+        string actionName,
+        FailureTrackingEntry entry,
+        SecurityActionOptions options)
+    {
+        lock (entry)
+        {
+            var now = DateTime.UtcNow;
+
+            if (entry.LastAttempt.HasValue &&
+                now - entry.LastAttempt.Value > TimeSpan.FromMinutes(options.TimeWindowMinutes))
+            {
+                entry.Attempts = 0;
+                entry.BlockedUntil = null;
+            }
+
+            entry.Attempts++;
+            entry.LastAttempt = now;
+
+            if (entry.Attempts > options.MaxAttempts)
+            {
+                entry.BlockedUntil = now.AddMinutes(options.BlockDurationMinutes);
+            }
+        }
+
+        if (entry.BlockedUntil.HasValue && entry.BlockedUntil.Value > DateTime.UtcNow)
+        {
+            _logger.LogWarning("Blocked IP {Ip} attempted to send user report", ip);
+            var retryAfterSeconds = Math.Max(
+                1,
+                (int)(entry.BlockedUntil.Value - DateTime.UtcNow).TotalSeconds);
+
+            context.HttpContext.Response.Headers.RetryAfter = retryAfterSeconds.ToString();
+            context.Result = ProblemResult(
+                ApiProblemDetailsFactory.TooManyRequests(entry.BlockedUntil.Value),
+                StatusCodes.Status429TooManyRequests);
+            return null!;
+        }
+
+        return await next();
+    }
+
+    private async Task HandleFailureTrackingResultAsync(
+        ActionExecutedContext executedContext,
+        string ip,
+        string actionName,
+        SecurityActionOptions options)
+    {
+        var statusCode = executedContext.Result switch
+        {
+            StatusCodeResult result => result.StatusCode,
+            ObjectResult result => result.StatusCode,
+            _ => null
+        };
+
+        if (statusCode is null)
+            return;
+
+        if (statusCode is >= 200 and < 300)
+        {
+            if (options.ResetOnSuccess)
+            {
+                await _tracking.ResetAsync(
+                    ip,
+                    actionName,
+                    executedContext.HttpContext.RequestAborted);
+            }
+            return;
+        }
+
+        if (statusCode != StatusCodes.Status401Unauthorized)
+            return;
+
+        await _tracking.RegisterFailureAsync(
             ip,
-            actionName);
+            actionName,
+            executedContext.HttpContext.RequestAborted);
     }
 
     private bool CheckBlocked(
@@ -75,7 +157,6 @@ public class SecurityGuardFilter(
             "Blocked IP {Ip} attempted to access {Action}",
             ip,
             actionName);
-
 
         _ = _errorReporter.ReportSecurityEventAsync(
             eventType: "SecurityEvent.IpBlocked",
@@ -111,10 +192,11 @@ public class SecurityGuardFilter(
         ActionExecutingContext context,
         string ip,
         string actionName,
-        FailureTrackingEntry entry)
+        FailureTrackingEntry entry,
+        SecurityActionOptions options)
     {
         var captchaRequired =
-            _captchaPolicy.IsRequired(actionName, entry);
+            CaptchaRequiredPolicy.IsRequired(entry, options);
 
         var captchaToken = ExtractCaptchaToken(context);
 
@@ -166,40 +248,6 @@ public class SecurityGuardFilter(
         }
 
         return true;
-    }
-
-    private async Task UpdateTrackingAsync(
-        ActionExecutedContext executedContext,
-        string ip,
-        string actionName)
-    {
-        var statusCode = executedContext.Result switch
-        {
-            StatusCodeResult result => result.StatusCode,
-            ObjectResult result => result.StatusCode,
-            _ => null
-        };
-
-        if (statusCode is null)
-            return;
-
-        if (statusCode is >= 200 and < 300)
-        {
-            await _tracking.ResetAsync(
-                ip,
-                actionName,
-                executedContext.HttpContext.RequestAborted);
-
-            return;
-        }
-
-        if (statusCode != StatusCodes.Status401Unauthorized)
-            return;
-
-        await _tracking.RegisterFailureAsync(
-            ip,
-            actionName,
-            executedContext.HttpContext.RequestAborted);
     }
 
     private static ObjectResult ProblemResult(

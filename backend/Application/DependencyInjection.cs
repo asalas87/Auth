@@ -6,6 +6,7 @@ using Application.Documents.Analysis.Services;
 using Application.Documents.Services;
 using Application.Partners.Services;
 using Application.Security.Services;
+using Application.UserReports;
 using FluentValidation;
 using Infrastructure.Security;
 using MediatR;
@@ -37,6 +38,7 @@ namespace Application
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDocumentAnalysisService, DocumentAnalysisService>();
             services.AddScoped<ICompanyService, CompanyService>();
+            services.AddScoped<IUserReportService, UserReportService>();
 
             services.AddTransient<RenovationPdfParser>();
             services.AddTransient<QualificationPdfParser>();

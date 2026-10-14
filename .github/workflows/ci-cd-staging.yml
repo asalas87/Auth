@@ -155,12 +155,48 @@ jobs:
                   "ApiKey": "${{ steps.obs_apikey.outputs.api_key }}"
               },
               "Security": {
-                  "RateLimiting": {
-                      "MaxAttempts": 5,
-                      "TimeWindowMinutes": 15,
-                      "BlockDurationMinutes": 60,
-                      "CaptchaRequiredAttempts": 3
-                  },
+                "RateLimiting": {
+                "Actions": {
+                "login": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 6,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaRequiredAttempts": 3,
+                "ResetOnSuccess": true
+                },
+                "register": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 3,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaAlwaysRequired": true,
+                "ResetOnSuccess": false
+                },
+                "forgot-password": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 3,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaAlwaysRequired": true,
+                "ResetOnSuccess": false
+                },
+                "reset-password": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 3,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaAlwaysRequired": true,
+                "ResetOnSuccess": false
+                },
+                "user-report": {
+                "Mode": "RateLimit",
+                "MaxAttempts": 5,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15
+                }
+                }
+                },
                   "Turnstile": {
                       "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
                       "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",

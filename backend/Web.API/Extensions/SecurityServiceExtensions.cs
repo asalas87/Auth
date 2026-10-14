@@ -1,5 +1,6 @@
 using Application.Security.Abstractions;
 using Infrastructure.Security;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Web.API.Filters;
 using Web.API.Security;
@@ -10,6 +11,9 @@ public static class SecurityServiceExtensions
 {
     public static IServiceCollection AddSecurityServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<SecurityRateLimitingOptions>(
+            configuration.GetSection("Security:RateLimiting"));
+
         services.AddSingleton<IIpAttemptTrackingService>(sp =>
         {
             var cache = sp.GetRequiredService<IMemoryCache>();
@@ -18,7 +22,11 @@ public static class SecurityServiceExtensions
 
         services.AddScoped<ITurnstileValidator, TurnstileValidator>();
         services.AddScoped<SecurityGuardFilter>();
-        services.AddSingleton<CaptchaRequiredPolicy>();
+        services.AddScoped<ProtectedActionResolver>();
+        services.Configure<MvcOptions>(options =>
+        {
+            options.Filters.Add<SecurityGuardFilter>();
+        });
 
         return services;
     }

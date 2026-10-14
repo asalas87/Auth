@@ -222,22 +222,49 @@ Protected endpoints (`login`, `register`, `forgot-password`, `reset-password`) a
 - **Reset** only on: 200 (successful authentication).
 - **CAPTCHA valid does NOT reset the counter.** Only a successful login resets it.
 
-### Thresholds (configurable in `appsettings.json`)
+Configuration-driven actions
+Rate limiting and failure tracking are configured per action in appsettings.json:
 
-```json
 "Security": {
-  "RateLimiting": {
-    "MaxAttempts": 6,
-    "TimeWindowMinutes": 15,
-    "BlockDurationMinutes": 15,
-    "CaptchaRequiredAttempts": 3
-  }
+"RateLimiting": {
+"Actions": {
+"login": {
+"Mode": "FailureTracking",
+"MaxAttempts": 6,
+"TimeWindowMinutes": 15,
+"BlockDurationMinutes": 15,
+"CaptchaRequiredAttempts": 3,
+"ResetOnSuccess": true
+},
+"user-report": {
+"Mode": "RateLimit",
+"MaxAttempts": 5,
+"TimeWindowMinutes": 15,
+"BlockDurationMinutes": 15
 }
-```
+}
+}
+}
 
-- **`CaptchaRequiredAttempts`**: after N failures, CAPTCHA is required.
-- **`MaxAttempts`**: after N failures, IP is blocked (429) for `BlockDurationMinutes`.
-- **`TimeWindowMinutes`**: window for counting failures (sliding expiration).
+Two modes are supported:
+
+FailureTracking: the counter increments on failures and resets on success. Suitable for authentication endpoints. Optional CAPTCHA via CaptchaRequiredAttempts or CaptchaAlwaysRequired.
+
+RateLimit: the counter increments on every request. Blocks after MaxAttempts requests within TimeWindowMinutes. Suitable for public endpoints.
+
+To protect an endpoint:
+
+Add the action to Security:RateLimiting:Actions in appsettings.json.
+
+Annotate the endpoint with [ProtectedAction("action-name")] if the route-derived action name doesn't match the config key.
+
+Do NOT implement rate limiting inline in the controller.
+
+Reference implementation: POST /api/user-reports (Mode: RateLimit).
+
+Do NOT: implement inline rate limiting, duplicate the tracking logic, or bypass the filter.
+
+
 
 ### Response contract
 
@@ -259,6 +286,68 @@ The counter is checked **immediately after incrementing**. If the increment trig
 - The Turnstile widget uses `data-permanent` and exposes a `reset()` method via `forwardRef` + `useImperativeHandle` to avoid re-mounting on every render.
 - Tokens are single-use. After a failed attempt, reset the widget to obtain a fresh token.
 - Reference implementation: `frontend/src/Security/Hooks/useLoginFlow.ts` and `frontend/src/Security/Components/TurnstileWidget.tsx`.
+
+### User Reports
+End-users can report problems they experience in the frontend. Reports are proxied to ObsPlatform via IErrorReporter.
+
+Endpoint:
+
+POST /api/user-reports
+[AllowAnonymous]
+
+Request body:
+
+{
+"message": "string (required, 1-5000 chars)",
+"userEmail": "string? (optional, valid email, max 255)",
+"traceId": "string? (optional, max 100)",
+"url": "string? (optional, max 500)",
+"userAgent": "string? (optional, max 500)"
+}
+
+Response:
+
+202 Accepted
+{ "message": "Report received." }
+
+Flow:
+
+UserReportsController
+-> IUserReportService
+-> MediatR: SendUserReportCommand
+-> SendUserReportCommandHandler
+-> IErrorReporter.ReportUserReportAsync
+-> HTTP POST to ObsPlatform /api/v1/ingest/user-reports (ApiKey)
+
+Rules:
+
+[AllowAnonymous] is required. The user may not be logged in.
+
+userId is resolved from IAuthenticatedUser.UserId when the request is authenticated. If null, it's sent as null.
+
+Rate limiting is applied via IIpAttemptTrackingService (max 5 reports per IP per 15 minutes).
+
+Validation via FluentValidation validator (SendUserReportCommandValidator).
+
+The handler returns ErrorOr<Success>. No try-catch.
+
+IErrorReporter.ReportUserReportAsync is fire-and-forget. If ObsPlatform is unreachable, log a warning and return success to the user (the report may be retried manually).
+
+Do NOT:
+
+Do not persist the user report in the local SQL Server database.
+
+Do not block the HTTP response on the ObsPlatform call.
+
+Do not authenticate the endpoint (it must remain public).
+
+Reference implementations:
+
+Application/Feedback/SendUserReport/SendUserReportCommandHandler.cs
+
+Web.API/Controllers/Feedback/UserReportsController.cs
+
+Infrastructure/Services/ObservabilityErrorReporter.ReportUserReportAsync
 
 ### IP resolution
 

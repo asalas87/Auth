@@ -1,19 +1,30 @@
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 
 namespace Web.API.Security;
 
-public static class ProtectedActionResolver
+public class ProtectedActionResolver
 {
-    private static readonly HashSet<string> ProtectedActions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "register",
-        "login",
-        "forgot-password",
-        "reset-password"
-    };
+    private readonly SecurityRateLimitingOptions _options;
 
-    public static string Resolve(ActionExecutingContext context)
+    public ProtectedActionResolver(IOptions<SecurityRateLimitingOptions> options)
     {
+        _options = options.Value;
+    }
+
+    public string Resolve(ActionExecutingContext context)
+    {
+        var actionDescriptor = context.ActionDescriptor;
+
+        var attribute = actionDescriptor.EndpointMetadata
+            .OfType<ProtectedActionAttribute>()
+            .FirstOrDefault();
+
+        if (attribute != null)
+        {
+            return attribute.ActionName.ToLowerInvariant();
+        }
+
         var action = context.ActionDescriptor.RouteValues["action"];
         return action?.ToLowerInvariant() switch
         {
@@ -25,5 +36,17 @@ public static class ProtectedActionResolver
         };
     }
 
-    public static bool IsProtected(string actionName) => ProtectedActions.Contains(actionName);
+    public bool IsProtected(string actionName)
+    {
+        return _options.Actions.ContainsKey(actionName);
+    }
+
+    public SecurityActionOptions? GetOptions(string actionName)
+    {
+        if (_options.Actions.TryGetValue(actionName, out var options))
+        {
+            return options;
+        }
+        return null;
+    }
 }
