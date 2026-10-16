@@ -157,10 +157,10 @@ jobs:
                   "LicenseKey": "${{ secrets.MEDIATR_LICENSE_KEY }}"
               },
               "Seed": {
-                  "AdminEmail": "${{ vars.SEED_ADMIN_EMAIL }}",
-                  "AdminPassword": "${{ secrets.SEED_ADMIN_PASSWORD }}",
-                  "CompanyName": "${{ vars.SEED_COMPANY_NAME }}",
-                  "CompanyCuit": "${{ vars.SEED_COMPANY_CUIT }}"
+                  "AdminEmail": "${{ vars.SEED__ADMINEMAIL }}",
+                  "AdminPassword": "${{ secrets.SEED__ADMINPASSWORD }}",
+                  "CompanyName": "${{ vars.SEED__COMPANYNAME }}",
+                  "CompanyCuit": "${{ vars.SEED__COMPANYCUIT }}"
               },
               "Security": {
                 "RateLimiting": {
