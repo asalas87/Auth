@@ -1,4 +1,4 @@
-﻿namespace Application.Interfaces;
+namespace Application.Interfaces;
 public interface IPasswordHasher
 {
     public string HashPassword(string password);

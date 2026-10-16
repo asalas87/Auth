@@ -5,12 +5,13 @@ namespace Domain.Security.Interfaces;
 public interface IUserRepository
 {
     Task<List<User>> GetAll();
-    Task<User?> GetByIdAsync(UserId id);
+    Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken);
     Task<User?> GetByNameAsync(string idName);
-    Task<User?> GetByEmailAsync(Email email);
+    Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken);
     Task<bool> ExistsAsync(UserId id);
     Task AddAsync(User user);
     void Update(User user);
     void Delete(User user);
     Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter);
+    Task<bool> HasUploadedDocumentsAsync(UserId userId, CancellationToken cancellationToken = default);
 }

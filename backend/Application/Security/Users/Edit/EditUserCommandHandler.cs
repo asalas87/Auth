@@ -23,7 +23,7 @@ public class EditUserCommandHandler(
     public async Task<ErrorOr<UserId>> Handle(EditUserCommand command, CancellationToken cancellationToken)
     {
         var userId = new UserId(command.Id);
-        var user = await _userRepository.GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (user is null)
             return Error.NotFound("User.NotFound", "El usuario no existe.");
@@ -32,7 +32,9 @@ public class EditUserCommandHandler(
         if (emailResult == null)
             return Error.Failure("Email inválido");
 
-        var role = await _roleRepository.GetByIdAsync(command.RoleId);
+        var role = command.RoleId.HasValue
+            ? await _roleRepository.GetByIdAsync(command.RoleId.Value)
+            : await _roleRepository.GetByIdAsync(2);
 
         if (role is null)
             return Error.NotFound("Role.NotFound", "El rol no existe.");

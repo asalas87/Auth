@@ -11,6 +11,8 @@ public interface IAuthenticationService
     public Task<ErrorOr<LoginResponse>> LoginUserAsync(LoginDTO loginDTO);
     public Task<ErrorOr<LoginResponse>> RefreshTokenAsync(string refreshToken);
     public Task<ErrorOr<LoginResponse>> ActivateUserAsync(ActivateAccountDTO dto);
+    public Task<ErrorOr<bool>> RequestPasswordResetAsync(ForgotPasswordDTO dto, CancellationToken cancellationToken = default);
+    public Task<ErrorOr<bool>> ResetPasswordAsync(ResetPasswordDTO dto, CancellationToken cancellationToken = default);
     Task<string> GenerateRefreshTokenAsync(Guid userId);
     string GenerateAccessToken(User user);
 }

@@ -17,12 +17,12 @@ namespace Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Documents.Entites.DocumentFile", b =>
+            modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,7 +83,6 @@ namespace Infrastructure.Migrations
                         .HasDefaultValueSql("NEWSEQUENTIALID()");
 
                     b.Property<string>("CuitCuil")
-                        .IsRequired()
                         .HasMaxLength(13)
                         .HasColumnType("nvarchar(13)");
 
@@ -192,7 +191,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<Guid>("CompanyId")
+                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -231,6 +230,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Purpose")
+                        .HasColumnType("int");
+
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -243,6 +245,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserActivationToken", "SEC");
                 });
@@ -276,6 +280,11 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<int>("RetryCount")
                         .HasColumnType("int");
 
@@ -305,7 +314,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
                 {
-                    b.HasBaseType("Domain.Documents.Entites.DocumentFile");
+                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
 
                     b.Property<string>("CertificateNumber")
                         .IsRequired()
@@ -330,9 +339,26 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.GeneralDocument", b =>
                 {
-                    b.HasBaseType("Domain.Documents.Entites.DocumentFile");
+                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
 
                     b.ToTable("GeneralDocuments", "DOC");
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecification", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.DocumentFile");
+
+                    b.Property<string>("ProcedureNumber")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("StandardCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.ToTable("ProcedureSpecifications", "DOC");
                 });
 
             modelBuilder.Entity("Domain.Documents.Entities.Renovation", b =>
@@ -346,12 +372,19 @@ namespace Infrastructure.Migrations
                     b.ToTable("Renovations", "DOC");
                 });
 
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecificationRecord", b =>
+                {
+                    b.HasBaseType("Domain.Documents.Entities.ProcedureSpecification");
+
+                    b.ToTable("ProcedureSpecificationRecords", "DOC");
+                });
+
             modelBuilder.Entity("Domain.Documents.Entities.DocumentFile", b =>
                 {
                     b.HasOne("Domain.Partners.Entities.Company", "AssignedTo")
                         .WithMany()
                         .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Domain.Security.Entities.User", "UploadedBy")
                         .WithMany()
@@ -427,8 +460,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Partners.Entities.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Domain.Security.Entities.Role", "Role")
                         .WithMany()
@@ -441,9 +473,18 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Domain.Security.Entities.UserActivationToken", b =>
+                {
+                    b.HasOne("Domain.Security.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Documents.Entities.Certificate", b =>
                 {
-                    b.HasOne("Domain.Documents.Entites.DocumentFile", null)
+                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.Certificate", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -452,9 +493,18 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Documents.Entities.GeneralDocument", b =>
                 {
-                    b.HasOne("Domain.Documents.Entites.DocumentFile", null)
+                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.GeneralDocument", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecification", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.DocumentFile", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.ProcedureSpecification", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -464,6 +514,15 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Documents.Entities.Certificate", null)
                         .WithOne()
                         .HasForeignKey("Domain.Documents.Entities.Renovation", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Documents.Entities.ProcedureSpecificationRecord", b =>
+                {
+                    b.HasOne("Domain.Documents.Entities.ProcedureSpecification", null)
+                        .WithOne()
+                        .HasForeignKey("Domain.Documents.Entities.ProcedureSpecificationRecord", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

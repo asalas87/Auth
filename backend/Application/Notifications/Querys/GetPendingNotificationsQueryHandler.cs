@@ -24,7 +24,9 @@ public class GetPendingNotificationsQueryHandler : IRequestHandler<GetPendingNot
             Subject = n.Subject,
             Body = n.Body,
             Type = n.Type,
-            CompanyId = n.CompanyId ?? new Guid()
+            CompanyId = n.CompanyId ?? new Guid(),
+            ExpirationDate = n.ExpirationDate,
+            RecipientName = n.RecipientName
         }).ToList();
     }
 }

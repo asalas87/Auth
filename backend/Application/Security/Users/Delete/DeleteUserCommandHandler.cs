@@ -12,10 +12,14 @@ namespace Application.Security.Users.Delete
 
         public async Task<ErrorOr<Unit>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.UserId);
+            var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
 
             if (user is null)
                 return Error.NotFound("User.NotFound", "Usuario no encontrado.");
+
+            if (await _userRepository.HasUploadedDocumentsAsync(user.Id, cancellationToken))
+                return Error.Conflict("User.HasUploadedDocuments",
+                    "No se puede eliminar el usuario porque tiene documentos subidos por él.");
 
             _userRepository.Delete(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

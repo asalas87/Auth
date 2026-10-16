@@ -6,4 +6,5 @@ public class ExpiringDocumentDTO
     public string Name { get; set; } = string.Empty;
     public DateTime ExpirationDate { get; set; }
     public List<string> AssignedToEmails { get; set; } = new();
+    public List<string> AssignedToNames { get; set; } = new();
 }

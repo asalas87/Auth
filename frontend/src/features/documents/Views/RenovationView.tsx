@@ -1,0 +1,95 @@
+import { useCallback, useMemo, useState } from "react";
+import { IRenovationDTO, IRenovationEditDTO } from "../Interfaces";
+import { usePaginatedList } from "@/hooks/usePaginatedList";
+import { FieldType, getEmptyItem } from "@/components/EditForm";
+import { getAll, create, update, remove, getById } from "../Services/RenovationService";
+import { executeWithErrorHandling } from "@/lib/errorHandling";
+import { RenovationEditForm } from "./Forms/RenovationEditForm";
+import { parseDates } from "@/lib/dates";
+import TableGrid from "@/components/DataGrid";
+import PageHeader from "@/components/PageHeader";
+import { renovationColumns } from "./Forms/RenovationColumns";
+
+export const RenovationView = () => {
+    const [selected, setSelected] = useState<IRenovationDTO | null>(null);
+    const [mode, setMode] = useState<'edit' | 'create'>('edit');
+
+    const memoizedGetAll = useCallback(getAll, []);
+
+    const {
+        data: documents,
+        reload
+    } = usePaginatedList(memoizedGetAll);
+
+    const handleEdit = useCallback((id: string) => {
+        executeWithErrorHandling(
+            () => getById(id),
+            (documentEdit: IRenovationDTO) => {
+                const document = parseDates(documentEdit, ['validity']);
+                setSelected(document);
+                setMode('edit');
+            }
+        )
+    }, []);
+
+    const handleDelete = useCallback((id: string): void => {
+        if (!window.confirm(`¿Eliminar el documento?`)) return;
+        executeWithErrorHandling(
+            () => remove(id),
+            () => {
+                setSelected(null);
+                reload();
+            })
+    }, [reload]);
+
+    const fields = useMemo(
+        () => renovationColumns(handleEdit, handleDelete),
+        [handleEdit, handleDelete]
+    );
+
+    const handleCreate = () => {
+        const empty = getEmptyItem<IRenovationDTO>([
+            { name: 'certificateNumber', label: 'Nombre archivo', type: FieldType.Text },
+            { name: 'employerFullName', label: 'Soldador', type: FieldType.Text },
+            { name: 'standardCode', label: 'Norma o Código', type: FieldType.Text },
+            { name: 'validity', label: 'Vigencia', type: FieldType.Date },
+            { name: 'assignedToId', label: 'Empresa', type: FieldType.Select },
+            { name: 'file', label: 'Archivo', type: FieldType.File },
+            { name: 'renovationNumber', label: 'N° renovacion', type: FieldType.Number }
+        ]);
+        setSelected(parseDates(empty,['validity']));
+        setMode('create');
+    };
+
+    const handleSave = async (document: IRenovationEditDTO) => {
+            executeWithErrorHandling(
+                () => mode === 'create' ? create(document) : update(document),
+                () => {
+                    setSelected(null);
+                    reload();
+                });
+    };
+
+    return (
+        <div className="container mt-4">
+            <PageHeader
+                heading="Renovaciones"
+                btnLabel="Nueva Renovación"
+                btnEvent={handleCreate}
+            />
+            <TableGrid
+                rows={documents.map(d => parseDates(d, ['validity']))}
+                columns={fields}
+            />
+
+            {selected && (
+                <RenovationEditForm
+                    item={selected}
+                    onSave={handleSave}
+                    onClose={() => setSelected(null)}
+                    mode={mode}
+                />
+            )}
+        </div>
+    );
+}

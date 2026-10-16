@@ -4,5 +4,6 @@ public enum NotificationType
 {
     DocumentUploaded = 1,
     DocumentExpiring = 2,
-    UserCreated = 3
+    UserCreated = 3,
+    PasswordReset = 4
 }

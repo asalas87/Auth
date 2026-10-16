@@ -7,6 +7,7 @@ public record CreateNotificationCommand(
     Guid? DocumentId,
     Guid? CompanyId,
     string RecipientEmail,
+    string RecipientName,
     string Subject,
     string Body,
     NotificationType Type,

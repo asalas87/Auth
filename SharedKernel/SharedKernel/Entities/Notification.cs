@@ -9,6 +9,7 @@ public class Notification
     public Guid? DocumentId { get; private set; }
     public Guid? CompanyId { get; private set; }
     public string RecipientEmail { get; private set; } = null!;
+    public string RecipientName { get; private set; } = null!;
     public string Subject { get; private set; } = string.Empty;
     public string Body { get; private set; } = string.Empty;
     public NotificationType Type { get; private set; }
@@ -22,6 +23,7 @@ public class Notification
 
     public Notification(
         string recipientEmail,
+        string recipientName,
         Guid? documentId,
         Guid? companyId,
         string subject,
@@ -32,6 +34,7 @@ public class Notification
         DocumentId = documentId;
         CompanyId = companyId;
         RecipientEmail = recipientEmail;
+        RecipientName = recipientName;
         Subject = subject;
         Body = body;
         Type = type;
@@ -41,6 +44,7 @@ public class Notification
     }
 
     // Métodos de cambio de estado
+    public void UpdateBody(string body) => Body = body;
     public void MarkProcessing() => Status = NotificationStatus.Processing;
     public void MarkSent() =>  Status = NotificationStatus.Sent;
     public void MarkFailed() => Status = NotificationStatus.Failed;

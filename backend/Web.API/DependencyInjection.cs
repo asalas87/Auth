@@ -18,7 +18,7 @@ public static class DependencyInjection
             options.HttpsPort = 7277;
         });
 
-        services.AddControllers(options =>
+        var mvcBuilder = services.AddControllers(options =>
         {
             var policy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
@@ -28,11 +28,15 @@ public static class DependencyInjection
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
-        services.AddTransient<GlobalExceptionHandlingMiddleware>();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddHttpContextAccessor();
 
-        services.AddAutoMapper(typeof(DependencyInjection));
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddMaps(typeof(DependencyInjection).Assembly);
+        });
 
+        services.AddProblemDetails();
         return services;
     }
 
@@ -62,13 +66,11 @@ public static class DependencyInjection
                 };
             });
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("AdminOnly", policy =>
-                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Name.ToString()));
-            options.AddPolicy("UserOnly", policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy("AdminOnly", policy =>
+                policy.RequireClaim(ClaimTypes.Role, Role.Admin.Name.ToString()))
+            .AddPolicy("UserOnly", policy =>
                 policy.RequireClaim(ClaimTypes.Role, Role.User.Name.ToString()));
-        });
 
         return services;
     }

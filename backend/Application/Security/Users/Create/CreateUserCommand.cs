@@ -9,5 +9,5 @@ namespace Application.Security.Users.Create
         string Name,
         Email Email,
         CompanyId CompanyId,
-        int RoleId) : IRequest<ErrorOr<Guid>>;
+        int? RoleId) : IRequest<ErrorOr<Guid>>;
 }

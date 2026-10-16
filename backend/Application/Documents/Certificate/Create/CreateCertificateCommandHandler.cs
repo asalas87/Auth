@@ -31,22 +31,15 @@ public sealed class CreateCertificateCommandHandler(
     public async Task<ErrorOr<Guid>> Handle(CreateCertificateCommand request, CancellationToken cancellationToken)
     {
         var documentId = Guid.NewGuid();
-        //var folderPath = DocumentFile.BuildFolderPath(_env.WebRootPath, "Certificates");
         var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var fileName = $"{timestamp}_{request.CertificateNumber}.pdf";
-        //var filePath = Path.Combine(folderPath, fileName);
         string? relativePath = null;
         var uploadDate = DateTime.UtcNow;
 
         try
         {
 
-            // Crear carpeta si no existe
-            //if (!Directory.Exists(folderPath))
-            //    Directory.CreateDirectory(folderPath);
-
-
-            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
+            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById), cancellationToken) is not User uploadedUser)
             {
                 return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
             }
@@ -56,7 +49,7 @@ public sealed class CreateCertificateCommandHandler(
                 return Error.NotFound("Company.NotFound", "The user with the provide Id was not found.");
             }
 
-            relativePath = await _fileStorageService.SaveAsync(request.File, DocumentType.Qualification, fileName,  cancellationToken);
+            relativePath = await _fileStorageService.SaveAsync(request.File, DocumentType.Qualification, fileName, cancellationToken);
 
             var certificate = new Domain.Documents.Entities.Certificate(
                 fileName,
@@ -75,10 +68,12 @@ public sealed class CreateCertificateCommandHandler(
 
             var notification = new Notification(
                 recipientEmail: string.Join(",", assignedCompany.Users.Select(x => x.Email.Value)),
+                recipientName: string.Join(",", assignedCompany.Users.Select(x => x.Name)),
                 documentId,
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento disponible",
                 body: request.CertificateNumber,
+                expirationDate: request.Validity,
                 type: NotificationType.DocumentUploaded
             );
             await _notificationRepository.AddAsync(notification, cancellationToken);

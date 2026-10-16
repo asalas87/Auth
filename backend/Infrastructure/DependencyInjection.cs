@@ -16,6 +16,7 @@ using Infrastructure.Persistence.Sales.Repositories;
 using Infrastructure.Persistence.Security.Repositories;
 using Infrastructure.Security;
 using Infrastructure.Services;
+using Infrastructure.Services.Observability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,7 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("Infrastructure")));
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+        services.AddMemoryCache();
 
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
@@ -48,23 +50,38 @@ public static class DependencyInjection
         services.AddScoped<IControlCompanyRepository, CompanyRepository>();
         services.AddScoped<IUserActivationTokenRepository, UserActivationTokenRepository>();
         services.AddScoped<IRenovationRepository, RenovationRepository>();
+        services.AddScoped<IProcedureSpecificationRepository, ProcedureSpecificationRepository>();
+        services.AddScoped<IProcedureSpecificationRecordRepository, ProcedureSpecificationRecordRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+
+        services.Configure<ObservabilityOptions>(
+            configuration.GetSection(ObservabilityOptions.SectionName));
 
         return services;
     }
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
+
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddSingleton<INotificationTemplateService, NotificationTemplateService>();
+        services.AddSingleton<ITemplateRenderer, TemplateRenderer>();
         services.AddSingleton<IActivationTokenService, ActivationTokenService>();
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddTransient<IPdfTextExtractor, PdfPigTextExtractor>();
         services.AddTransient<IPdfStructuredExtractor, PdfPigStructuredExtractor>();
         services.AddScoped<IFileStorageService, FileStorageService>();
 
+        services.ConfigureHttpClientDefaults(http =>
+        {
+            http.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "Auth-API/1.0");
+            });
+        });
+        services.AddHttpClient<IObservabilityClient, ObservabilityClient>();
+        services.AddScoped<IErrorReporter, ObservabilityErrorReporter>();
         return services;
     }
 }

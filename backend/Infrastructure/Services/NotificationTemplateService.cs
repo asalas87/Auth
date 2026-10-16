@@ -11,6 +11,7 @@ public class NotificationTemplateService : INotificationTemplateService
         _templatesPath = Path.Combine(AppContext.BaseDirectory, "Notifications", "Templates");
     }
 
+    [Obsolete]
     public (string Subject, string Body) GenerateUserActivationEmail(string userEmail, string activationLink)
     {
         var subject = "Activación de tu cuenta";

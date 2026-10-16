@@ -42,7 +42,7 @@ public class DocumentFileConfiguration : IEntityTypeConfiguration<DocumentFile>
         builder.HasOne(d => d.AssignedTo)
             .WithMany()
             .HasForeignKey("AssignedToId")
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Property(d => d.DocumentType)
             .IsRequired();

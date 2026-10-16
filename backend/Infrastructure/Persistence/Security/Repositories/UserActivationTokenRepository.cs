@@ -12,4 +12,15 @@ public class UserActivationTokenRepository(ApplicationDbContext context) : IUser
         .FirstOrDefaultAsync(t => t.Token == token, cancellationToken);
 
     public void Update(UserActivationToken token, CancellationToken cancellationToken) => _context.UserActivationTokens.Update(token);
+    public async Task InvalidateOtherTokensAsync(UserId userId, string currentToken, CancellationToken cancellationToken)
+    {
+        var tokens = await _context.UserActivationTokens
+            .Where(t => t.UserId == userId && t.Token != currentToken && !t.Used && t.ExpiresAt > DateTime.UtcNow)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in tokens)
+        {
+            token.MarkAsUsed();
+        }
+    }
 }

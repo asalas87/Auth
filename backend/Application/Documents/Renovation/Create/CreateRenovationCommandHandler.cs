@@ -40,7 +40,7 @@ public sealed class CreateRenovationCommandHandler(
         string? relativePath = null;
         try
         {
-            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById)) is not User uploadedUser)
+            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedById), cancellationToken) is not User uploadedUser)
             {
                 return Error.NotFound("User.NotFound", "The user with the provided Id was not found.");
             }
@@ -70,9 +70,11 @@ public sealed class CreateRenovationCommandHandler(
 
             var notification = new Notification(
                 recipientEmail: string.Join(",", assignedCompany.Users.Select(x => x.Email.Value)),
+                recipientName: string.Join(",", assignedCompany.Users.Select(x => x.Name)),
                 documentId,
                 companyId: assignedCompany.Id.Value,
                 subject: "Nuevo documento de renovación disponible",
+                expirationDate: request.Validity,
                 body: request.CertificateNumber,
                 type: NotificationType.DocumentUploaded
             );

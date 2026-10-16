@@ -1,12 +1,11 @@
 using Application.Common.Interfaces;
 using Application.Interfaces;
-using Domain.Partners.Entities;
 using Domain.Primitives;
 using Domain.Security.Entities;
+using Domain.Security.Enums;
 using Domain.Security.Events;
 using Domain.Security.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using SharedKernel.Entities;
 using SharedKernel.Enums;
@@ -18,27 +17,35 @@ public class UserCreatedEventHandler(
     INotificationRepository notificationRepository,
     IUserActivationTokenRepository userActivationTokenRepository,
     IUnitOfWork unitOfWork,
-    INotificationTemplateService notificationTemplateService,
+    ITemplateRenderer templateRenderer,
     IEmailService emailService,
     IConfiguration configuration) : INotificationHandler<UserCreatedEvent>
 {
     private readonly INotificationRepository _notificationRepository = notificationRepository;
     private readonly IUserActivationTokenRepository _userActivationTokenRepository = userActivationTokenRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly INotificationTemplateService _templateService = notificationTemplateService;
+    private readonly ITemplateRenderer _templateRenderer = templateRenderer;
     private readonly IEmailService _emailService = emailService;
     private readonly IConfiguration _configuration = configuration;
 
     public async Task Handle(UserCreatedEvent notification, CancellationToken cancellationToken)
     {
-        UserActivationToken userActivationToken = UserActivationToken.Create(new UserId(notification.UserId), TimeSpan.FromDays(1));
+        UserActivationToken userActivationToken = UserActivationToken.Create(
+            new UserId(notification.UserId),
+            TimeSpan.FromDays(1),
+            TokenPurpose.AccountActivation);
 
-        var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "https://app.csingenieria.com.ar";
+        var frontendUrl = _configuration["Application:FrontendUrl"] ?? "https://app.csingenieria.com.ar";
         var activationLink = $"{frontendUrl}/activate?token={userActivationToken.Token}";
-        var (subject, body) = _templateService.GenerateUserActivationEmail(notification.Email, activationLink);
+        var subject = "Activación de cuenta";
+
+        var body = await _templateRenderer.RenderAsync("AccountActivation", new Dictionary<string, string> {
+                ["activationLink"] = activationLink
+            });
 
         var notif = new Notification(
             recipientEmail: notification.Email,
+            recipientName: notification.Name,
             documentId: null,
             companyId: notification.CompanyId,
             subject: subject,
@@ -56,7 +63,7 @@ public class UserCreatedEventHandler(
 
             notif.MarkSent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             notif.MarkFailed();
         }

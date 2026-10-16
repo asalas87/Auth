@@ -12,4 +12,5 @@ public interface IDocumentFileRepository
     Task<(List<DocumentFile> Files, int TotalCount)> GetPaginatedByAssignedToAsync(int page, int pageSize, string? filter, UserId? assignedToUserId);
     IQueryable<DocumentFile> GetUserDocuments(UserId assignedToUserId);
     Task<List<DocumentFile>> GetExpiringDocumentsNotSendAsync(int batchSize);
+    Task<List<DocumentFile>> GetPendingExpirationNotificationsAsync(int batchDays);
 }

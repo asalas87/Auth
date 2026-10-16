@@ -3,9 +3,11 @@ using Application.Security.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.API.Controllers.Common;
+using Web.API.Filters;
 
 namespace Web.API.Controllers.Security;
 [Route("security/[controller]")]
+[ServiceFilter(typeof(SecurityGuardFilter))]
 public class AccountController(IAuthenticationService service) : ApiController
 {
     private readonly IAuthenticationService _service = service ?? throw new ArgumentException(null, nameof(service));
@@ -54,6 +56,30 @@ public class AccountController(IAuthenticationService service) : ApiController
 
         return result.Match(
             value => Ok(value),
+            errors => Problem(errors)
+        );
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password", Name = "forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto, CancellationToken cancellationToken)
+    {
+        var result = await _service.RequestPasswordResetAsync(dto, cancellationToken);
+
+        return result.Match(
+            value => Ok(new { message = "Si el email está registrado, recibirás un enlace para reiniciar tu contraseña." }),
+            errors => Problem(errors)
+        );
+    }
+
+    [AllowAnonymous]
+    [HttpPost("reset-password", Name = "reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto, CancellationToken cancellationToken)
+    {
+        var result = await _service.ResetPasswordAsync(dto, cancellationToken);
+
+        return result.Match(
+            value => NoContent(),
             errors => Problem(errors)
         );
     }

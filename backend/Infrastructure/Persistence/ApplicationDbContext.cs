@@ -18,6 +18,8 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Certificate> Certificates => Set<Certificate>();
     public DbSet<Renovation> Renovations => Set<Renovation>();
+    public DbSet<ProcedureSpecification> ProcedureSpecifications => Set<ProcedureSpecification>();
+    public DbSet<ProcedureSpecificationRecord> ProcedureSpecificationRecords => Set<ProcedureSpecificationRecord>();
     public DbSet<GeneralDocument> GeneralDocuments => Set<GeneralDocument>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserActivationToken> UserActivationTokens => Set<UserActivationToken>();

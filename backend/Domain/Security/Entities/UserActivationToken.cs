@@ -1,4 +1,5 @@
 using Domain.Primitives;
+using Domain.Security.Enums;
 
 namespace Domain.Security.Entities;
 
@@ -8,10 +9,11 @@ public class UserActivationToken : AggergateRoot<Guid>
     public string Token { get; private set; } = null!;
     public DateTime ExpiresAt { get; private set; }
     public bool Used { get; private set; }
+    public TokenPurpose Purpose { get; private set; }
 
     private UserActivationToken() { }
 
-    public static UserActivationToken Create(UserId userId, TimeSpan validityPeriod)
+    public static UserActivationToken Create(UserId userId, TimeSpan validityPeriod, TokenPurpose purpose)
     {
         var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray())
             .Replace("+", "").Replace("/", "").Replace("=", "");
@@ -20,11 +22,15 @@ public class UserActivationToken : AggergateRoot<Guid>
             UserId = userId,
             Token = token,
             ExpiresAt = DateTime.UtcNow.Add(validityPeriod),
-            Used = false
+            Used = false,
+            Purpose = purpose
         };
     }
 
     public bool IsValid() => !Used && DateTime.UtcNow < ExpiresAt;
 
-    public void MarkAsUsed() => Used = true;
+    public void MarkAsUsed() { 
+        Used = true;
+        ExpiresAt = DateTime.UtcNow;
+    }
 }

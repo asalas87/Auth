@@ -3,6 +3,7 @@ using Domain.Security.Entities;
 using Domain.ValueObjects;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Persistence.Extensions;
@@ -13,6 +14,7 @@ public static class ApplicationDbSeeder
     {
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
         if (!db.Roles.Any())
         {
@@ -21,16 +23,35 @@ public static class ApplicationDbSeeder
             db.SaveChanges();
         }
 
-        if (!db.Users.Any())
+        if (db.Users.Any())
+            return;
+
+        var adminEmail = config["Seed:AdminEmail"];
+        var adminPassword = config["Seed:AdminPassword"];
+        var companyName = config["Seed:CompanyName"];
+        var companyCuit = config["Seed:CompanyCuit"];
+
+        if (string.IsNullOrWhiteSpace(adminEmail) ||
+            string.IsNullOrWhiteSpace(adminPassword) ||
+            string.IsNullOrWhiteSpace(companyName) ||
+            string.IsNullOrWhiteSpace(companyCuit))
         {
-            db.Companies.AddRange(
-                new Company("CS Ingeniería", Cuit.Create("30-71050574-4")!)
-            );
-            db.SaveChanges();
-            var adminRole = db.Roles.First(r => r.Name == "Admin");
-            var company = db.Companies.First(c => c.Name == "CS Ingeniería");
-            db.Users.Add(new User("admin", new PasswordHasher().HashPassword("admin123!"), Email.Create("admin@csingenieria.com.ar")!, adminRole, company, true));
-            db.SaveChanges();
+            throw new InvalidOperationException(
+                "Seed aborted: seed credentials are not configured. " +
+                "Set Seed:AdminEmail, Seed:AdminPassword, Seed:CompanyName, Seed:CompanyCuit " +
+                "via configuration or environment variables.");
         }
+
+        var adminRole = db.Roles.First(r => r.Name == "Admin");
+
+        var company = new Company(companyName, Cuit.Create(companyCuit)!);
+        db.Companies.Add(company);
+        db.SaveChanges();
+
+        var hashedPassword = new PasswordHasher().HashPassword(adminPassword);
+        var email = Email.Create(adminEmail)!;
+
+        db.Users.Add(new User("admin", hashedPassword, email, adminRole, company, true));
+        db.SaveChanges();
     }
 }

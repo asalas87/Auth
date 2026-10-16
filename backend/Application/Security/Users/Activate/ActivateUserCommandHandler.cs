@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Domain.Primitives;
 using Domain.Security.Entities;
+using Domain.Security.Enums;
 using Domain.Security.Interfaces;
 using ErrorOr;
 using MediatR;
@@ -28,7 +29,10 @@ public sealed class ActivateUserCommandHandler(
         if (!token.IsValid())
             return Error.Validation("ActivationToken.Invalid", "El token ha expirado o ya fue usado.");
 
-        var user = await _userRepository.GetByIdAsync(new UserId(request.UserId));
+        if (token.Purpose != TokenPurpose.AccountActivation)
+            return Error.Validation("ActivationToken.Invalid", "El token no es válido para esta operación.");
+
+        var user = await _userRepository.GetByIdAsync(new UserId(request.UserId), cancellationToken);
         if (user is null)
             return Error.NotFound("User.NotFound", "Usuario no encontrado.");
 

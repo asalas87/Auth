@@ -14,7 +14,7 @@ public class GetExpiringDocumentsNotSendQueryHandler : IRequestHandler<GetExpiri
     }
     public async Task<ErrorOr<List<ExpiringDocumentDTO>>> Handle(GetExpiringDocumentsNotSendQuery request, CancellationToken cancellationToken)
     {
-        var documents = await _documentRepository.GetExpiringDocumentsNotSendAsync(request.batchDays);
+        var documents = await _documentRepository.GetPendingExpirationNotificationsAsync(request.batchDays);
 
         return documents.Select(d => new ExpiringDocumentDTO
         {
@@ -22,7 +22,8 @@ public class GetExpiringDocumentsNotSendQueryHandler : IRequestHandler<GetExpiri
             Name = d.Name,
             ExpirationDate = d.ExpirationDate!.Value,
             CompanyId = d.AssignedTo?.Id.Value ?? new Guid(),
-            AssignedToEmails = d.AssignedTo?.Users.Select(u => u.Email.Value).ToList() ?? []
+            AssignedToEmails = d.AssignedTo?.Users.Select(u => u.Email.Value).ToList() ?? [],
+            AssignedToNames = d.AssignedTo?.Users.Select(u => u.Name).ToList() ?? []
 
         }).ToList();
     }

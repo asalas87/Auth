@@ -20,7 +20,7 @@ namespace Application.Notifications.Commands
 
         public async Task<ErrorOr<bool>> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
         {
-            var notification = new Notification(request.RecipientEmail, request.DocumentId, request.CompanyId, request.Subject, request.Body, request.Type, request.ExpirationDate);
+            var notification = new Notification(request.RecipientEmail, request.RecipientName, request.DocumentId, request.CompanyId, request.Subject, request.Body, request.Type, request.ExpirationDate);
 
             await _notificationRepository.AddAsync(notification);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

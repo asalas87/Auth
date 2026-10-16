@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Domain.Security.Entities;
+using Domain.Security.Enums;
 
 namespace Infrastructure.Persistence.Configurations.Security;
 public class UserActivationTokenConfiguration : IEntityTypeConfiguration<UserActivationToken>
@@ -23,5 +24,15 @@ public class UserActivationTokenConfiguration : IEntityTypeConfiguration<UserAct
         builder.Property(r => r.ExpiresAt)
                 .IsRequired();
 
+        builder.Property(r => r.Purpose)
+                .HasConversion<int>()
+                .IsRequired();
+
+        builder.HasOne<User>()
+               .WithMany()
+               .HasForeignKey(r => r.UserId)
+               .IsRequired()
+               .OnDelete(DeleteBehavior.Cascade);
     }
 }
+

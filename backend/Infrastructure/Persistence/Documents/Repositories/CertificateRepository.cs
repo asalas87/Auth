@@ -34,9 +34,9 @@ namespace Infrastructure.Persistence.Documents.Repositories
             var totalCount = await query.CountAsync();
 
             var certificates = await query
-                .OrderByDescending(u => u.ExpirationDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .OrderByDescending(u => u.UploadDate)
+                //.Skip((page - 1) * pageSize)
+                //.Take(pageSize)
                 .ToListAsync();
 
             return (certificates, totalCount);

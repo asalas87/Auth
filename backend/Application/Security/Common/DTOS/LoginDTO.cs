@@ -8,5 +8,6 @@ namespace Application.Security.Common.DTOS
         public string Email { get; set; } = string.Empty;
         [Required(ErrorMessage = "Debes ingresar tu contraseña."), DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
+        public string? CaptchaToken { get; set; }
     }
 }

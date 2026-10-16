@@ -6,7 +6,6 @@ namespace Application.Documents.Renovation.Create;
 public record CreateRenovationCommand : IRequest<ErrorOr<Guid>>
 {
     public DateTime Validity { get; set; }
-    public DateTime ExpirationDate { get; set; }
     public Guid UploadedById { get; set; }
     public Guid AssignedToId { get; set; }
     public IFormFile File { get; set; } = default!;

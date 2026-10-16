@@ -47,7 +47,7 @@ public sealed class CreateDocumentCommandHandler(
             //    await request.File.CopyToAsync(stream, cancellationToken);
             //}
 
-            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedBy)) is not User uploadedUser)
+            if (await _userRepository.GetByIdAsync(new UserId(request.UploadedBy), cancellationToken) is not User uploadedUser)
             {
                 return Error.NotFound("User.NotFound", "The user with the provide Id was not found.");
             }

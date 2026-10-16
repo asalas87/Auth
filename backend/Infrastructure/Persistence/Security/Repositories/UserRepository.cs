@@ -13,11 +13,11 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
     public void Delete(User user) => _context.Users.Remove(user);
     public void Update(User user) => _context.Users.Update(user);
     public async Task<bool> ExistsAsync(UserId id) => await _context.Users.AnyAsync(user => user.Id == id);
-    public async Task<User?> GetByIdAsync(UserId id) => await _context.Users.Include(u => u.Company).Include(u => u.Role).SingleOrDefaultAsync(c => c.Id == id);
+    public async Task<User?> GetByIdAsync(UserId id, CancellationToken cancellationToken) => await _context.Users.Include(u => u.Company).Include(u => u.Role).SingleOrDefaultAsync(c => c.Id == id, cancellationToken);
     public async Task<List<User>> GetAll() => await _context.Users.ToListAsync();
 
     public async Task<User?> GetByNameAsync(string idName) => await _context.Users.SingleOrDefaultAsync(c => c.Name == idName);
-    public async Task<User?> GetByEmailAsync(Email email) => await _context.Users.Include(d => d.RefreshTokens).Include(u => u.Company).Include(u => u.Role).SingleOrDefaultAsync(c => c.Email == email);
+    public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken) => await _context.Users.Include(d => d.RefreshTokens).Include(u => u.Company).Include(u => u.Role).SingleOrDefaultAsync(c => c.Email == email, cancellationToken);
     public async Task<(List<User> Users, int TotalCount)> GetPaginatedAsync(int page, int pageSize, string? filter)
     {
         var query = _context.Users.Include(u => u.Role).Include(u => u.Company).AsQueryable();
@@ -38,4 +38,7 @@ public class UserRepository(ApplicationDbContext context) : IUserRepository
 
         return (users, totalCount);
     }
+
+    public async Task<bool> HasUploadedDocumentsAsync(UserId userId, CancellationToken cancellationToken = default)
+        => await _context.DocumentFiles.AnyAsync(d => EF.Property<UserId>(d, "UploadedById").Equals(userId), cancellationToken);
 }
