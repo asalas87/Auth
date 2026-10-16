@@ -154,54 +154,63 @@ jobs:
                   "ApiId": "${{ steps.obs_register.outputs.app_id }}",
                   "ApiKey": "${{ steps.obs_apikey.outputs.api_key }}"
               },
+              "MediatR": {
+                  "LicenseKey": "${{ secrets.MEDIATR_LICENSE_KEY }}"
+              },
+              "Seed": {
+                  "AdminEmail": "${{ vars.SEED_ADMIN_EMAIL }}",
+                  "AdminPassword": "${{ secrets.SEED_ADMIN_PASSWORD }}",
+                  "CompanyName": "${{ vars.SEED_COMPANY_NAME }}",
+                  "CompanyCuit": "${{ vars.SEED_COMPANY_CUIT }}"
+              },
               "Security": {
                 "RateLimiting": {
-                "Actions": {
-                "login": {
-                "Mode": "FailureTracking",
-                "MaxAttempts": 6,
-                "TimeWindowMinutes": 15,
-                "BlockDurationMinutes": 15,
-                "CaptchaRequiredAttempts": 3,
-                "ResetOnSuccess": true
-                },
-                "register": {
-                "Mode": "FailureTracking",
-                "MaxAttempts": 3,
-                "TimeWindowMinutes": 15,
-                "BlockDurationMinutes": 15,
-                "CaptchaAlwaysRequired": true,
-                "ResetOnSuccess": false
-                },
-                "forgot-password": {
-                "Mode": "FailureTracking",
-                "MaxAttempts": 3,
-                "TimeWindowMinutes": 15,
-                "BlockDurationMinutes": 15,
-                "CaptchaAlwaysRequired": true,
-                "ResetOnSuccess": false
-                },
-                "reset-password": {
-                "Mode": "FailureTracking",
-                "MaxAttempts": 3,
-                "TimeWindowMinutes": 15,
-                "BlockDurationMinutes": 15,
-                "CaptchaAlwaysRequired": true,
-                "ResetOnSuccess": false
-                },
-                "user-report": {
-                "Mode": "RateLimit",
-                "MaxAttempts": 5,
-                "TimeWindowMinutes": 15,
-                "BlockDurationMinutes": 15
-                }
-                }
-                },
-                  "Turnstile": {
-                      "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
-                      "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
-                      "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+                  "Actions": {
+                    "login": {
+                      "Mode": "FailureTracking",
+                      "MaxAttempts": 6,
+                      "TimeWindowMinutes": 15,
+                      "BlockDurationMinutes": 15,
+                      "CaptchaRequiredAttempts": 3,
+                      "ResetOnSuccess": true
+                    },
+                    "register": {
+                      "Mode": "FailureTracking",
+                      "MaxAttempts": 3,
+                      "TimeWindowMinutes": 15,
+                      "BlockDurationMinutes": 15,
+                      "CaptchaAlwaysRequired": true,
+                      "ResetOnSuccess": false
+                    },
+                    "forgot-password": {
+                      "Mode": "FailureTracking",
+                      "MaxAttempts": 3,
+                      "TimeWindowMinutes": 15,
+                      "BlockDurationMinutes": 15,
+                      "CaptchaAlwaysRequired": true,
+                      "ResetOnSuccess": false
+                    },
+                    "reset-password": {
+                      "Mode": "FailureTracking",
+                      "MaxAttempts": 3,
+                      "TimeWindowMinutes": 15,
+                      "BlockDurationMinutes": 15,
+                      "CaptchaAlwaysRequired": true,
+                      "ResetOnSuccess": false
+                    },
+                      "user-report": {
+                      "Mode": "RateLimit",
+                      "MaxAttempts": 5,
+                      "TimeWindowMinutes": 15,
+                      "BlockDurationMinutes": 15
+                      }
                   }
+                },
+                "Turnstile": {
+                    "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
+                    "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
+                    "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+                }
               }
             }
           EOL

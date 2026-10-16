@@ -10,22 +10,30 @@ using Application.UserReports;
 using FluentValidation;
 using Infrastructure.Security;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
+            System.Console.WriteLine($"[DEBUG] Environment: {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
+            System.Console.WriteLine($"[DEBUG] MediatR section exists: {configuration.GetSection("MediatR").Exists()}");
+            System.Console.WriteLine($"[DEBUG] MediatR:LicenseKey is null: {configuration["MediatR:LicenseKey"] is null}");
+            System.Console.WriteLine($"[DEBUG] Security:MediatR:LicenseKey is null: {configuration["Security:MediatR:LicenseKey"] is null}");
+
             services.AddMediatR(config =>
             {
+                config.LicenseKey = configuration["MediatR:LicenseKey"];
                 config.RegisterServicesFromAssemblyContaining<ApplicationAssembllyReference>();
             });
 
             services.AddScoped(typeof(IPipelineBehavior<,>) , typeof(ValidationBehavior<,>));
             services.AddAutoMapper(cfg =>
             {
+                cfg.LicenseKey = configuration["MediatR:LicenseKey"];
                 cfg.AddMaps(typeof(ApplicationAssembllyReference).Assembly);
             });
 
