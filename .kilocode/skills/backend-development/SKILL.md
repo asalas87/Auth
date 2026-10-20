@@ -407,6 +407,48 @@ The daily hosted `NotificationsJob` is the current notification mechanism. Do no
 
 `UserCreatedEventHandler` is currently relevant and handles the user-creation notification email. Before modifying it, trace the entity/domain-event creation, event publication, handler, persistence, and email flow. Do not assume the domain-event lifecycle is complete without verifying it in code.
 
+## Logging
+
+Serilog is configured in `Program.cs` with a two-phase bootstrap pattern to guarantee that errors are logged even during application startup.
+
+### Architecture
+
+    Program.cs start
+      -> Directory.CreateDirectory(logDirectory)
+      -> SelfLog.Enable(...)              // Serilog internal errors to stderr
+      -> Log.Logger = CreateBootstrapLogger()
+         -> Console sink
+         -> File sink (Logs/bootstrap-.log)
+      -> builder = WebApplication.CreateBuilder()
+      -> builder.Host.UseSerilog(...)     // Full logger with config
+         -> Console sink
+         -> File sink (Logs/log-.log)
+      -> app.RunAsync()
+      -> catch: Log.Fatal(...)
+      -> finally: await Log.CloseAndFlushAsync()
+
+### Rules
+
+- **Log directory**: `Path.Combine(AppContext.BaseDirectory, "Logs")`. Never use relative paths. IIS in-process changes the working directory to `System32\inetsrv`, and relative paths would write there (or fail silently).
+- **SelfLog.Enable** at process start. Internal Serilog errors go to `stderr`, visible in `Logs/stdout-*.log` via IISNode's `stdoutLogEnabled="true"`.
+- **Bootstrap logger** before `builder.Build()`. Captures logs during configuration, DI setup, and early startup failures.
+- **Two file sinks**: `bootstrap-.log` (7-day retention) and `log-.log` (30-day retention).
+- **Console sink** in both phases. Fallback for when File sink fails (e.g., permissions).
+- **`await Log.CloseAndFlushAsync()`** in the `finally` block. Ensures logs are flushed even on unexpected termination.
+
+### Plesk considerations
+
+- The `Logs/` directory must have **write** permission for the app pool group (`IWPG_<user>`).
+- `web.config` must have `stdoutLogEnabled="true"` and `stdoutLogFile=".\Logs\stdout"`.
+- Never commit the `Logs/` folder. It is generated at runtime.
+
+### Do NOT
+
+- Do not configure Serilog only after `builder.Build()`.
+- Do not use relative paths for the log file.
+- Do not remove `SelfLog.Enable`.
+- Do not use `Log.CloseAndFlush()` (sync). Use `await Log.CloseAndFlushAsync()`.
+
 ## Observability Integration
 
 The API reports unhandled exceptions to an external Observability Platform (ObsPlatform) via HTTP.

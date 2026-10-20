@@ -10,22 +10,25 @@ using Application.UserReports;
 using FluentValidation;
 using Infrastructure.Security;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddMediatR(config =>
             {
+                config.LicenseKey = configuration["MediatR:LicenseKey"];
                 config.RegisterServicesFromAssemblyContaining<ApplicationAssembllyReference>();
             });
 
             services.AddScoped(typeof(IPipelineBehavior<,>) , typeof(ValidationBehavior<,>));
             services.AddAutoMapper(cfg =>
             {
+                cfg.LicenseKey = configuration["MediatR:LicenseKey"];
                 cfg.AddMaps(typeof(ApplicationAssembllyReference).Assembly);
             });
 

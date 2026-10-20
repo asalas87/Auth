@@ -1,108 +1,42 @@
 using System.IdentityModel.Tokens.Jwt;
 using Application;
 using Infrastructure;
-using Infrastructure.Persistence.Extensions;
 using Serilog;
-using Serilog.Debugging;
 using Web.Api.Jobs;
 using Web.API;
 using Web.API.Extensions;
-using Web.API.Middlewares;
-
-var logDirectory = Path.Combine(AppContext.BaseDirectory, "Logs");
-Directory.CreateDirectory(logDirectory);
-
-SelfLog.Enable(msg => Console.Error.WriteLine($"[SERILOG] {msg}"));
-
-Log.Logger = new LoggerConfiguration()
-.MinimumLevel.Information()
-.Enrich.FromLogContext()
-.WriteTo.Console()
-.WriteTo.File(
-Path.Combine(logDirectory, "bootstrap-.log"),
-rollingInterval: RollingInterval.Day,
-retainedFileCountLimit: 7,
-shared: true)
-.CreateBootstrapLogger();
 
 try
 {
-    Log.Information("Starting application");
-
     var options = new WebApplicationOptions { WebRootPath = "wwwroot" };
     var builder = WebApplication.CreateBuilder(options);
 
     builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddEnvironmentVariables();
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+        .AddEnvironmentVariables();
 
-    builder.Host.UseSerilog((context, services, configuration) =>
-    {
-        configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File(
-    Path.Combine(logDirectory, "log-.log"),
-    rollingInterval: RollingInterval.Day,
-    retainedFileCountLimit: 30,
-    shared: true);
-    });
+    builder.AddSerilogLogging();
 
     JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
     builder.Services
-    .AddPresentation()
-    .AddInfrastructure(builder.Configuration)
-    .AddSecurityServices(builder.Configuration)
-    .AddApplication()
-    .AddCorsPolicy(builder.Configuration)
-    .AddJwtAuthentication(builder.Configuration)
-    .AddDataProtectionKeys(builder.Configuration)
-    .AddInvalidModelStateMiddlewares()
-    .AddHostedService<NotificationsJob>();
+        .AddPresentation()
+        .AddInfrastructure(builder.Configuration)
+        .AddSecurityServices(builder.Configuration)
+        .AddApplication(builder.Configuration)
+        .AddCorsPolicy(builder.Configuration)
+        .AddJwtAuthentication(builder.Configuration)
+        .AddDataProtectionKeys(builder.Configuration)
+        .AddInvalidModelStateMiddlewares()
+        .AddHostedService<NotificationsJob>();
 
     var app = builder.Build();
 
     app.UseSerilogRequestLogging();
-
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-
-    var configuration = app.Services.GetRequiredService<IConfiguration>();
-    bool applyMigrations = configuration.GetValue<bool>("Database:ApplyMigrations");
-
-    if (applyMigrations)
-    {
-        app.ApplyMigrations();
-    }
-
-    app.EnsureSchemas();
-    app.SeedData();
-
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
-    app.UseExceptionHandler();
-    app.UseRouting();
-    app.UseCors("AllowReactApp");
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    app.MapControllers();
-    app.MapGet("/health", () => Results.Ok("Healthy"));
-    app.MapGet("/version", () =>
-    {
-        var version = typeof(Program).Assembly.GetName().Version?.ToString();
-        return Results.Ok(new { version, environment = app.Environment.EnvironmentName });
-    });
-
-    Log.Information("Application started successfully");
+    app.ConfigurePipeline();
+    app.ApplyDatabaseSetup();
 
     await app.RunAsync();
 }
