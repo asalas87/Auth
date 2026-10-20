@@ -1,4 +1,4 @@
-name: ­ƒÜÇ Deploy to Staging
+name: Deploy to Staging
 
 on:
   push:
@@ -19,91 +19,95 @@ jobs:
       OBS_ADMIN_EMAIL: ${{ vars.OBS_ADMIN_EMAIL }}
 
     steps:
-      - name: ­ƒº¥ Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: ­ƒº░ Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
 
-      # =============================================
-      # ­ƒöù Integraci├│n con Observability Platform
-      # =============================================
+      # Observability integration
 
-      # 1´©ÅÔâú Login en Observability
-      - name: ­ƒöÉ Login to Observability
+      - name: Login to Observability
         id: obs_login
         run: |
-          echo "­ƒöÉ Logging in to Observability Platform..."
-          LOGIN_RESPONSE=$(curl -s -X POST ${{ env.OBS_URL }}/api/v1/auth/login \
+          echo "Logging in to Observability Platform..."
+          LOGIN_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -A "DMS-CICD/1.0" -X POST ${{ env.OBS_URL }}/api/v1/auth/login \
             -H "Content-Type: application/json" \
             -d "{\"email\": \"${{ env.OBS_ADMIN_EMAIL }}\", \"password\": \"${{ secrets.OBS_ADMIN_PASSWORD }}\"}")
 
-          TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.accessToken')
-          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-            echo "ÔØî Login failed. Response: $LOGIN_RESPONSE"
+          HTTP_CODE=$(echo "$LOGIN_RESPONSE" | grep -o "HTTP_STATUS:[0-9]*" | cut -d: -f2)
+          BODY=$(echo "$LOGIN_RESPONSE" | sed '/HTTP_STATUS:/d')
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response Body: [$BODY]"
+
+          if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ]; then
+            echo "Login failed with HTTP $HTTP_CODE"
             exit 1
           fi
-          echo "Ô£à Login successful"
+
+          TOKEN=$(echo "$BODY" | jq -r '.accessToken')
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Login failed. No accessToken in response"
+            exit 1
+          fi
+          echo "Login successful"
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
-      # 2´©ÅÔâú Registrar aplicaci├│n si no existe
-      - name: ­ƒôØ Register application in Observability
+      - name: Register application in Observability
         id: obs_register
         run: |
           TOKEN="${{ steps.obs_login.outputs.token }}"
 
-          echo "­ƒöì Looking for application '${{ env.OBS_APP_NAME }}'..."
-          APPS_RESPONSE=$(curl -s -X GET ${{ env.OBS_URL }}/api/v1/applications \
+          echo "Looking for application '${{ env.OBS_APP_NAME }}'..."
+          APPS_RESPONSE=$(curl -s -A "DMS-CICD/1.0" -X GET ${{ env.OBS_URL }}/api/v1/applications \
             -H "Authorization: Bearer $TOKEN")
 
-          # Filtro robusto: maneja tanto array directo como {data: [...]}
           APP_ID=$(echo "$APPS_RESPONSE" | jq -r --arg name "${{ env.OBS_APP_NAME }}" \
             'if type == "array" then .[] else .data[] end | select(.name==$name) | .id' | head -n 1)
 
           if [ -z "$APP_ID" ] || [ "$APP_ID" = "null" ]; then
-            echo "­ƒôØ Application not found. Creating..."
-            CREATE_RESPONSE=$(curl -s -X POST ${{ env.OBS_URL }}/api/v1/applications \
+            echo "Application not found. Creating..."
+            CREATE_RESPONSE=$(curl -s -A "DMS-CICD/1.0" -X POST ${{ env.OBS_URL }}/api/v1/applications \
               -H "Authorization: Bearer $TOKEN" \
               -H "Content-Type: application/json" \
               -d "{\"name\": \"${{ env.OBS_APP_NAME }}\", \"description\": \"DMS API - Backend .NET\", \"platform\": \"BACKEND\"}")
 
             APP_ID=$(echo "$CREATE_RESPONSE" | jq -r '.id')
             if [ -z "$APP_ID" ] || [ "$APP_ID" = "null" ]; then
-              echo "ÔØî Failed to create application. Response: $CREATE_RESPONSE"
+              echo "Failed to create application. Response: $CREATE_RESPONSE"
               exit 1
             fi
-            echo "Ô£à Application created: $APP_ID"
+            echo "Application created: $APP_ID"
           else
-            echo "Ô£à Application already exists: $APP_ID"
+            echo "Application already exists: $APP_ID"
           fi
 
           echo "app_id=$APP_ID" >> $GITHUB_OUTPUT
 
-      # 3´©ÅÔâú Generar API key
-      - name: ­ƒöæ Generate API key
+      - name: Generate API key
         id: obs_apikey
         run: |
           TOKEN="${{ steps.obs_login.outputs.token }}"
           APP_ID="${{ steps.obs_register.outputs.app_id }}"
 
-          echo "­ƒöæ Generating API key..."
-          API_KEY_RESPONSE=$(curl -s -X POST ${{ env.OBS_URL }}/api/v1/applications/$APP_ID/apikeys \
+          echo "Generating API key..."
+          API_KEY_RESPONSE=$(curl -s -A "DMS-CICD/1.0" -X POST ${{ env.OBS_URL }}/api/v1/applications/$APP_ID/apikeys \
             -H "Authorization: Bearer $TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"permissions": ["READ", "WRITE"], "expiresAt": "2027-12-31T23:59:59Z"}')
 
           API_KEY=$(echo "$API_KEY_RESPONSE" | jq -r '.key')
           if [ -z "$API_KEY" ] || [ "$API_KEY" = "null" ]; then
-            echo "ÔØî Failed to generate API key. Response: $API_KEY_RESPONSE"
+            echo "Failed to generate API key. Response: $API_KEY_RESPONSE"
             exit 1
           fi
-          echo "Ô£à API Key generated: ${API_KEY:0:20}..."
+          echo "API Key generated: ${API_KEY:0:20}..."
 
           echo "api_key=$API_KEY" >> $GITHUB_OUTPUT
 
-      # 4´©ÅÔâú Generar appsettings.json (AHORA incluye Observability)
       - name: Generate appsettings.json
         run: |
           cat > ./backend/Web.API/appsettings.${{ env.ASPNETCORE_ENVIRONMENT }}.json <<EOL
@@ -198,40 +202,37 @@ jobs:
                       "CaptchaAlwaysRequired": true,
                       "ResetOnSuccess": false
                     },
-                      "user-report": {
+                    "user-report": {
                       "Mode": "RateLimit",
                       "MaxAttempts": 5,
                       "TimeWindowMinutes": 15,
                       "BlockDurationMinutes": 15
-                      }
+                    }
                   }
                 },
                 "Turnstile": {
-                    "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
-                    "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
-                    "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+                  "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
+                  "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
+                  "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
                 }
               }
             }
           EOL
 
-      # ­ƒôª Publicar backend
       - name: Publish backend
         run: dotnet publish ./backend/Web.API/Web.API.csproj -c Release -o ./publish/backend
 
-      # Crear carpetas necesarias antes del deploy
       - name: Ensure required directories exist
         run: |
-          echo "­ƒôü Creating directories..."
+          echo "Creating directories..."
           mkdir -p ./publish/backend/DataProtectionKeys
           mkdir -p ./publish/backend/wwwroot
           mkdir -p ./publish/backend/Logs
           chmod -R 777 ./publish/backend/DataProtectionKeys
           chmod -R 777 ./publish/backend/wwwroot
           chmod -R 777 ./publish/backend/Logs
-          echo "Ô£à Directories ready."
+          echo "Directories ready."
 
-      # ÔÜÖ´©Å Build frontend
       - name: Build frontend
         run: |
           echo "VITE_API_URL=https://${{ env.API_HOST }}/" > ./frontend/.env
@@ -240,13 +241,11 @@ jobs:
           npm install
           npm run build
 
-      # ­ƒôª Crear ZIPs (opcional, si los usas)
       - name: Create deployment ZIPs
         run: |
           cd publish/backend && zip -r ../backend.zip .
           cd ../../frontend/dist && zip -r ../../publish/frontend.zip .
 
-      # ­ƒÜÇ Deploy backend
       - name: Deploy backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -262,7 +261,6 @@ jobs:
           dangerous-clean-slate: false
           retry: 3
 
-      # ­ƒÜÇ Deploy frontend
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -278,16 +276,15 @@ jobs:
           dangerous-clean-slate: false
           retry: 3
 
-      # 5´©ÅÔâú Notificar release
-      - name: ­ƒÅÀ´©Å Notify release to Observability
+      - name: Notify release to Observability
         run: |
           APP_ID="${{ steps.obs_register.outputs.app_id }}"
           API_KEY="${{ steps.obs_apikey.outputs.api_key }}"
           VERSION="${{ github.ref_name }}-${{ github.sha }}"
           VERSION="${VERSION:0:40}"
 
-          echo "­ƒôó Notifying release to Observability Platform..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+          echo "Notifying release to Observability Platform..."
+          HTTP_CODE=$(curl -s -A "DMS-CICD/1.0" -o /dev/null -w "%{http_code}" \
             -X POST ${{ env.OBS_URL }}/api/v1/$APP_ID/releases \
             -H "X-API-Key: $API_KEY" \
             -H "Content-Type: application/json" \
@@ -298,9 +295,9 @@ jobs:
             }")
 
           if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "200" ]; then
-            echo "Ô£à Release notified successfully"
+            echo "Release notified successfully"
           elif [ "$HTTP_CODE" = "404" ]; then
-            echo "ÔÜá´©Å Release endpoint not yet implemented (404). Skipping."
+            echo "Release endpoint not yet implemented (404). Skipping."
           else
-            echo "ÔÜá´©Å Unexpected response: $HTTP_CODE"
+            echo "Unexpected response: $HTTP_CODE"
           fi
