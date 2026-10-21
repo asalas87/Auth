@@ -28,12 +28,12 @@ jobs:
           dotnet-version: 10.0.x
 
       # Observability integration
-
-      - name: Login to Observability
+      - name: 🔐 Login to Observability
         id: obs_login
         run: |
-          echo "Logging in to Observability Platform..."
-          LOGIN_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -A "DMS-CICD/1.0" -X POST ${{ env.OBS_URL }}/api/v1/auth/login \
+          echo "🔐 Logging in to Observability Platform..."
+          LOGIN_RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -A "DMS-CICD/1.0" \
+            -X POST ${{ env.OBS_URL }}/api/v1/auth/login \
             -H "Content-Type: application/json" \
             -d "{\"email\": \"${{ env.OBS_ADMIN_EMAIL }}\", \"password\": \"${{ secrets.OBS_ADMIN_PASSWORD }}\"}")
 
@@ -44,16 +44,16 @@ jobs:
           echo "Response Body: [$BODY]"
 
           if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "201" ]; then
-            echo "Login failed with HTTP $HTTP_CODE"
+            echo "❌ Login failed with HTTP $HTTP_CODE"
             exit 1
           fi
 
           TOKEN=$(echo "$BODY" | jq -r '.accessToken')
           if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-            echo "Login failed. No accessToken in response"
+            echo "❌ Login failed. No accessToken in response"
             exit 1
           fi
-          echo "Login successful"
+          echo "✅ Login successful"
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
       - name: Register application in Observability
