@@ -1,17 +1,17 @@
-name: 🚀 Deploy to Production
+name: 🚀 Deploy to Staging
 
 on:
   push:
     branches:
-      - main
+      - staging
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: 'production'
+    environment: 'staging'
 
     env:
-      ASPNETCORE_ENVIRONMENT: 'Production'
+      ASPNETCORE_ENVIRONMENT: 'Staging'
       API_HOST: ${{ vars.API_HOST }}
       APP_HOST: ${{ vars.APP_HOST }}
       OBS_URL: ${{ vars.OBS_URL }}
@@ -54,6 +54,7 @@ jobs:
           echo "🔍 Looking for application '${{ env.OBS_APP_NAME }}'..."
           APPS_RESPONSE=$(curl -s -X GET ${{ env.OBS_URL }}/api/v1/applications \
             -H "Authorization: Bearer $TOKEN")
+          # Filtro robusto: maneja tanto array directo como {data: [...]}
           APP_ID=$(echo "$APPS_RESPONSE" | jq -r --arg name "${{ env.OBS_APP_NAME }}" \
             'if type == "array" then .[] else .data[] end | select(.name==$name) | .id' | head -n 1)
           if [ -z "$APP_ID" ] || [ "$APP_ID" = "null" ]; then
@@ -90,7 +91,7 @@ jobs:
           fi
           echo "✅ API Key generated: ${API_KEY:0:20}..."
           echo "api_key=$API_KEY" >> $GITHUB_OUTPUT
-      # 4️⃣ Generar appsettings.json
+      # 4️⃣ Generar appsettings.json (AHORA incluye Observability)
       - name: Generate appsettings.json
         run: |
           cat > ./backend/Web.API/appsettings.${{ env.ASPNETCORE_ENVIRONMENT }}.json <<EOL
@@ -141,63 +142,54 @@ jobs:
                   "ApiId": "${{ steps.obs_register.outputs.app_id }}",
                   "ApiKey": "${{ steps.obs_apikey.outputs.api_key }}"
               },
-              "MediatR": {
-                  "LicenseKey": "${{ secrets.MEDIATR_LICENSE_KEY }}"
-              },
-              "Seed": {
-                  "AdminEmail": "${{ vars.SEED__ADMINEMAIL }}",
-                  "AdminPassword": "${{ secrets.SEED__ADMINPASSWORD }}",
-                  "CompanyName": "${{ vars.SEED__COMPANYNAME }}",
-                  "CompanyCuit": "${{ vars.SEED__COMPANYCUIT }}"
-              },
               "Security": {
                 "RateLimiting": {
-                  "Actions": {
-                    "login": {
-                      "Mode": "FailureTracking",
-                      "MaxAttempts": 6,
-                      "TimeWindowMinutes": 15,
-                      "BlockDurationMinutes": 15,
-                      "CaptchaRequiredAttempts": 3,
-                      "ResetOnSuccess": true
-                    },
-                      "register": {
-                      "Mode": "FailureTracking",
-                      "MaxAttempts": 3,
-                      "TimeWindowMinutes": 15,
-                      "BlockDurationMinutes": 15,
-                      "CaptchaAlwaysRequired": true,
-                      "ResetOnSuccess": false
-                    },
-                      "forgot-password": {
-                      "Mode": "FailureTracking",
-                      "MaxAttempts": 3,
-                      "TimeWindowMinutes": 15,
-                      "BlockDurationMinutes": 15,
-                      "CaptchaAlwaysRequired": true,
-                      "ResetOnSuccess": false
-                    },
-                      "reset-password": {
-                      "Mode": "FailureTracking",
-                      "MaxAttempts": 3,
-                      "TimeWindowMinutes": 15,
-                      "BlockDurationMinutes": 15,
-                      "CaptchaAlwaysRequired": true,
-                      "ResetOnSuccess": false
-                    },
-                      "user-report": {
-                      "Mode": "RateLimit",
-                      "MaxAttempts": 5,
-                      "TimeWindowMinutes": 15,
-                      "BlockDurationMinutes": 15
-                    }
-                  }
+                "Actions": {
+                "login": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 6,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaRequiredAttempts": 3,
+                "ResetOnSuccess": true
                 },
-                "Turnstile": {
-                    "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
-                    "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
-                    "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+                "register": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 3,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaAlwaysRequired": true,
+                "ResetOnSuccess": false
+                },
+                "forgot-password": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 3,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaAlwaysRequired": true,
+                "ResetOnSuccess": false
+                },
+                "reset-password": {
+                "Mode": "FailureTracking",
+                "MaxAttempts": 3,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15,
+                "CaptchaAlwaysRequired": true,
+                "ResetOnSuccess": false
+                },
+                "user-report": {
+                "Mode": "RateLimit",
+                "MaxAttempts": 5,
+                "TimeWindowMinutes": 15,
+                "BlockDurationMinutes": 15
                 }
+                }
+                },
+                  "Turnstile": {
+                      "SiteKey": "${{ vars.TURNSTILE_SITE_KEY }}",
+                      "SecretKey": "${{ secrets.TURNSTILE_SECRET_KEY }}",
+                      "VerifyUrl": "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+                  }
               }
             }
           EOL
@@ -224,7 +216,7 @@ jobs:
           cd frontend
           npm install
           npm run build
-      # 📦 Crear ZIPs
+      # 📦 Crear ZIPs (opcional, si los usas)
       - name: Create deployment ZIPs
         run: |
           cd publish/backend && zip -r ../backend.zip .
